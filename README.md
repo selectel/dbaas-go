@@ -1,0 +1,113 @@
+# dbaas-go: Go SDK for Selectel DBaaS
+
+Package dbaas-go provides Go SDK to work with Selectel DBaaS
+
+## Documentation
+
+In progress.
+
+## What this library is capable of
+
+In progress.
+
+## Getting started
+
+### Endpoints
+
+Selectel Managed Databases Service currently has the following API endpoint:
+
+| URL                               | Region |
+|-----------------------------------|--------|
+| https://ru-1.dbaas.selcloud.ru/v1 | ru-1   |
+| https://ru-2.dbaas.selcloud.ru/v1 | ru-2   |
+| https://ru-3.dbaas.selcloud.ru/v1 | ru-3   |
+| https://ru-7.dbaas.selcloud.ru/v1 | ru-7   |
+| https://ru-8.dbaas.selcloud.ru/v1 | ru-8   |
+| https://ru-9.dbaas.selcloud.ru/v1 | ru-9   |
+
+You can also retrieve all available API endpoints from the Identity
+catalog.
+
+### Usage example
+
+```go
+package main
+
+import (
+    "context"
+    "log"
+
+    "github.com/gophercloud/gophercloud"
+    "github.com/gophercloud/gophercloud/openstack"
+    "github.com/gophercloud/gophercloud/openstack/networking/v2/subnets"
+    "github.com/selectel/dbaas-go"
+)
+
+func main() {
+    // Token to work with Selectel Cloud project.
+    token := "TOKEN"
+
+    // DBaaS endpoint to work with.
+    endpoint := "https://ru-1.dbaas.selcloud.ru/v1"
+
+    // Initialize the DBaaS v1 client.
+    dbaasClient, err := dbaas.NewDBaaSClient(token, endpoint)
+
+    // Prepare empty context.
+    ctx := context.Background()
+
+    // Get available datastore types.
+    datastoreTypes, err := dbaasClient.DatastoreTypes(ctx)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // Auth options for openstack to get all subnets.
+    devopts := gophercloud.AuthOptions{
+        IdentityEndpoint: "https://api.waxwing.os.selectel.org/identity/v3",
+        TokenID:          devToken,
+    }
+
+    provider, err := openstack.AuthenticatedClient(devopts)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // Create a new network client.
+    networkClient, err := openstack.NewNetworkV2(provider, gophercloud.EndpointOpts{Region: "ru-1"})
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // Get a list of available subnets.
+    listOpts := subnets.ListOpts{
+        IPVersion: 4,
+    }
+    allPages, err := subnets.List(networkClient, listOpts).AllPages()
+    if err != nil {
+        log.Fatal(err)
+    }
+    allSubnets, err := subnets.ExtractSubnets(allPages)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // Create options for a new datastore.
+    datastoreCreateOpts := dbaas.DatastoreCreateOpts{
+        Name:      "go_cluster",
+        TypeID:    datastoreTypes[0].ID,
+        NodeCount: 1,
+        SubnetID:  allSubnets[0].ID,
+        Flavor:    &dbaas.Flavor{Vcpus: 2, RAM: 2048, Disk: 32},
+    }
+
+    // Create a new datastore.
+    newDatastore, err := dbaasClient.CreateDatastore(ctx, createOpts)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // Print datastores fields.
+    fmt.Printf("Created datastore: %+v\n", newDatastore)
+}
+```
