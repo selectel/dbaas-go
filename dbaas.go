@@ -1,4 +1,4 @@
-// Package dbass implements the Selectel DBaaS v1 API
+// Package dbaas implements the Selectel DBaaS v1 API
 package dbaas
 
 import (
@@ -50,7 +50,7 @@ type API struct {
 	UserAgent  string
 }
 
-// NewDAAASClient initializes a new DBaaS client for the V1 API.
+// NewDBAASClient initializes a new DBaaS client for the V1 API.
 func NewDBAASClient(token, endpoint string) (*API, error) {
 	return &API{
 		HTTPClient: http.DefaultClient,

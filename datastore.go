@@ -33,13 +33,13 @@ type Restore struct {
 	TargetTime  string `json:"target_time,omitempty"`
 }
 
-// Restore represents pooler parameters for datastore.
+// Pooler represents pooler parameters for datastore.
 type Pooler struct {
 	Mode string `json:"mode,omitempty"`
 	Size int    `json:"size,omitempty"`
 }
 
-// Restore represents firewall rules parameters for datastore.
+// Firewall represents firewall rules parameters for datastore.
 type Firewall struct {
 	IP string `json:"ip"`
 }
