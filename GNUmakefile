@@ -1,8 +1,11 @@
 default: tests
 
-tests: unittest
+tests: golangci-lint unittest
 
 unittest:
 	go test ./...
 
-.PHONY: tests unittest
+golangci-lint:
+	golangci-lint run ./...
+
+.PHONY: tests unittest golangci-lint
