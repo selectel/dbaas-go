@@ -49,7 +49,7 @@ func (api *API) User(ctx context.Context, userID string) (User, error) {
 	return result.User, nil
 }
 
-// User returns all users.
+// Users returns all users.
 func (api *API) Users(ctx context.Context) ([]User, error) {
 	uri := "/users"
 

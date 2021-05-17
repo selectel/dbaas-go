@@ -1,4 +1,7 @@
 # dbaas-go: Go SDK for Selectel DBaaS
+[![Go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/selectel/dbaas-go/)
+[![Go Report Card](https://goreportcard.com/badge/github.com/selectel/dbaas-go)](https://goreportcard.com/report/github.com/selectel/dbaas-go)
+[![Build Status](https://travis-ci.com/selectel/dbaas-go.svg?branch=master)](https://travis-ci.com/selectel/dbaas-go)
 
 Package dbaas-go provides Go SDK to work with Selectel DBaaS
 
