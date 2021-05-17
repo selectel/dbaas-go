@@ -4,13 +4,38 @@ Package dbaas-go provides Go SDK to work with Selectel DBaaS
 
 ## Documentation
 
-In progress.
+The Go library documentation is available at [go.dev](https://pkg.go.dev/github.com/selectel/dbaas-go).
 
 ## What this library is capable of
 
-In progress.
+You can use this library to work with the following objects of the Selectel Managed Databases Service:
+
+* datastore
+* database
+* user
+* grant
+* datastore type
+* flavor
+* extension
+* available extension
 
 ## Getting started
+
+### Instalation
+
+You can install `dbaas-go` package via `go get` command:
+
+```bash
+go get github.com/selectel/dbaas-go
+```
+
+### Authentication
+
+To work with the Selectel Managed Databases Service API you first need to:
+
+* Create a Selectel account: [registration page](https://my.selectel.ru/registration).
+* Create a project in Selectel Cloud Platform [projects](https://my.selectel.ru/vpc/projects).
+* Retrieve a token for your project via API or [go-selvpcclient](https://github.com/selectel/go-selvpcclient).
 
 ### Endpoints
 
@@ -64,7 +89,7 @@ func main() {
 
     // Auth options for openstack to get all subnets.
     devopts := gophercloud.AuthOptions{
-        IdentityEndpoint: "https://api.waxwing.os.selectel.org/identity/v3",
+        IdentityEndpoint: "<endpoint>",
         TokenID:          devToken,
     }
 
