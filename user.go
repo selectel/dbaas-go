@@ -21,12 +21,13 @@ type UserUpdateOpts struct {
 
 // User is the API response for the users.
 type User struct {
-	ID        string `json:"id"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-	ProjectID string `json:"project_id"`
-	Name      string `json:"name"`
-	Status    Status `json:"status"`
+	ID          string `json:"id"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
+	ProjectID   string `json:"project_id"`
+	DatastoreID string `json:"datastore_id"`
+	Name        string `json:"name"`
+	Status      Status `json:"status"`
 }
 
 // User returns a user based on the ID.
