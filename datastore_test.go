@@ -89,7 +89,8 @@ const testDatastoresResponse = `{
 				{
 					"ip": "127.0.0.1"
 				}
-			]
+			],
+			"config": {}
 		},
 		{
 			"id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
@@ -132,7 +133,8 @@ const testDatastoresResponse = `{
 				{
 					"ip": "127.0.0.1"
 				}
-			]
+			],
+			"config": {}
 		}
 	]
 }
@@ -174,7 +176,8 @@ const testDatastoreResponse = `{
 			{
 				"ip": "127.0.0.1"
 			}
-		]
+		],
+		"config": {}
 	}
 }`
 
@@ -213,6 +216,7 @@ var datastoreListExpected []Datastore = []Datastore{ //nolint
 		Firewall: []Firewall{{
 			IP: "127.0.0.1",
 		}},
+		Config: map[string]interface{}{},
 	},
 	{
 		ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
@@ -254,6 +258,7 @@ var datastoreListExpected []Datastore = []Datastore{ //nolint
 		Firewall: []Firewall{{
 			IP: "127.0.0.1",
 		}},
+		Config: map[string]interface{}{},
 	},
 }
 
@@ -287,6 +292,7 @@ var datastoreCreateResponse Datastore = Datastore{ //nolint
 		Mode: "session",
 	},
 	Firewall: []Firewall{},
+	Config:   map[string]interface{}{},
 }
 
 var datastoreCreateExpected Datastore = Datastore{ //nolint
@@ -319,6 +325,7 @@ var datastoreCreateExpected Datastore = Datastore{ //nolint
 		Mode: "session",
 	},
 	Firewall: []Firewall{},
+	Config:   map[string]interface{}{},
 }
 
 var datastoreUpdateResponse Datastore = Datastore{ //nolint
@@ -351,6 +358,7 @@ var datastoreUpdateResponse Datastore = Datastore{ //nolint
 		Mode: "session",
 	},
 	Firewall: []Firewall{},
+	Config:   map[string]interface{}{},
 }
 
 var datastoreUpdateExpected Datastore = Datastore{ //nolint
@@ -383,6 +391,7 @@ var datastoreUpdateExpected Datastore = Datastore{ //nolint
 		Mode: "session",
 	},
 	Firewall: []Firewall{},
+	Config:   map[string]interface{}{},
 }
 
 var datastoreResizeResponse Datastore = Datastore{ //nolint
@@ -415,6 +424,7 @@ var datastoreResizeResponse Datastore = Datastore{ //nolint
 		Mode: "session",
 	},
 	Firewall: []Firewall{},
+	Config:   map[string]interface{}{},
 }
 
 var datastoreResizeExpected Datastore = Datastore{ //nolint
@@ -447,6 +457,79 @@ var datastoreResizeExpected Datastore = Datastore{ //nolint
 		Mode: "session",
 	},
 	Firewall: []Firewall{},
+	Config:   map[string]interface{}{},
+}
+
+var datastoreUpdateConfigResponse Datastore = Datastore{ //nolint
+	ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	CreatedAt: "1970-01-01T00:00:00",
+	UpdatedAt: "1970-01-01T00:00:00",
+	ProjectID: "123e4567e89b12d3a456426655440000",
+	Name:      "Name",
+	Status:    StatusPendingUpdate,
+	Enabled:   true,
+	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	NodeCount: 1,
+	Connection: Connection{
+		Master: "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+	},
+	Flavor: Flavor{
+		Vcpus: 2,
+		RAM:   2048,
+		Disk:  32,
+	},
+	Instances: []Instances{{
+		IP:       "127.0.0.1",
+		Role:     "MASTER",
+		Status:   "ACTIVE",
+		Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+	}},
+	Pooler: Pooler{
+		Size: 30,
+		Mode: "session",
+	},
+	Firewall: []Firewall{},
+	Config: map[string]interface{}{
+		"work_mem":                 256.0,
+		"session_replication_role": "replica",
+	},
+}
+
+var datastoreUpdateConfigExpected Datastore = Datastore{ //nolint
+	ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	CreatedAt: "1970-01-01T00:00:00",
+	UpdatedAt: "1970-01-01T00:00:00",
+	ProjectID: "123e4567e89b12d3a456426655440000",
+	Name:      "Name",
+	Status:    StatusPendingUpdate,
+	Enabled:   true,
+	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	NodeCount: 1,
+	Connection: Connection{
+		Master: "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+	},
+	Flavor: Flavor{
+		Vcpus: 2,
+		RAM:   2048,
+		Disk:  32,
+	},
+	Instances: []Instances{{
+		IP:       "127.0.0.1",
+		Role:     "MASTER",
+		Status:   "ACTIVE",
+		Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+	}},
+	Pooler: Pooler{
+		Size: 30,
+		Mode: "session",
+	},
+	Firewall: []Firewall{},
+	Config: map[string]interface{}{
+		"work_mem":                 256.0,
+		"session_replication_role": "replica",
+	},
 }
 
 func TestDatastores(t *testing.T) {
@@ -504,6 +587,7 @@ func TestDatastore(t *testing.T) {
 		Firewall: []Firewall{{
 			IP: "127.0.0.1",
 		}},
+		Config: map[string]interface{}{},
 	}
 
 	actual, err := testClient.Datastore(context.Background(), datastoreID)
@@ -789,5 +873,40 @@ func TestFirewallDatastore(t *testing.T) {
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, datastoreUpdateExpected, actual)
+	}
+}
+
+func TestConfigDatastore(t *testing.T) {
+	httpmock.Activate()
+	testClient := SetupTestClient()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/datastores/"+datastoreID+"/config",
+		func(req *http.Request) (*http.Response, error) {
+			if err := json.NewDecoder(req.Body).Decode(&DatastoreConfigOpts{}); err != nil {
+				return httpmock.NewStringResponse(400, ""), err
+			}
+
+			datastores := make(map[string]Datastore)
+			datastores["datastore"] = datastoreUpdateConfigResponse
+
+			resp, err := httpmock.NewJsonResponse(200, datastores)
+			if err != nil {
+				return httpmock.NewStringResponse(500, ""), err
+			}
+			return resp, nil
+		})
+
+	configDatastoreOpts := DatastoreConfigOpts{
+		Config: map[string]interface{}{
+			"work_mem":                 256,
+			"session_replication_role": "replica",
+		},
+	}
+
+	actual, err := testClient.ConfigDatastore(context.Background(), datastoreID, configDatastoreOpts)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, datastoreUpdateConfigExpected, actual)
 	}
 }
