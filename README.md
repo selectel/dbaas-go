@@ -20,6 +20,7 @@ You can use this library to work with the following objects of the Selectel Mana
 * flavor
 * extension
 * available extension
+* configuration parameter
 
 ## Getting started
 
@@ -92,7 +93,7 @@ func main() {
     // Auth options for openstack to get all subnets.
     devopts := gophercloud.AuthOptions{
         IdentityEndpoint: "<endpoint>",
-        TokenID:          Token,
+        TokenID:          token,
     }
 
     provider, err := openstack.AuthenticatedClient(devopts)
@@ -129,7 +130,7 @@ func main() {
     }
 
     // Create a new datastore.
-    newDatastore, err := dbaasClient.CreateDatastore(ctx, createOpts)
+    newDatastore, err := dbaasClient.CreateDatastore(ctx, datastoreCreateOpts)
     if err != nil {
         log.Fatal(err)
     }
