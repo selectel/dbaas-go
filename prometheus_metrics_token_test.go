@@ -216,7 +216,11 @@ func TestUpdatePrometheusMetricToken(t *testing.T) {
 		Value:     "GlEDgjR4oWaOjxy4a4YMorlrj81Jb93cR5Zpww6lx9fJs50dv3NygIB2zs3not5I",
 	}
 
-	actual, err := testClient.UpdatePrometheusMetricToken(context.Background(), prometheusMetricTokenID, updatePrometheusMetricTokenOpts)
+	actual, err := testClient.UpdatePrometheusMetricToken(
+		context.Background(),
+		prometheusMetricTokenID,
+		updatePrometheusMetricTokenOpts,
+	)
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, expected, actual)

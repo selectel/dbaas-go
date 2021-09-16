@@ -28,7 +28,10 @@ type PrometheusMetricToken struct {
 }
 
 // PrometheusMetricToken returns a token based on the ID.
-func (api *API) PrometheusMetricToken(ctx context.Context, prometheusMetricTokenID string) (PrometheusMetricToken, error) {
+func (api *API) PrometheusMetricToken(
+	ctx context.Context,
+	prometheusMetricTokenID string,
+) (PrometheusMetricToken, error) {
 	uri := fmt.Sprintf("/prometheus-metrics-tokens/%s", prometheusMetricTokenID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
@@ -36,9 +39,6 @@ func (api *API) PrometheusMetricToken(ctx context.Context, prometheusMetricToken
 		return PrometheusMetricToken{}, err
 	}
 
-	// var result struct {
-	// 	PrometheusMetricToken PrometheusMetricToken `json:"prometheus-metrics-token"`
-	// }
 	var result PrometheusMetricToken
 	err = json.Unmarshal(resp, &result)
 	if err != nil {
@@ -69,7 +69,10 @@ func (api *API) PrometheusMetricTokens(ctx context.Context) ([]PrometheusMetricT
 }
 
 // CreatePrometheusMetricToken creates a new token.
-func (api *API) CreatePrometheusMetricToken(ctx context.Context, opts PrometheusMetricTokenCreateOpts) (PrometheusMetricToken, error) {
+func (api *API) CreatePrometheusMetricToken(
+	ctx context.Context,
+	opts PrometheusMetricTokenCreateOpts,
+) (PrometheusMetricToken, error) {
 	uri := "/prometheus-metrics-tokens"
 	createPrometheusMetricTokensOpts := struct {
 		PrometheusMetricToken PrometheusMetricTokenCreateOpts `json:"prometheus-metrics-token"`
@@ -98,8 +101,8 @@ func (api *API) CreatePrometheusMetricToken(ctx context.Context, opts Prometheus
 }
 
 // DeletePrometheusMetricToken deletes an existing token.
-func (api *API) DeletePrometheusMetricToken(ctx context.Context, PrometheusMetricTokenID string) error {
-	uri := fmt.Sprintf("/prometheus-metrics-tokens/%s", PrometheusMetricTokenID)
+func (api *API) DeletePrometheusMetricToken(ctx context.Context, prometheusMetricTokenID string) error {
+	uri := fmt.Sprintf("/prometheus-metrics-tokens/%s", prometheusMetricTokenID)
 
 	_, err := api.makeRequest(ctx, http.MethodDelete, uri, nil)
 	if err != nil {
@@ -110,8 +113,12 @@ func (api *API) DeletePrometheusMetricToken(ctx context.Context, PrometheusMetri
 }
 
 // UpdatePrometheusMetricToken updates an existing token.
-func (api *API) UpdatePrometheusMetricToken(ctx context.Context, PrometheusMetricTokenID string, opts PrometheusMetricTokenUpdateOpts) (PrometheusMetricToken, error) {
-	uri := fmt.Sprintf("/prometheus-metrics-tokens/%s", PrometheusMetricTokenID)
+func (api *API) UpdatePrometheusMetricToken(
+	ctx context.Context,
+	prometheusMetricTokenID string,
+	opts PrometheusMetricTokenUpdateOpts,
+) (PrometheusMetricToken, error) {
+	uri := fmt.Sprintf("/prometheus-metrics-tokens/%s", prometheusMetricTokenID)
 	updatePrometheusMetricTokensOpts := struct {
 		PrometheusMetricToken PrometheusMetricTokenUpdateOpts `json:"prometheus-metrics-token"`
 	}{
