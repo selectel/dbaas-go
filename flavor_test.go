@@ -26,7 +26,11 @@ const testFlavorsResponse = `{
 			"description": "",
 			"vcpus": 2,
 			"ram": 4096,
-			"disk": 10
+			"disk": 10,
+			"datastore_type_ids": [
+				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5"
+			]
 		},
 		{
 			"id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
@@ -34,7 +38,11 @@ const testFlavorsResponse = `{
 			"description": "",
 			"vcpus": 4,
 			"ram": 8192,
-			"disk": 100
+			"disk": 100,
+			"datastore_type_ids": [
+				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5"
+			]
 		}
 	]
 }`
@@ -46,7 +54,11 @@ const testFlavorResponse = `{
 		"description": "",
 		"vcpus": 2,
 		"ram": 4096,
-		"disk": 10
+		"disk": 10,
+		"datastore_type_ids": [
+			"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+			"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5"
+		]
 	}
 }`
 
@@ -66,6 +78,10 @@ func TestFlavors(t *testing.T) {
 			Vcpus:       2,
 			RAM:         4096,
 			Disk:        10,
+			DatastoreTypeIDs: []string{
+				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
+			},
 		},
 		{
 			ID:          "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
@@ -74,6 +90,10 @@ func TestFlavors(t *testing.T) {
 			Vcpus:       4,
 			RAM:         8192,
 			Disk:        100,
+			DatastoreTypeIDs: []string{
+				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
+			},
 		},
 	}
 
@@ -99,6 +119,10 @@ func TestFlavor(t *testing.T) {
 		Vcpus:       2,
 		RAM:         4096,
 		Disk:        10,
+		DatastoreTypeIDs: []string{
+			"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+			"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
+		},
 	}
 
 	actual, err := testClient.Flavor(context.Background(), flavorID)
