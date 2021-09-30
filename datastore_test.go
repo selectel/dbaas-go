@@ -910,3 +910,40 @@ func TestConfigDatastore(t *testing.T) {
 		assert.Equal(t, datastoreUpdateConfigExpected, actual)
 	}
 }
+
+func TestPasswordDatastore(t *testing.T) {
+	httpmock.Activate()
+	testClient := SetupTestClient()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/datastores/"+datastoreID+"/password",
+		func(req *http.Request) (*http.Response, error) {
+			tempPasswordOpts := struct {
+				Password DatastorePasswordOpts `json:"password"`
+			}{
+				Password: DatastorePasswordOpts{},
+			}
+			if err := json.NewDecoder(req.Body).Decode(&tempPasswordOpts); err != nil {
+				return httpmock.NewStringResponse(400, ""), err
+			}
+
+			datastores := make(map[string]Datastore)
+			datastores["datastore"] = datastoreUpdateResponse
+
+			resp, err := httpmock.NewJsonResponse(200, datastores)
+			if err != nil {
+				return httpmock.NewStringResponse(500, ""), err
+			}
+			return resp, nil
+		})
+
+	passwordDatastoreOpts := DatastorePasswordOpts{
+		Password: "ohf1xi$geiSh7ae8eixush5roo:sho4n",
+	}
+
+	actual, err := testClient.PasswordDatastore(context.Background(), datastoreID, passwordDatastoreOpts)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, datastoreUpdateExpected, actual)
+	}
+}
