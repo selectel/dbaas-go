@@ -67,16 +67,16 @@ type Datastore struct {
 
 // DatastoreCreateOpts represents options for the datastore Create request.
 type DatastoreCreateOpts struct {
-	Flavor    *Flavor                `json:"flavor,omitempty"`
-	Restore   *Restore               `json:"restore,omitempty"`
-	Pooler    *Pooler                `json:"pooler,omitempty"`
-	Config    map[string]interface{} `json:"config,omitempty"`
-	Name      string                 `json:"name"`
-	TypeID    string                 `json:"type_id"`
-	SubnetID  string                 `json:"subnet_id"`
-	FlavorID  string                 `json:"flavor_id,omitempty"`
-	Password  string                 `json:"password,omitempty"`
-	NodeCount int                    `json:"node_count"`
+	Flavor        *Flavor                `json:"flavor,omitempty"`
+	Restore       *Restore               `json:"restore,omitempty"`
+	Pooler        *Pooler                `json:"pooler,omitempty"`
+	Config        map[string]interface{} `json:"config,omitempty"`
+	Name          string                 `json:"name"`
+	TypeID        string                 `json:"type_id"`
+	SubnetID      string                 `json:"subnet_id"`
+	FlavorID      string                 `json:"flavor_id,omitempty"`
+	RedisPassword string                 `json:"redis_password,omitempty"`
+	NodeCount     int                    `json:"node_count"`
 }
 
 // DatastoreUpdateOpts represents options for the datastore Update request.
@@ -109,7 +109,7 @@ type DatastoreConfigOpts struct {
 
 // DatastorePasswordOpts represents options for the Redis datastore's password Update request.
 type DatastorePasswordOpts struct {
-	Password string `json:"password"`
+	RedisPassword string `json:"redis_password"`
 }
 
 // DatastoreQueryParams represents available query parameters for datastore.

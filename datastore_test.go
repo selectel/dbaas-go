@@ -938,7 +938,7 @@ func TestPasswordDatastore(t *testing.T) {
 		})
 
 	passwordDatastoreOpts := DatastorePasswordOpts{
-		Password: "ohf1xi$geiSh7ae8eixush5roo:sho4n",
+		RedisPassword: "ohf1xi$geiSh7ae8eixush5roo:sho4n",
 	}
 
 	actual, err := testClient.PasswordDatastore(context.Background(), datastoreID, passwordDatastoreOpts)
