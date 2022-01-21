@@ -66,7 +66,8 @@ const testDatastoresResponse = `{
 			"subnet_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 			"node_count": 1,
 			"connection": {
-				"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org"
+				"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+				"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org"
 			},
 			"flavor": {
 				"vcpus": 2,
@@ -104,7 +105,8 @@ const testDatastoresResponse = `{
 			"subnet_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 			"node_count": 1,
 			"connection": {
-				"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5.c.dbaas.selcloud.org"
+				"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5.c.dbaas.selcloud.org",
+				"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5.c.dbaas.selcloud.org"
 			},
 			"flavor": {
 				"vcpus": 2,
@@ -153,7 +155,8 @@ const testDatastoreResponse = `{
 		"subnet_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		"node_count": 1,
 		"connection": {
-			"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org"
+			"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org"
 		},
 		"flavor": {
 			"vcpus": 2,
@@ -166,6 +169,62 @@ const testDatastoreResponse = `{
 			"role": "MASTER",
 			"status": "ACTIVE",
 			"hostname": "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org"
+			}
+		],
+		"pooler": {
+			"size": 30,
+			"mode": "session"
+		},
+		"firewall": [
+			{
+				"ip": "127.0.0.1"
+			}
+		],
+		"config": {}
+	}
+}`
+
+const testMultiNodeDatastoreResponse = `{
+	"datastore": {
+		"id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		"created_at": "1970-01-01T00:00:00",
+		"updated_at": "1970-01-01T00:00:00",
+		"project_id": "123e4567e89b12d3a456426655440000",
+		"name": "Name",
+		"status": "ACTIVE",
+		"enabled": true,
+		"type_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		"subnet_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		"node_count": 3,
+		"connection": {
+			"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+			"replica-1": "replica-1.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+			"replica-2": "replica-2.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org"
+		},
+		"flavor": {
+			"vcpus": 2,
+			"ram": 2048,
+			"disk": 32
+		},
+		"instances": [
+			{
+			"ip": "127.0.0.1",
+			"role": "MASTER",
+			"status": "ACTIVE",
+			"hostname": "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org"
+			},
+			{
+			"ip": "127.0.0.2",
+			"role": "REPLICA",
+			"status": "ACTIVE",
+			"hostname": "9c387698-42a9-4555-9a8c-46eee7dc8c56.ru-1.c.dbaas.selcloud.org"
+			},
+			{
+			"ip": "127.0.0.3",
+			"role": "REPLICA",
+			"status": "ACTIVE",
+			"hostname": "9c387698-42a9-4555-9a8c-46eee7dc8c57.ru-1.c.dbaas.selcloud.org"
 			}
 		],
 		"pooler": {
@@ -195,8 +254,9 @@ var datastoreListExpected []Datastore = []Datastore{ //nolint
 		TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		NodeCount: 1,
-		Connection: Connection{
-			Master: "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+		Connection: map[string]string{
+			"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 		},
 		Flavor: Flavor{
 			Vcpus: 2,
@@ -229,8 +289,9 @@ var datastoreListExpected []Datastore = []Datastore{ //nolint
 		TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		NodeCount: 1,
-		Connection: Connection{
-			Master: "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5.c.dbaas.selcloud.org",
+		Connection: map[string]string{
+			"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5.c.dbaas.selcloud.org",
+			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5.c.dbaas.selcloud.org",
 		},
 		Flavor: Flavor{
 			Vcpus: 2,
@@ -273,8 +334,9 @@ var datastoreCreateResponse Datastore = Datastore{ //nolint
 	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	NodeCount: 1,
-	Connection: Connection{
-		Master: "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+	Connection: map[string]string{
+		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 	},
 	Flavor: Flavor{
 		Vcpus: 2,
@@ -306,8 +368,9 @@ var datastoreCreateExpected Datastore = Datastore{ //nolint
 	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	NodeCount: 1,
-	Connection: Connection{
-		Master: "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+	Connection: map[string]string{
+		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 	},
 	Flavor: Flavor{
 		Vcpus: 2,
@@ -339,8 +402,9 @@ var datastoreUpdateResponse Datastore = Datastore{ //nolint
 	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	NodeCount: 1,
-	Connection: Connection{
-		Master: "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+	Connection: map[string]string{
+		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 	},
 	Flavor: Flavor{
 		Vcpus: 2,
@@ -372,8 +436,9 @@ var datastoreUpdateExpected Datastore = Datastore{ //nolint
 	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	NodeCount: 1,
-	Connection: Connection{
-		Master: "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+	Connection: map[string]string{
+		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 	},
 	Flavor: Flavor{
 		Vcpus: 2,
@@ -405,8 +470,9 @@ var datastoreResizeResponse Datastore = Datastore{ //nolint
 	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	NodeCount: 1,
-	Connection: Connection{
-		Master: "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+	Connection: map[string]string{
+		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 	},
 	Flavor: Flavor{
 		Vcpus: 2,
@@ -438,8 +504,9 @@ var datastoreResizeExpected Datastore = Datastore{ //nolint
 	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	NodeCount: 1,
-	Connection: Connection{
-		Master: "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+	Connection: map[string]string{
+		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 	},
 	Flavor: Flavor{
 		Vcpus: 2,
@@ -471,8 +538,9 @@ var datastoreUpdateConfigResponse Datastore = Datastore{ //nolint
 	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	NodeCount: 1,
-	Connection: Connection{
-		Master: "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+	Connection: map[string]string{
+		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 	},
 	Flavor: Flavor{
 		Vcpus: 2,
@@ -507,8 +575,9 @@ var datastoreUpdateConfigExpected Datastore = Datastore{ //nolint
 	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	NodeCount: 1,
-	Connection: Connection{
-		Master: "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+	Connection: map[string]string{
+		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 	},
 	Flavor: Flavor{
 		Vcpus: 2,
@@ -566,8 +635,9 @@ func TestDatastore(t *testing.T) {
 		TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		NodeCount: 1,
-		Connection: Connection{
-			Master: "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+		Connection: map[string]string{
+			"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 		},
 		Flavor: Flavor{
 			Vcpus: 2,
@@ -580,6 +650,73 @@ func TestDatastore(t *testing.T) {
 			Status:   "ACTIVE",
 			Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
 		}},
+		Pooler: Pooler{
+			Size: 30,
+			Mode: "session",
+		},
+		Firewall: []Firewall{{
+			IP: "127.0.0.1",
+		}},
+		Config: map[string]interface{}{},
+	}
+
+	actual, err := testClient.Datastore(context.Background(), datastoreID)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, expected, actual)
+	}
+}
+
+func TestMultiNodeDatastore(t *testing.T) {
+	httpmock.Activate()
+	testClient := SetupTestClient()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("GET", testClient.Endpoint+"/datastores/"+datastoreID,
+		httpmock.NewStringResponder(200, testMultiNodeDatastoreResponse))
+
+	expected := Datastore{
+		ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		CreatedAt: "1970-01-01T00:00:00",
+		UpdatedAt: "1970-01-01T00:00:00",
+		ProjectID: "123e4567e89b12d3a456426655440000",
+		Name:      "Name",
+		Status:    "ACTIVE",
+		Enabled:   true,
+		TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		NodeCount: 3,
+		Connection: map[string]string{
+			"MASTER":    "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+			"master":    "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+			"replica-1": "replica-1.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+			"replica-2": "replica-2.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+		},
+		Flavor: Flavor{
+			Vcpus: 2,
+			RAM:   2048,
+			Disk:  32,
+		},
+		Instances: []Instances{
+			{
+				IP:       "127.0.0.1",
+				Role:     "MASTER",
+				Status:   "ACTIVE",
+				Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+			},
+			{
+				IP:       "127.0.0.2",
+				Role:     "REPLICA",
+				Status:   "ACTIVE",
+				Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c56.ru-1.c.dbaas.selcloud.org",
+			},
+			{
+				IP:       "127.0.0.3",
+				Role:     "REPLICA",
+				Status:   "ACTIVE",
+				Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c57.ru-1.c.dbaas.selcloud.org",
+			},
+		},
 		Pooler: Pooler{
 			Size: 30,
 			Mode: "session",
