@@ -15,11 +15,6 @@ type Instances struct {
 	Hostname string `json:"hostname"`
 }
 
-// Connection represents datastore's connection.
-type Connection struct {
-	Master string `json:"MASTER"`
-}
-
 // Flavor represents datastore's flavor.
 type Flavor struct {
 	Vcpus int `json:"vcpus"`
@@ -55,7 +50,7 @@ type Datastore struct {
 	SubnetID   string                 `json:"subnet_id"`
 	FlavorID   string                 `json:"flavor_id"`
 	Status     Status                 `json:"status"`
-	Connection Connection             `json:"connection"`
+	Connection map[string]string      `json:"connection"`
 	Firewall   []Firewall             `json:"firewall"`
 	Instances  []Instances            `json:"instances"`
 	Config     map[string]interface{} `json:"config"`
