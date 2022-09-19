@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -121,7 +120,7 @@ func (api *API) makeRequest(ctx context.Context, method, uri string, params inte
 	resp, respErr = api.request(ctx, method, uri, reqBody)
 	if respErr != nil || resp.StatusCode >= http.StatusInternalServerError {
 		if respErr == nil {
-			respBody, err = ioutil.ReadAll(resp.Body)
+			respBody, err = io.ReadAll(resp.Body)
 			resp.Body.Close()
 
 			respErr = fmt.Errorf("could not read response body, %w", err)
@@ -130,7 +129,7 @@ func (api *API) makeRequest(ctx context.Context, method, uri string, params inte
 			fmt.Printf("Error performing request: %s %s : %s \n", method, uri, respErr.Error())
 		}
 	} else {
-		respBody, err = ioutil.ReadAll(resp.Body)
+		respBody, err = io.ReadAll(resp.Body)
 		defer resp.Body.Close()
 		if err != nil {
 			return nil, fmt.Errorf("could not read response body, %w", err)
