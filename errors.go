@@ -10,7 +10,7 @@ const (
 	ErrorBadRequestTitle = "Bad Request"
 )
 
-// DBaaSAPIError is a type of error raised by API calls made by this library.
+// DBaaSAPIError is a type of an error raised by API calls made by this library.
 type DBaaSAPIError struct {
 	APIError struct {
 		Message string `json:"message"`
