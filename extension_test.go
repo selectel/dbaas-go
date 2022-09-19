@@ -134,7 +134,7 @@ func TestExtensionNotFound(t *testing.T) {
 	httpmock.RegisterResponder("GET", testClient.Endpoint+"/extensions/123",
 		httpmock.NewStringResponder(404, testExtensionNotFoundResponse))
 
-	expected := &APIError{}
+	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
 	expected.APIError.Message = "extension 123 not found."
@@ -203,7 +203,7 @@ func TestCreateExtensionInvalidDatastoreID(t *testing.T) {
 	httpmock.RegisterResponder("POST", testClient.Endpoint+"/extensions",
 		httpmock.NewStringResponder(400, testCreateExtensionInvalidDatastoreIDResponse))
 
-	expected := &APIError{}
+	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 400
 	expected.APIError.Title = ErrorBadRequestTitle
 	expected.APIError.Message = `Validation failure: 

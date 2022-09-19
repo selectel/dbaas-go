@@ -116,7 +116,7 @@ func TestPrometheusMetricTokenNotFound(t *testing.T) {
 	httpmock.RegisterResponder("GET", testClient.Endpoint+"/prometheus-metrics-tokens/123",
 		httpmock.NewStringResponder(404, testPrometheusMetricTokenNotFoundResponse))
 
-	expected := &APIError{}
+	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
 	expected.APIError.Message = "prometheusmetrictoken 123 not found."

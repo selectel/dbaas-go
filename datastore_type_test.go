@@ -98,7 +98,7 @@ func TestDatastoreTypeNotFound(t *testing.T) {
 	httpmock.RegisterResponder("GET", testClient.Endpoint+"/datastore-types/123",
 		httpmock.NewStringResponder(404, testDatastoreTypeNotFoundResponse))
 
-	expected := &APIError{}
+	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
 	expected.APIError.Message = "datastoretype 123 not found."

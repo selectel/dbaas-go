@@ -135,7 +135,7 @@ func TestUserNotFound(t *testing.T) {
 	httpmock.RegisterResponder("GET", testClient.Endpoint+"/users/123",
 		httpmock.NewStringResponder(404, testUserNotFoundResponse))
 
-	expected := &APIError{}
+	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
 	expected.APIError.Message = "user 123 not found."
@@ -206,7 +206,7 @@ func TestCreateUserInvalidDatastoreID(t *testing.T) {
 	httpmock.RegisterResponder("POST", testClient.Endpoint+"/users",
 		httpmock.NewStringResponder(400, testCreateUserInvalidDatastoreIDResponse))
 
-	expected := &APIError{}
+	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 400
 	expected.APIError.Title = ErrorBadRequestTitle
 	expected.APIError.Message = `Validation failure: 
