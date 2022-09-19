@@ -742,7 +742,7 @@ func TestDatastoreNotFound(t *testing.T) {
 	httpmock.RegisterResponder("GET", testClient.Endpoint+"/datastores/123",
 		httpmock.NewStringResponder(404, testDatastoreNotFoundResponse))
 
-	expected := &DBaaSAPIError{}
+	expected := &APIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
 	expected.APIError.Message = "datastore 123 not found."
@@ -796,7 +796,7 @@ func TestCreateDatatastoreInvalidTypeID(t *testing.T) {
 	httpmock.RegisterResponder("POST", testClient.Endpoint+"/datastores",
 		httpmock.NewStringResponder(400, testCreateDatastoreInvalidDatastoreIDResponse))
 
-	expected := &DBaaSAPIError{}
+	expected := &APIError{}
 	expected.APIError.Code = 400
 	expected.APIError.Title = ErrorBadRequestTitle
 	expected.APIError.Message = `Validation failure: 
@@ -855,7 +855,7 @@ func TestUpdateDatatastoreInvalidName(t *testing.T) {
 	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/datastores/"+datastoreID,
 		httpmock.NewStringResponder(400, testUpdateDatastoreInvalidName))
 
-	expected := &DBaaSAPIError{}
+	expected := &APIError{}
 	expected.APIError.Code = 400
 	expected.APIError.Title = ErrorBadRequestTitle
 	expected.APIError.Message = "Validation failure: {'datastore.name': \"'' is too short\"}"
@@ -910,7 +910,7 @@ func TestResizeDatatastoreInvalidNodeCount(t *testing.T) {
 	httpmock.RegisterResponder("POST", testClient.Endpoint+"/datastores/"+datastoreID+"/resize",
 		httpmock.NewStringResponder(400, testResizeDatastoreInvalidNodeCount))
 
-	expected := &DBaaSAPIError{}
+	expected := &APIError{}
 	expected.APIError.Code = 400
 	expected.APIError.Title = ErrorBadRequestTitle
 	expected.APIError.Message = "Validation failure: {'resize.node_count': '0 is less than the minimum of 1'}"
@@ -965,7 +965,7 @@ func TestPoolerDatatastoreInvalidMode(t *testing.T) {
 	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/datastores/"+datastoreID+"/pooler",
 		httpmock.NewStringResponder(400, testPoolerDatastoreInvalidMode))
 
-	expected := &DBaaSAPIError{}
+	expected := &APIError{}
 	expected.APIError.Code = 400
 	expected.APIError.Title = ErrorBadRequestTitle
 	expected.APIError.Message = `Validation failure: 

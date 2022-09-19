@@ -155,7 +155,7 @@ func TestDatabaseNotFound(t *testing.T) {
 	httpmock.RegisterResponder("GET", testClient.Endpoint+"/databases/123",
 		httpmock.NewStringResponder(404, testDatabaseNotFoundResponse))
 
-	expected := &DBaaSAPIError{}
+	expected := &APIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
 	expected.APIError.Message = "database 123 not found."
@@ -230,7 +230,7 @@ func TestCreateDatabaseInvalidDatastoreID(t *testing.T) {
 	httpmock.RegisterResponder("POST", testClient.Endpoint+"/databases",
 		httpmock.NewStringResponder(400, testCreateDatabaseInvalidDatastoreIDResponse))
 
-	expected := &DBaaSAPIError{}
+	expected := &APIError{}
 	expected.APIError.Code = 400
 	expected.APIError.Title = ErrorBadRequestTitle
 	expected.APIError.Message = `Validation failure: 
@@ -310,7 +310,7 @@ func TestUpdateDatabaseInvalidOwnerID(t *testing.T) {
 	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/databases/"+databaseID,
 		httpmock.NewStringResponder(400, testUpdateDatabaseInvalidOwnerIDResponse))
 
-	expected := &DBaaSAPIError{}
+	expected := &APIError{}
 	expected.APIError.Code = 400
 	expected.APIError.Title = ErrorBadRequestTitle
 	expected.APIError.Message = `Validation failure: 
