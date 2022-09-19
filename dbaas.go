@@ -230,23 +230,17 @@ func setQueryParams(uri string, params interface{}) (string, error) {
 	return uri, nil
 }
 
-// convertFieldToType converts interface to the corresponding type
+// convertFieldToType converts interface to the corresponding type.
 func convertFieldToType(fieldValue interface{}) interface{} {
-	switch fieldValue.(type) {
-	case int:
-		return fieldValue.(int)
-	case float64:
-		return fieldValue.(float64)
+	switch fieldValue := fieldValue.(type) {
 	case string:
-		return convertFieldFromStringToType(fieldValue.(string))
-	case bool:
-		return fieldValue.(bool)
+		return convertFieldFromStringToType(fieldValue)
 	default:
 		return fieldValue
 	}
 }
 
-// convertFieldFromStringToType converts string to the type that it represents
+// convertFieldFromStringToType converts string to the type that it represents.
 func convertFieldFromStringToType(fieldValue string) interface{} {
 	if val, err := strconv.Atoi(fieldValue); err == nil {
 		return val
@@ -259,7 +253,7 @@ func convertFieldFromStringToType(fieldValue string) interface{} {
 	}
 }
 
-// convertConfigValues convert config map values to the corresponding types
+// convertConfigValues convert config map values to the corresponding types.
 func convertConfigValues(configMap map[string]interface{}) map[string]interface{} {
 	config := make(map[string]interface{})
 	for paramName, paramValue := range configMap {
