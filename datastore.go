@@ -165,11 +165,13 @@ func (api *API) Datastore(ctx context.Context, datastoreID string) (Datastore, e
 // CreateDatastore creates a new datastore.
 func (api *API) CreateDatastore(ctx context.Context, opts DatastoreCreateOpts) (Datastore, error) {
 	uri := "/datastores"
+	config := convertConfigValues(opts.Config)
 	createDatastoreOpts := struct {
 		Datastore DatastoreCreateOpts `json:"datastore"`
 	}{
 		Datastore: opts,
 	}
+	createDatastoreOpts.Datastore.Config = config
 	requestBody, err := json.Marshal(createDatastoreOpts)
 	if err != nil {
 		return Datastore{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
@@ -322,6 +324,7 @@ func (api *API) FirewallDatastore(ctx context.Context, datastoreID string, opts 
 // ConfigDatastore updates configuration parameters rules of an existing datastore.
 func (api *API) ConfigDatastore(ctx context.Context, datastoreID string, opts DatastoreConfigOpts) (Datastore, error) { //nolint
 	uri := fmt.Sprintf("/datastores/%s/config", datastoreID)
+	opts.Config = convertConfigValues(opts.Config)
 	requestBody, err := json.Marshal(opts)
 	if err != nil {
 		return Datastore{}, fmt.Errorf("Error marshalling params to JSON, %w", err)

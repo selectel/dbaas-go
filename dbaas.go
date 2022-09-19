@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
@@ -227,4 +228,42 @@ func setQueryParams(uri string, params interface{}) (string, error) {
 	}
 
 	return uri, nil
+}
+
+// convertFieldToType converts interface to the corresponding type
+func convertFieldToType(fieldValue interface{}) interface{} {
+	switch fieldValue.(type) {
+	case int:
+		return fieldValue.(int)
+	case float64:
+		return fieldValue.(float64)
+	case string:
+		return convertFieldFromStringToType(fieldValue.(string))
+	case bool:
+		return fieldValue.(bool)
+	default:
+		return fieldValue
+	}
+}
+
+// convertFieldFromStringToType converts string to the type that it represents
+func convertFieldFromStringToType(fieldValue string) interface{} {
+	if val, err := strconv.Atoi(fieldValue); err == nil {
+		return val
+	} else if val, err := strconv.ParseFloat(fieldValue, 64); err == nil {
+		return val
+	} else if val, err := strconv.ParseBool(fieldValue); err == nil {
+		return val
+	} else {
+		return fieldValue
+	}
+}
+
+// convertConfigValues convert config map values to the corresponding types
+func convertConfigValues(configMap map[string]interface{}) map[string]interface{} {
+	config := make(map[string]interface{})
+	for paramName, paramValue := range configMap {
+		config[paramName] = convertFieldToType(paramValue)
+	}
+	return config
 }
