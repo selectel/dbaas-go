@@ -197,7 +197,7 @@ func handleStatusCode(statusCode int, body []byte, uri string) error {
 		return fmt.Errorf("http status %d: service failed.\n%v\n%v", statusCode, body, uri) //nolint
 	}
 
-	errBody := &DBaaSAPIError{}
+	errBody := &APIError{}
 	err := json.Unmarshal(body, &errBody)
 	if err != nil {
 		return fmt.Errorf("can't unmarshal response:\n%s, %w", body, err)

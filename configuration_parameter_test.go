@@ -154,7 +154,7 @@ func TestConfigurationParameterNotFound(t *testing.T) {
 	httpmock.RegisterResponder("GET", testClient.Endpoint+"/configuration-parameters/123",
 		httpmock.NewStringResponder(404, testConfigurationParameterNotFoundResponse))
 
-	expected := &DBaaSAPIError{}
+	expected := &APIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
 	expected.APIError.Message = "configurationparameter 123 not found."

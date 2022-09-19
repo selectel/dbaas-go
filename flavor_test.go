@@ -140,7 +140,7 @@ func TestFlavorNotFound(t *testing.T) {
 	httpmock.RegisterResponder("GET", testClient.Endpoint+"/flavors/123",
 		httpmock.NewStringResponder(404, testFlavorNotFoundResponse))
 
-	expected := &DBaaSAPIError{}
+	expected := &APIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
 	expected.APIError.Message = "flavor 123 not found."

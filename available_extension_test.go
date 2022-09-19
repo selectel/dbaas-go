@@ -122,7 +122,7 @@ func TestAvailableExtensionNotFound(t *testing.T) {
 	httpmock.RegisterResponder("GET", testClient.Endpoint+"/available-extensions/123",
 		httpmock.NewStringResponder(404, testAvailableExtensionNotFoundResponse))
 
-	expected := &DBaaSAPIError{}
+	expected := &APIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
 	expected.APIError.Message = "availableextension 123 not found."
