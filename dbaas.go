@@ -7,9 +7,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
@@ -120,7 +120,7 @@ func (api *API) makeRequest(ctx context.Context, method, uri string, params inte
 	resp, respErr = api.request(ctx, method, uri, reqBody)
 	if respErr != nil || resp.StatusCode >= http.StatusInternalServerError {
 		if respErr == nil {
-			respBody, err = ioutil.ReadAll(resp.Body)
+			respBody, err = io.ReadAll(resp.Body)
 			resp.Body.Close()
 
 			respErr = fmt.Errorf("could not read response body, %w", err)
@@ -129,7 +129,7 @@ func (api *API) makeRequest(ctx context.Context, method, uri string, params inte
 			fmt.Printf("Error performing request: %s %s : %s \n", method, uri, respErr.Error())
 		}
 	} else {
-		respBody, err = ioutil.ReadAll(resp.Body)
+		respBody, err = io.ReadAll(resp.Body)
 		defer resp.Body.Close()
 		if err != nil {
 			return nil, fmt.Errorf("could not read response body, %w", err)
@@ -227,4 +227,36 @@ func setQueryParams(uri string, params interface{}) (string, error) {
 	}
 
 	return uri, nil
+}
+
+// convertFieldToType converts interface to the corresponding type.
+func convertFieldToType(fieldValue interface{}) interface{} {
+	switch fieldValue := fieldValue.(type) {
+	case string:
+		return convertFieldFromStringToType(fieldValue)
+	default:
+		return fieldValue
+	}
+}
+
+// convertFieldFromStringToType converts string to the type that it represents.
+func convertFieldFromStringToType(fieldValue string) interface{} {
+	if val, err := strconv.Atoi(fieldValue); err == nil {
+		return val
+	} else if val, err := strconv.ParseFloat(fieldValue, 64); err == nil {
+		return val
+	} else if val, err := strconv.ParseBool(fieldValue); err == nil {
+		return val
+	} else {
+		return fieldValue
+	}
+}
+
+// convertConfigValues convert config map values to the corresponding types.
+func convertConfigValues(configMap map[string]interface{}) map[string]interface{} {
+	config := make(map[string]interface{})
+	for paramName, paramValue := range configMap {
+		config[paramName] = convertFieldToType(paramValue)
+	}
+	return config
 }
