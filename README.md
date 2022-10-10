@@ -66,6 +66,7 @@ package main
 import (
     "context"
     "log"
+    "fmt"
 
     "github.com/gophercloud/gophercloud"
     "github.com/gophercloud/gophercloud/openstack"
@@ -78,10 +79,17 @@ func main() {
     token := "TOKEN"
 
     // DBaaS endpoint to work with.
-    endpoint := "https://ru-1.dbaas.selcloud.ru/v1"
+    endpoint := "https://ru-2.dbaas.selcloud.ru/v1"
+
+    openstackEndpoint := "https://api.selvpc.ru/identity/v3/"
+
+    openstackRegion := "ru-2"
 
     // Initialize the DBaaS v1 client.
-    dbaasClient, err := dbaas.NewDBaaSClient(token, endpoint)
+    dbaasClient, err := dbaas.NewDBAASClient(token, endpoint)
+    if err != nil {
+        log.Fatal(err)
+    }
 
     // Prepare empty context.
     ctx := context.Background()
@@ -94,7 +102,7 @@ func main() {
 
     // Auth options for openstack to get all subnets.
     devopts := gophercloud.AuthOptions{
-        IdentityEndpoint: "<endpoint>",
+        IdentityEndpoint: openstackEndpoint,
         TokenID:          token,
     }
 
@@ -104,7 +112,7 @@ func main() {
     }
 
     // Create a new network client.
-    networkClient, err := openstack.NewNetworkV2(provider, gophercloud.EndpointOpts{Region: "ru-1"})
+    networkClient, err := openstack.NewNetworkV2(provider, gophercloud.EndpointOpts{Region: openstackRegion})
     if err != nil {
         log.Fatal(err)
     }
@@ -128,7 +136,7 @@ func main() {
         TypeID:    datastoreTypes[0].ID,
         NodeCount: 1,
         SubnetID:  allSubnets[0].ID,
-        Flavor:    &dbaas.Flavor{Vcpus: 2, RAM: 2048, Disk: 32},
+        Flavor:    &dbaas.Flavor{Vcpus: 2, RAM: 4096, Disk: 32},
     }
 
     // Create a new datastore.
@@ -140,4 +148,5 @@ func main() {
     // Print datastores fields.
     fmt.Printf("Created datastore: %+v\n", newDatastore)
 }
+
 ```
