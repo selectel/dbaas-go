@@ -34,7 +34,10 @@ type LogicalReplicationSlotQueryParams struct {
 }
 
 // LogicalReplicationSlots returns all slots.
-func (api *API) LogicalReplicationSlots(ctx context.Context, params *LogicalReplicationSlotQueryParams) ([]LogicalReplicationSlot, error) {
+func (api *API) LogicalReplicationSlots(
+	ctx context.Context,
+	params *LogicalReplicationSlotQueryParams,
+) ([]LogicalReplicationSlot, error) {
 	uri, err := setQueryParams("/logical-replication-slots", params)
 	if err != nil {
 		return []LogicalReplicationSlot{}, err
@@ -77,7 +80,10 @@ func (api *API) LogicalReplicationSlot(ctx context.Context, slotID string) (Logi
 }
 
 // CreateLogicalReplicationSlot creates a new slot.
-func (api *API) CreateLogicalReplicationSlot(ctx context.Context, opts LogicalReplicationSlotCreateOpts) (LogicalReplicationSlot, error) {
+func (api *API) CreateLogicalReplicationSlot(
+	ctx context.Context,
+	opts LogicalReplicationSlotCreateOpts,
+) (LogicalReplicationSlot, error) {
 	uri := "/logical-replication-slots"
 	createLogicalReplicationSlotsOpts := struct {
 		LogicalReplicationSlot LogicalReplicationSlotCreateOpts `json:"logical-replication-slot"`

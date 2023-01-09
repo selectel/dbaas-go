@@ -106,7 +106,7 @@ func TestLogicalReplicationSlot(t *testing.T) {
 	httpmock.RegisterResponder("GET", testClient.Endpoint+"/logical-replication-slots/"+slotID,
 		httpmock.NewStringResponder(200, testLogicalReplicationSlotResponse))
 
-	expeted := LogicalReplicationSlot{
+	expected := LogicalReplicationSlot{
 		ID:          "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		CreatedAt:   "1970-01-01T00:00:00",
 		UpdatedAt:   "1970-01-01T00:00:00",
@@ -120,7 +120,7 @@ func TestLogicalReplicationSlot(t *testing.T) {
 	actual, err := testClient.LogicalReplicationSlot(context.Background(), slotID)
 
 	if assert.NoError(t, err) {
-		assert.Equal(t, expeted, actual)
+		assert.Equal(t, expected, actual)
 	}
 }
 
@@ -142,10 +142,21 @@ func TestLogicalReplicationSlotNotFound(t *testing.T) {
 	assert.ErrorAs(t, err, &expected)
 }
 
-func testCreateLogicalReplicationSlot(t *testing.T) {
+func TestCreateLogicalReplicationSlot(t *testing.T) {
 	httpmock.Activate()
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
+
+	expected := LogicalReplicationSlot{
+		ID:          "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		CreatedAt:   "1970-01-01T00:00:00",
+		UpdatedAt:   "1970-01-01T00:00:00",
+		Name:        "test_slot",
+		ProjectID:   "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		DatastoreID: "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		DatabaseID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		Status:      StatusPendingCreate,
+	}
 
 	httpmock.RegisterResponder("POST", testClient.Endpoint+"/logical-replication-slots",
 		func(req *http.Request) (*http.Response, error) {
@@ -154,16 +165,7 @@ func testCreateLogicalReplicationSlot(t *testing.T) {
 			}
 
 			slots := make(map[string]LogicalReplicationSlot)
-			slots["logical-replication-slots"] = LogicalReplicationSlot{
-				ID:          "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-				CreatedAt:   "1970-01-01T00:00:00",
-				UpdatedAt:   "1970-01-01T00:00:00",
-				Name:        "test_slot",
-				ProjectID:   "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-				DatastoreID: "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-				DatabaseID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-				Status:      StatusPendingCreate,
-			}
+			slots["logical-replication-slot"] = expected
 
 			resp, err := httpmock.NewJsonResponse(200, slots)
 			if err != nil {
@@ -179,20 +181,9 @@ func testCreateLogicalReplicationSlot(t *testing.T) {
 		DatabaseID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 	}
 
-	expeted := LogicalReplicationSlot{
-		ID:          "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		CreatedAt:   "1970-01-01T00:00:00",
-		UpdatedAt:   "1970-01-01T00:00:00",
-		Name:        "test_slot",
-		ProjectID:   "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		DatastoreID: "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		DatabaseID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		Status:      StatusActive,
-	}
-
 	actual, err := testClient.CreateLogicalReplicationSlot(context.Background(), createLogicalReplicationSlotOpts)
 
 	if assert.NoError(t, err) {
-		assert.Equal(t, expeted, actual)
+		assert.Equal(t, expected, actual)
 	}
 }
