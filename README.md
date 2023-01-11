@@ -22,6 +22,7 @@ You can use this library to work with the following objects of the Selectel Mana
 * available extension
 * configuration parameter
 * prometheus metrics tokens
+* logical replication slots
 
 ## Getting started
 
@@ -54,6 +55,7 @@ Selectel Managed Databases Service currently has the following API endpoint:
 | https://ru-8.dbaas.selcloud.ru/v1 | ru-8   |
 | https://ru-9.dbaas.selcloud.ru/v1 | ru-9   |
 | https://nl-1.dbaas.selcloud.ru/v1 | nl-1   |
+| https://uz-1.dbaas.selcloud.ru/v1 | uz-1   |
 
 You can also retrieve all available API endpoints from the Identity
 catalog.
