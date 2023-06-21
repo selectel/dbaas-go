@@ -799,7 +799,7 @@ func TestCreateDatatastoreInvalidTypeID(t *testing.T) {
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 400
 	expected.APIError.Title = ErrorBadRequestTitle
-	expected.APIError.Message = `Validation failure: 
+	expected.APIError.Message = `Validation failure:
 		{'datastore.type_id': \"'20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f' is not a 'UUID'\"}`
 
 	createDatastoreOpts := DatastoreCreateOpts{
@@ -968,7 +968,7 @@ func TestPoolerDatatastoreInvalidMode(t *testing.T) {
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 400
 	expected.APIError.Title = ErrorBadRequestTitle
-	expected.APIError.Message = `Validation failure: 
+	expected.APIError.Message = `Validation failure:
 		{'pooler.mode': \"'abc' is not one of ['session', 'transaction', 'statement']\"}`
 
 	poolerDatastoreOpts := DatastorePoolerOpts{
@@ -1081,6 +1081,38 @@ func TestPasswordDatastore(t *testing.T) {
 	actual, err := testClient.PasswordDatastore(context.Background(), datastoreID, passwordDatastoreOpts)
 
 	if assert.NoError(t, err) {
+		assert.Equal(t, datastoreUpdateExpected, actual)
+	}
+}
+
+func TestBackupsDatastore(t *testing.T) {
+	httpmock.Activate()
+	testClient := SetupTestClient()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/datastores/"+datastoreID+"/backups",
+		func(req *http.Request) (*http.Response, error) {
+			if err := json.NewDecoder(req.Body).Decode(&DatastoreBackupsOpts{}); err != nil {
+				return httpmock.NewStringResponse(400, ""), err
+			}
+
+			datastores := make(map[string]Datastore)
+			datastores["datastore"] = datastoreUpdateResponse
+
+			resp, err := httpmock.NewJsonResponse(200, datastores)
+			if err != nil {
+				return httpmock.NewStringResponse(500, ""), err
+			}
+			return resp, nil
+		})
+
+	backupsDatastoreOpts := DatastoreBackupsOpts{
+		BackupRetentionDays: 14,
+	}
+
+	actual, err := testClient.BackupsDatastore(context.Background(), datastoreID, backupsDatastoreOpts)
+	if assert.NoError(t, err) {
+		assert.Equal(t, httpmock.GetTotalCallCount(), 1)
 		assert.Equal(t, datastoreUpdateExpected, actual)
 	}
 }
