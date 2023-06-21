@@ -41,37 +41,40 @@ type Firewall struct {
 
 // Datastore is the API response for the datastores.
 type Datastore struct {
-	ID         string                 `json:"id"`
-	CreatedAt  string                 `json:"created_at"`
-	UpdatedAt  string                 `json:"updated_at"`
-	ProjectID  string                 `json:"project_id"`
-	Name       string                 `json:"name"`
-	TypeID     string                 `json:"type_id"`
-	SubnetID   string                 `json:"subnet_id"`
-	FlavorID   string                 `json:"flavor_id"`
-	Status     Status                 `json:"status"`
-	Connection map[string]string      `json:"connection"`
-	Firewall   []Firewall             `json:"firewall"`
-	Instances  []Instances            `json:"instances"`
-	Config     map[string]interface{} `json:"config"`
-	Pooler     Pooler                 `json:"pooler"`
-	Flavor     Flavor                 `json:"flavor"`
-	NodeCount  int                    `json:"node_count"`
-	Enabled    bool                   `json:"enabled"`
+	ID                  string                 `json:"id"`
+	CreatedAt           string                 `json:"created_at"`
+	UpdatedAt           string                 `json:"updated_at"`
+	ProjectID           string                 `json:"project_id"`
+	Name                string                 `json:"name"`
+	TypeID              string                 `json:"type_id"`
+	SubnetID            string                 `json:"subnet_id"`
+	FlavorID            string                 `json:"flavor_id"`
+	Status              Status                 `json:"status"`
+	Connection          map[string]string      `json:"connection"`
+	Firewall            []Firewall             `json:"firewall"`
+	Instances           []Instances            `json:"instances"`
+	Config              map[string]interface{} `json:"config"`
+	Pooler              Pooler                 `json:"pooler"`
+	Flavor              Flavor                 `json:"flavor"`
+	NodeCount           int                    `json:"node_count"`
+	Enabled             bool                   `json:"enabled"`
+	IsMaintenance       bool                   `json:"is_maintenance"`
+	BackupRetentionDays int                    `json:"backup_retention_days"`
 }
 
 // DatastoreCreateOpts represents options for the datastore Create request.
 type DatastoreCreateOpts struct {
-	Flavor        *Flavor                `json:"flavor,omitempty"`
-	Restore       *Restore               `json:"restore,omitempty"`
-	Pooler        *Pooler                `json:"pooler,omitempty"`
-	Config        map[string]interface{} `json:"config,omitempty"`
-	Name          string                 `json:"name"`
-	TypeID        string                 `json:"type_id"`
-	SubnetID      string                 `json:"subnet_id"`
-	FlavorID      string                 `json:"flavor_id,omitempty"`
-	RedisPassword string                 `json:"redis_password,omitempty"`
-	NodeCount     int                    `json:"node_count"`
+	Flavor              *Flavor                `json:"flavor,omitempty"`
+	Restore             *Restore               `json:"restore,omitempty"`
+	Pooler              *Pooler                `json:"pooler,omitempty"`
+	Config              map[string]interface{} `json:"config,omitempty"`
+	Name                string                 `json:"name"`
+	TypeID              string                 `json:"type_id"`
+	SubnetID            string                 `json:"subnet_id"`
+	FlavorID            string                 `json:"flavor_id,omitempty"`
+	RedisPassword       string                 `json:"redis_password,omitempty"`
+	NodeCount           int                    `json:"node_count"`
+	BackupRetentionDays int                    `json:"backup_retention_days,omitempty"`
 }
 
 // DatastoreUpdateOpts represents options for the datastore Update request.
@@ -117,6 +120,11 @@ type DatastoreQueryParams struct {
 	TypeID    string `json:"type_id,omitempty"`
 	SubnetID  string `json:"subnet_id,omitempty"`
 	Deleted   bool   `json:"deleted,omitempty"`
+}
+
+// DatastoreBackupsOpts represents update options for the Datastore backups.
+type DatastoreBackupsOpts struct {
+	BackupRetentionDays int `json:"backup_retention_days"`
 }
 
 // Datastores returns all datastores.
@@ -355,6 +363,35 @@ func (api *API) PasswordDatastore(ctx context.Context, datastoreID string, opts 
 		Datastore: opts,
 	}
 	requestBody, err := json.Marshal(passwordDatastoreOpts)
+	if err != nil {
+		return Datastore{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
+	}
+
+	resp, err := api.makeRequest(ctx, http.MethodPut, uri, requestBody)
+	if err != nil {
+		return Datastore{}, err
+	}
+
+	var result struct {
+		Datastore Datastore `json:"datastore"`
+	}
+	err = json.Unmarshal(resp, &result)
+	if err != nil {
+		return Datastore{}, fmt.Errorf("Error during Unmarshal, %w", err)
+	}
+
+	return result.Datastore, nil
+}
+
+// BackupsDatastore updates backups parameters of an existing datastore.
+func (api *API) BackupsDatastore(ctx context.Context, datastoreID string, opts DatastoreBackupsOpts) (Datastore, error) { //nolint
+	uri := fmt.Sprintf("/datastores/%s/backups", datastoreID)
+	backupsDatastoreOpts := struct {
+		Datastore DatastoreBackupsOpts `json:"backups"`
+	}{
+		Datastore: opts,
+	}
+	requestBody, err := json.Marshal(backupsDatastoreOpts)
 	if err != nil {
 		return Datastore{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
 	}
