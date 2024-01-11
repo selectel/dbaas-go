@@ -26,9 +26,11 @@ type Grant struct {
 	Status      Status `json:"status"`
 }
 
+const GrantsURI = "/grants"
+
 // Grant returns a grant based on the ID.
 func (api *API) Grant(ctx context.Context, grantID string) (Grant, error) {
-	uri := fmt.Sprintf("/grants/%s", grantID)
+	uri := fmt.Sprintf("%s/%s", GrantsURI, grantID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
@@ -48,9 +50,7 @@ func (api *API) Grant(ctx context.Context, grantID string) (Grant, error) {
 
 // Grants returns all grants.
 func (api *API) Grants(ctx context.Context) ([]Grant, error) {
-	uri := "/grants"
-
-	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
+	resp, err := api.makeRequest(ctx, http.MethodGet, GrantsURI, nil)
 	if err != nil {
 		return []Grant{}, err
 	}
@@ -68,7 +68,6 @@ func (api *API) Grants(ctx context.Context) ([]Grant, error) {
 
 // CreateGrant creates a new grant.
 func (api *API) CreateGrant(ctx context.Context, opts GrantCreateOpts) (Grant, error) {
-	uri := "/grants"
 	createGrantOpts := struct {
 		Grant GrantCreateOpts `json:"grant"`
 	}{
@@ -79,7 +78,7 @@ func (api *API) CreateGrant(ctx context.Context, opts GrantCreateOpts) (Grant, e
 		return Grant{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
 	}
 
-	resp, err := api.makeRequest(ctx, http.MethodPost, uri, requestBody)
+	resp, err := api.makeRequest(ctx, http.MethodPost, GrantsURI, requestBody)
 	if err != nil {
 		return Grant{}, err
 	}
@@ -97,7 +96,7 @@ func (api *API) CreateGrant(ctx context.Context, opts GrantCreateOpts) (Grant, e
 
 // DeleteGrant deletes an existing grant.
 func (api *API) DeleteGrant(ctx context.Context, grantID string) error {
-	uri := fmt.Sprintf("/grants/%s", grantID)
+	uri := fmt.Sprintf("%s/%s", GrantsURI, grantID)
 
 	_, err := api.makeRequest(ctx, http.MethodDelete, uri, nil)
 	if err != nil {

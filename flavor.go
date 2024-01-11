@@ -18,11 +18,11 @@ type FlavorResponse struct {
 	Disk             int      `json:"disk"`
 }
 
+const FlavorsURI = "/flavors"
+
 // Flavors returns all flavors.
 func (api *API) Flavors(ctx context.Context) ([]FlavorResponse, error) {
-	uri := "/flavors"
-
-	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
+	resp, err := api.makeRequest(ctx, http.MethodGet, FlavorsURI, nil)
 	if err != nil {
 		return []FlavorResponse{}, err
 	}
@@ -40,7 +40,7 @@ func (api *API) Flavors(ctx context.Context) ([]FlavorResponse, error) {
 
 // Flavor returns a flavor based on the ID.
 func (api *API) Flavor(ctx context.Context, flavorID string) (FlavorResponse, error) {
-	uri := fmt.Sprintf("/flavors/%s", flavorID)
+	uri := fmt.Sprintf("%s/%s", FlavorsURI, flavorID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {

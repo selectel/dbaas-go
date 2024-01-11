@@ -3,11 +3,13 @@ package dbaas
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const databaseID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
@@ -16,7 +18,7 @@ const testDatabaseNotFoundResponse = `{
 	"error": {
 		"code": 404,
 		"title": "Not Found",
-		"message": "database 123 not found."
+		"message": "database %s not found."
 	}
 }`
 
@@ -85,7 +87,7 @@ func TestDatabases(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/databases",
+	httpmock.RegisterResponder("GET", testClient.Endpoint+DatabasesURI,
 		httpmock.NewStringResponder(200, testDatabasesResponse))
 
 	expected := []Database{
@@ -115,9 +117,8 @@ func TestDatabases(t *testing.T) {
 
 	actual, err := testClient.Databases(context.Background(), nil)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestDatabase(t *testing.T) {
@@ -125,7 +126,7 @@ func TestDatabase(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/databases/"+databaseID,
+	httpmock.RegisterResponder("GET", testClient.Endpoint+DatabasesURI+"/"+databaseID,
 		httpmock.NewStringResponder(200, testDatabaseResponse))
 
 	expected := Database{
@@ -142,9 +143,8 @@ func TestDatabase(t *testing.T) {
 
 	actual, err := testClient.Database(context.Background(), databaseID)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestDatabaseNotFound(t *testing.T) {
@@ -152,17 +152,18 @@ func TestDatabaseNotFound(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/databases/123",
-		httpmock.NewStringResponder(404, testDatabaseNotFoundResponse))
+	notFoundResponse := fmt.Sprintf(testDatabaseNotFoundResponse, NotFoundEntityID)
+	httpmock.RegisterResponder("GET", testClient.Endpoint+DatabasesURI+"/"+NotFoundEntityID,
+		httpmock.NewStringResponder(404, notFoundResponse))
 
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
-	expected.APIError.Message = "database 123 not found."
+	expected.APIError.Message = fmt.Sprintf("database %s not found.", NotFoundEntityID)
 
-	_, err := testClient.Database(context.Background(), "123")
+	_, err := testClient.Database(context.Background(), NotFoundEntityID)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestCreateDatabase(t *testing.T) {
@@ -170,7 +171,7 @@ func TestCreateDatabase(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/databases",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+DatabasesURI,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&DatabaseCreateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -217,9 +218,8 @@ func TestCreateDatabase(t *testing.T) {
 
 	actual, err := testClient.CreateDatabase(context.Background(), createDatabaseOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestCreateDatabaseInvalidDatastoreID(t *testing.T) {
@@ -227,7 +227,7 @@ func TestCreateDatabaseInvalidDatastoreID(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/databases",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+DatabasesURI,
 		httpmock.NewStringResponder(400, testCreateDatabaseInvalidDatastoreIDResponse))
 
 	expected := &DBaaSAPIError{}
@@ -244,7 +244,7 @@ func TestCreateDatabaseInvalidDatastoreID(t *testing.T) {
 
 	_, err := testClient.CreateDatabase(context.Background(), createDatabaseOpts)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestUpdateDatabase(t *testing.T) {
@@ -252,7 +252,7 @@ func TestUpdateDatabase(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/databases/"+databaseID,
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatabasesURI+"/"+databaseID,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&DatabaseUpdateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -297,9 +297,8 @@ func TestUpdateDatabase(t *testing.T) {
 
 	actual, err := testClient.UpdateDatabase(context.Background(), databaseID, updateDatabaseOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestUpdateDatabaseInvalidOwnerID(t *testing.T) {
@@ -307,7 +306,7 @@ func TestUpdateDatabaseInvalidOwnerID(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/databases/"+databaseID,
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatabasesURI+"/"+databaseID,
 		httpmock.NewStringResponder(400, testUpdateDatabaseInvalidOwnerIDResponse))
 
 	expected := &DBaaSAPIError{}
@@ -322,5 +321,5 @@ func TestUpdateDatabaseInvalidOwnerID(t *testing.T) {
 
 	_, err := testClient.UpdateDatabase(context.Background(), databaseID, updateDatabaseOpts)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }

@@ -3,11 +3,13 @@ package dbaas
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const slotID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
@@ -16,7 +18,7 @@ const testLogicalReplicationSlotNotFoundResponse = `{
 	"error": {
 		"code": 404,
 		"title": "Not Found",
-		"message": "logicalreplicationslot 123 not found."
+		"message": "logicalreplicationslot %s not found."
 	}
 }`
 
@@ -65,7 +67,7 @@ func TestLogicalReplicationSlots(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/logical-replication-slots",
+	httpmock.RegisterResponder("GET", testClient.Endpoint+LogicalReplicationSlotsURI,
 		httpmock.NewStringResponder(200, testLogicalReplicationSlotsResponse))
 
 	expected := []LogicalReplicationSlot{
@@ -93,9 +95,8 @@ func TestLogicalReplicationSlots(t *testing.T) {
 
 	actual, err := testClient.LogicalReplicationSlots(context.Background(), nil)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestLogicalReplicationSlot(t *testing.T) {
@@ -103,7 +104,7 @@ func TestLogicalReplicationSlot(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/logical-replication-slots/"+slotID,
+	httpmock.RegisterResponder("GET", testClient.Endpoint+LogicalReplicationSlotsURI+"/"+slotID,
 		httpmock.NewStringResponder(200, testLogicalReplicationSlotResponse))
 
 	expected := LogicalReplicationSlot{
@@ -119,9 +120,8 @@ func TestLogicalReplicationSlot(t *testing.T) {
 
 	actual, err := testClient.LogicalReplicationSlot(context.Background(), slotID)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestLogicalReplicationSlotNotFound(t *testing.T) {
@@ -129,17 +129,18 @@ func TestLogicalReplicationSlotNotFound(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/logical-replication-slots/123",
-		httpmock.NewStringResponder(404, testLogicalReplicationSlotNotFoundResponse))
+	notFoundResponse := fmt.Sprintf(testLogicalReplicationSlotNotFoundResponse, NotFoundEntityID)
+	httpmock.RegisterResponder("GET", testClient.Endpoint+LogicalReplicationSlotsURI+"/"+NotFoundEntityID,
+		httpmock.NewStringResponder(404, notFoundResponse))
 
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
-	expected.APIError.Message = "logicalreplicationslot 123 not found."
+	expected.APIError.Message = fmt.Sprintf("logicalreplicationslot %s not found.", NotFoundEntityID)
 
-	_, err := testClient.LogicalReplicationSlot(context.Background(), "123")
+	_, err := testClient.LogicalReplicationSlot(context.Background(), NotFoundEntityID)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestCreateLogicalReplicationSlot(t *testing.T) {
@@ -158,7 +159,7 @@ func TestCreateLogicalReplicationSlot(t *testing.T) {
 		Status:      StatusPendingCreate,
 	}
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/logical-replication-slots",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+LogicalReplicationSlotsURI,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&LogicalReplicationSlotCreateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -183,7 +184,6 @@ func TestCreateLogicalReplicationSlot(t *testing.T) {
 
 	actual, err := testClient.CreateLogicalReplicationSlot(context.Background(), createLogicalReplicationSlotOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }

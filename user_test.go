@@ -3,11 +3,13 @@ package dbaas
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const userID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
@@ -16,7 +18,7 @@ const testUserNotFoundResponse = `{
 	"error": {
 		"code": 404,
 		"title": "Not Found",
-		"message": "user 123 not found."
+		"message": "user %s not found."
 	}
 }`
 
@@ -71,7 +73,7 @@ func TestUsers(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/users",
+	httpmock.RegisterResponder("GET", testClient.Endpoint+UsersURI,
 		httpmock.NewStringResponder(200, testUsersResponse))
 
 	expected := []User{
@@ -97,9 +99,8 @@ func TestUsers(t *testing.T) {
 
 	actual, err := testClient.Users(context.Background())
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestUser(t *testing.T) {
@@ -107,7 +108,7 @@ func TestUser(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/users/"+userID,
+	httpmock.RegisterResponder("GET", testClient.Endpoint+UsersURI+"/"+userID,
 		httpmock.NewStringResponder(200, testUserResponse))
 
 	expected := User{
@@ -122,9 +123,8 @@ func TestUser(t *testing.T) {
 
 	actual, err := testClient.User(context.Background(), userID)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestUserNotFound(t *testing.T) {
@@ -132,17 +132,18 @@ func TestUserNotFound(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/users/123",
-		httpmock.NewStringResponder(404, testUserNotFoundResponse))
+	notFoundResponse := fmt.Sprintf(testUserNotFoundResponse, NotFoundEntityID)
+	httpmock.RegisterResponder("GET", testClient.Endpoint+UsersURI+"/"+NotFoundEntityID,
+		httpmock.NewStringResponder(404, notFoundResponse))
 
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
-	expected.APIError.Message = "user 123 not found."
+	expected.APIError.Message = fmt.Sprintf("user %s not found.", NotFoundEntityID)
 
-	_, err := testClient.User(context.Background(), "123")
+	_, err := testClient.User(context.Background(), NotFoundEntityID)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestCreateUser(t *testing.T) {
@@ -150,7 +151,7 @@ func TestCreateUser(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/users",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+UsersURI,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&UserCreateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -193,9 +194,8 @@ func TestCreateUser(t *testing.T) {
 
 	actual, err := testClient.CreateUser(context.Background(), createUserOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestCreateUserInvalidDatastoreID(t *testing.T) {
@@ -203,7 +203,7 @@ func TestCreateUserInvalidDatastoreID(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/users",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+UsersURI,
 		httpmock.NewStringResponder(400, testCreateUserInvalidDatastoreIDResponse))
 
 	expected := &DBaaSAPIError{}
@@ -220,7 +220,7 @@ func TestCreateUserInvalidDatastoreID(t *testing.T) {
 
 	_, err := testClient.CreateUser(context.Background(), createUserOpts)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestUpdateUser(t *testing.T) {
@@ -228,7 +228,7 @@ func TestUpdateUser(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/users/"+userID,
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+UsersURI+"/"+userID,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&UserUpdateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -269,7 +269,6 @@ func TestUpdateUser(t *testing.T) {
 
 	actual, err := testClient.UpdateUser(context.Background(), userID, updateUserOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }

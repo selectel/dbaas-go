@@ -40,16 +40,15 @@ type DatabaseQueryParams struct {
 	ID          string `json:"id,omitempty"`
 	ProjectID   string `json:"project_id,omitempty"`
 	Name        string `json:"name,omitempty"`
-	OwnerID     string `json:"owner_id,omitempty"`
-	LcCollate   string `json:"lc_collate,omitempty"`
-	LcCtype     string `json:"lc_ctype,omitempty"`
 	DatastoreID string `json:"datastore_id,omitempty"`
 	Status      Status `json:"status,omitempty"`
 }
 
+const DatabasesURI = "/databases"
+
 // Databases returns all databases.
 func (api *API) Databases(ctx context.Context, params *DatabaseQueryParams) ([]Database, error) {
-	uri, err := setQueryParams("/databases", params)
+	uri, err := setQueryParams(DatabasesURI, params)
 	if err != nil {
 		return []Database{}, err
 	}
@@ -72,7 +71,7 @@ func (api *API) Databases(ctx context.Context, params *DatabaseQueryParams) ([]D
 
 // Database returns a database based on the ID.
 func (api *API) Database(ctx context.Context, databaseID string) (Database, error) {
-	uri := fmt.Sprintf("/databases/%s", databaseID)
+	uri := fmt.Sprintf("%s/%s", DatabasesURI, databaseID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
@@ -92,7 +91,6 @@ func (api *API) Database(ctx context.Context, databaseID string) (Database, erro
 
 // CreateDatabase creates a new database.
 func (api *API) CreateDatabase(ctx context.Context, opts DatabaseCreateOpts) (Database, error) {
-	uri := "/databases"
 	createDatabaseOpts := struct {
 		Database DatabaseCreateOpts `json:"database"`
 	}{
@@ -103,7 +101,7 @@ func (api *API) CreateDatabase(ctx context.Context, opts DatabaseCreateOpts) (Da
 		return Database{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
 	}
 
-	resp, err := api.makeRequest(ctx, http.MethodPost, uri, requestBody)
+	resp, err := api.makeRequest(ctx, http.MethodPost, DatabasesURI, requestBody)
 	if err != nil {
 		return Database{}, err
 	}
@@ -121,7 +119,7 @@ func (api *API) CreateDatabase(ctx context.Context, opts DatabaseCreateOpts) (Da
 
 // UpdateDatabase updates an existing database.
 func (api *API) UpdateDatabase(ctx context.Context, databaseID string, opts DatabaseUpdateOpts) (Database, error) {
-	uri := fmt.Sprintf("/databases/%s", databaseID)
+	uri := fmt.Sprintf("%s/%s", DatabasesURI, databaseID)
 	updateDatabaseOpts := struct {
 		Database DatabaseUpdateOpts `json:"database"`
 	}{
@@ -150,7 +148,7 @@ func (api *API) UpdateDatabase(ctx context.Context, databaseID string, opts Data
 
 // DeleteDatabase deletes an existing database.
 func (api *API) DeleteDatabase(ctx context.Context, databaseID string) error {
-	uri := fmt.Sprintf("/databases/%s", databaseID)
+	uri := fmt.Sprintf("%s/%s", DatabasesURI, databaseID)
 
 	_, err := api.makeRequest(ctx, http.MethodDelete, uri, nil)
 	if err != nil {

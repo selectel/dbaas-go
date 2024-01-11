@@ -10,6 +10,7 @@ import (
 // Extension is the API response for the extension.
 type Extension struct {
 	ID                   string `json:"id"`
+	ProjectID            string `json:"project_id"`
 	AvailableExtensionID string `json:"available_extension_id"`
 	CreatedAt            string `json:"created_at"`
 	UpdatedAt            string `json:"updated_at"`
@@ -28,15 +29,18 @@ type ExtensionCreateOpts struct {
 // ExtensionQueryParams represents available query parameters for extension.
 type ExtensionQueryParams struct {
 	ID                   string `json:"id,omitempty"`
+	ProjectID            string `json:"project_id,omitempty"`
 	AvailableExtensionID string `json:"available_extension_id,omitempty"`
 	DatastoreID          string `json:"datastore_id,omitempty"`
 	DatabaseID           string `json:"database_id,omitempty"`
 	Status               Status `json:"status,omitempty"`
 }
 
+const ExtensionsURI = "/extensions"
+
 // Extensions returns all extensions.
 func (api *API) Extensions(ctx context.Context, params *ExtensionQueryParams) ([]Extension, error) {
-	uri, err := setQueryParams("/extensions", params)
+	uri, err := setQueryParams(ExtensionsURI, params)
 	if err != nil {
 		return []Extension{}, err
 	}
@@ -59,7 +63,7 @@ func (api *API) Extensions(ctx context.Context, params *ExtensionQueryParams) ([
 
 // Extension returns a extension based on the ID.
 func (api *API) Extension(ctx context.Context, extensionID string) (Extension, error) {
-	uri := fmt.Sprintf("/extensions/%s", extensionID)
+	uri := fmt.Sprintf("%s/%s", ExtensionsURI, extensionID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
@@ -79,7 +83,6 @@ func (api *API) Extension(ctx context.Context, extensionID string) (Extension, e
 
 // CreateExtension creates a new extension.
 func (api *API) CreateExtension(ctx context.Context, opts ExtensionCreateOpts) (Extension, error) {
-	uri := "/extensions"
 	createExtensionOpts := struct {
 		Extension ExtensionCreateOpts `json:"extension"`
 	}{
@@ -90,7 +93,7 @@ func (api *API) CreateExtension(ctx context.Context, opts ExtensionCreateOpts) (
 		return Extension{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
 	}
 
-	resp, err := api.makeRequest(ctx, http.MethodPost, uri, requestBody)
+	resp, err := api.makeRequest(ctx, http.MethodPost, ExtensionsURI, requestBody)
 	if err != nil {
 		return Extension{}, err
 	}
@@ -108,7 +111,7 @@ func (api *API) CreateExtension(ctx context.Context, opts ExtensionCreateOpts) (
 
 // DeleteExtension deletes an existing extension.
 func (api *API) DeleteExtension(ctx context.Context, extensionID string) error {
-	uri := fmt.Sprintf("/extensions/%s", extensionID)
+	uri := fmt.Sprintf("%s/%s", ExtensionsURI, extensionID)
 
 	_, err := api.makeRequest(ctx, http.MethodDelete, uri, nil)
 	if err != nil {

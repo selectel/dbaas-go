@@ -27,18 +27,21 @@ type LogicalReplicationSlotCreateOpts struct {
 
 type LogicalReplicationSlotQueryParams struct {
 	ID          string `json:"id,omitempty"`
+	ProjectID   string `json:"project_id,omitempty"`
 	Name        string `json:"name,omitempty"`
 	DatastoreID string `json:"datastore_id,omitempty"`
 	DatabaseID  string `json:"database_id,omitempty"`
 	Status      Status `json:"status,omitempty"`
 }
 
+const LogicalReplicationSlotsURI = "/logical-replication-slots"
+
 // LogicalReplicationSlots returns all slots.
 func (api *API) LogicalReplicationSlots(
 	ctx context.Context,
 	params *LogicalReplicationSlotQueryParams,
 ) ([]LogicalReplicationSlot, error) {
-	uri, err := setQueryParams("/logical-replication-slots", params)
+	uri, err := setQueryParams(LogicalReplicationSlotsURI, params)
 	if err != nil {
 		return []LogicalReplicationSlot{}, err
 	}
@@ -61,7 +64,7 @@ func (api *API) LogicalReplicationSlots(
 
 // LogicalReplicationSlot returns a slot based on the ID.
 func (api *API) LogicalReplicationSlot(ctx context.Context, slotID string) (LogicalReplicationSlot, error) {
-	uri := fmt.Sprintf("/logical-replication-slots/%s", slotID)
+	uri := fmt.Sprintf("%s/%s", LogicalReplicationSlotsURI, slotID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
@@ -84,7 +87,6 @@ func (api *API) CreateLogicalReplicationSlot(
 	ctx context.Context,
 	opts LogicalReplicationSlotCreateOpts,
 ) (LogicalReplicationSlot, error) {
-	uri := "/logical-replication-slots"
 	createLogicalReplicationSlotsOpts := struct {
 		LogicalReplicationSlot LogicalReplicationSlotCreateOpts `json:"logical-replication-slot"`
 	}{
@@ -95,7 +97,7 @@ func (api *API) CreateLogicalReplicationSlot(
 		return LogicalReplicationSlot{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
 	}
 
-	resp, err := api.makeRequest(ctx, http.MethodPost, uri, requestBody)
+	resp, err := api.makeRequest(ctx, http.MethodPost, LogicalReplicationSlotsURI, requestBody)
 	if err != nil {
 		return LogicalReplicationSlot{}, err
 	}
@@ -112,7 +114,7 @@ func (api *API) CreateLogicalReplicationSlot(
 
 // DeleteLogicalReplicationSlot deletes an existing slot.
 func (api *API) DeleteLogicalReplicationSlot(ctx context.Context, slotID string) error {
-	uri := fmt.Sprintf("/logical-replication-slots/%s", slotID)
+	uri := fmt.Sprintf("%s/%s", LogicalReplicationSlotsURI, slotID)
 
 	_, err := api.makeRequest(ctx, http.MethodDelete, uri, nil)
 	if err != nil {

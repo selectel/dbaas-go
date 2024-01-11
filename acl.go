@@ -49,9 +49,11 @@ type ACLQueryParams struct {
 	Status      Status `json:"status,omitempty"`
 }
 
+const ACLsURI = "/acls"
+
 // ACLs returns all ACLs.
 func (api *API) ACLs(ctx context.Context, params *ACLQueryParams) ([]ACL, error) {
-	uri, err := setQueryParams("/acls", params)
+	uri, err := setQueryParams(ACLsURI, params)
 	if err != nil {
 		return []ACL{}, err
 	}
@@ -74,7 +76,7 @@ func (api *API) ACLs(ctx context.Context, params *ACLQueryParams) ([]ACL, error)
 
 // ACL returns an ACL based on the ID.
 func (api *API) ACL(ctx context.Context, aclID string) (ACL, error) {
-	uri := fmt.Sprintf("/acls/%s", aclID)
+	uri := fmt.Sprintf("%s/%s", ACLsURI, aclID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
@@ -94,7 +96,6 @@ func (api *API) ACL(ctx context.Context, aclID string) (ACL, error) {
 
 // CreateACL creates a new acl.
 func (api *API) CreateACL(ctx context.Context, opts ACLCreateOpts) (ACL, error) {
-	uri := "/acls"
 	createACLOpts := struct {
 		ACL ACLCreateOpts `json:"acl"`
 	}{
@@ -105,7 +106,7 @@ func (api *API) CreateACL(ctx context.Context, opts ACLCreateOpts) (ACL, error) 
 		return ACL{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
 	}
 
-	resp, err := api.makeRequest(ctx, http.MethodPost, uri, requestBody)
+	resp, err := api.makeRequest(ctx, http.MethodPost, ACLsURI, requestBody)
 	if err != nil {
 		return ACL{}, err
 	}
@@ -123,7 +124,7 @@ func (api *API) CreateACL(ctx context.Context, opts ACLCreateOpts) (ACL, error) 
 
 // UpdateACL updates an existing acl.
 func (api *API) UpdateACL(ctx context.Context, aclID string, opts ACLUpdateOpts) (ACL, error) {
-	uri := fmt.Sprintf("/acls/%s", aclID)
+	uri := fmt.Sprintf("%s/%s", ACLsURI, aclID)
 	updateACLOpts := struct {
 		ACL ACLUpdateOpts `json:"acl"`
 	}{
@@ -152,7 +153,7 @@ func (api *API) UpdateACL(ctx context.Context, aclID string, opts ACLUpdateOpts)
 
 // DeleteACL deletes an existing acl.
 func (api *API) DeleteACL(ctx context.Context, aclID string) error {
-	uri := fmt.Sprintf("/acls/%s", aclID)
+	uri := fmt.Sprintf("%s/%s", ACLsURI, aclID)
 
 	_, err := api.makeRequest(ctx, http.MethodDelete, uri, nil)
 	if err != nil {

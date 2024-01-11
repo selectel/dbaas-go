@@ -2,10 +2,12 @@ package dbaas
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const configurationParameterID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
@@ -14,7 +16,7 @@ const testConfigurationParameterNotFoundResponse = `{
 	"error": {
 		"code": 404,
 		"title": "Not Found",
-		"message": "configurationparameter 123 not found."
+		"message": "configurationparameter %s not found."
 	}
 }`
 
@@ -77,7 +79,7 @@ func TestConfigurationParameters(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/configuration-parameters",
+	httpmock.RegisterResponder("GET", testClient.Endpoint+ConfigurationParametersURI,
 		httpmock.NewStringResponder(200, testConfigurationParametersResponse))
 
 	choices := []interface{}{"NEVER", "AUTO", "ALWAYS", "0", "1", "2"}
@@ -112,9 +114,8 @@ func TestConfigurationParameters(t *testing.T) {
 
 	actual, err := testClient.ConfigurationParameters(context.Background())
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestConfigurationParameter(t *testing.T) {
@@ -122,7 +123,7 @@ func TestConfigurationParameter(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/configuration-parameters/"+configurationParameterID,
+	httpmock.RegisterResponder("GET", testClient.Endpoint+ConfigurationParametersURI+"/"+configurationParameterID,
 		httpmock.NewStringResponder(200, testConfigurationParameterResponse))
 
 	expected := ConfigurationParameter{
@@ -141,9 +142,8 @@ func TestConfigurationParameter(t *testing.T) {
 
 	actual, err := testClient.ConfigurationParameter(context.Background(), configurationParameterID)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestConfigurationParameterNotFound(t *testing.T) {
@@ -151,15 +151,16 @@ func TestConfigurationParameterNotFound(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/configuration-parameters/123",
-		httpmock.NewStringResponder(404, testConfigurationParameterNotFoundResponse))
+	notFoundResponse := fmt.Sprintf(testConfigurationParameterNotFoundResponse, NotFoundEntityID)
+	httpmock.RegisterResponder("GET", testClient.Endpoint+ConfigurationParametersURI+"/"+NotFoundEntityID,
+		httpmock.NewStringResponder(404, notFoundResponse))
 
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
-	expected.APIError.Message = "configurationparameter 123 not found."
+	expected.APIError.Message = fmt.Sprintf("configurationparameter %s not found.", NotFoundEntityID)
 
-	_, err := testClient.ConfigurationParameter(context.Background(), "123")
+	_, err := testClient.ConfigurationParameter(context.Background(), NotFoundEntityID)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }

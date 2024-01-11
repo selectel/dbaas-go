@@ -3,18 +3,20 @@ package dbaas
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const testDatastoreNotFoundResponse = `{
 	"error": {
 		"code": 404,
 		"title": "Not Found",
-		"message": "database 123 not found."
+		"message": "database %s not found."
 	}
 }`
 
@@ -606,14 +608,13 @@ func TestDatastores(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/datastores",
+	httpmock.RegisterResponder("GET", testClient.Endpoint+DatastoresURI,
 		httpmock.NewStringResponder(200, testDatastoresResponse))
 
 	actual, err := testClient.Datastores(context.Background(), nil)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, datastoreListExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, datastoreListExpected, actual)
 }
 
 func TestDatastore(t *testing.T) {
@@ -621,7 +622,7 @@ func TestDatastore(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/datastores/"+datastoreID,
+	httpmock.RegisterResponder("GET", testClient.Endpoint+DatastoresURI+"/"+datastoreID,
 		httpmock.NewStringResponder(200, testDatastoreResponse))
 
 	expected := Datastore{
@@ -662,9 +663,8 @@ func TestDatastore(t *testing.T) {
 
 	actual, err := testClient.Datastore(context.Background(), datastoreID)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestMultiNodeDatastore(t *testing.T) {
@@ -672,7 +672,7 @@ func TestMultiNodeDatastore(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/datastores/"+datastoreID,
+	httpmock.RegisterResponder("GET", testClient.Endpoint+DatastoresURI+"/"+datastoreID,
 		httpmock.NewStringResponder(200, testMultiNodeDatastoreResponse))
 
 	expected := Datastore{
@@ -729,9 +729,8 @@ func TestMultiNodeDatastore(t *testing.T) {
 
 	actual, err := testClient.Datastore(context.Background(), datastoreID)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestDatastoreNotFound(t *testing.T) {
@@ -739,17 +738,18 @@ func TestDatastoreNotFound(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/datastores/123",
-		httpmock.NewStringResponder(404, testDatastoreNotFoundResponse))
+	notFoundResponse := fmt.Sprintf(testDatastoreNotFoundResponse, NotFoundEntityID)
+	httpmock.RegisterResponder("GET", testClient.Endpoint+DatastoresURI+"/"+NotFoundEntityID,
+		httpmock.NewStringResponder(404, notFoundResponse))
 
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
-	expected.APIError.Message = "datastore 123 not found."
+	expected.APIError.Message = fmt.Sprintf("datastore %s not found.", NotFoundEntityID)
 
-	_, err := testClient.Datastore(context.Background(), "123")
+	_, err := testClient.Datastore(context.Background(), NotFoundEntityID)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestCreateDatastore(t *testing.T) {
@@ -757,7 +757,7 @@ func TestCreateDatastore(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/datastores",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+DatastoresURI,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&DatastoreCreateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -783,9 +783,8 @@ func TestCreateDatastore(t *testing.T) {
 
 	actual, err := testClient.CreateDatastore(context.Background(), createDatastoreOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, datastoreCreateExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, datastoreCreateExpected, actual)
 }
 
 func TestCreateDatatastoreInvalidTypeID(t *testing.T) {
@@ -793,7 +792,7 @@ func TestCreateDatatastoreInvalidTypeID(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/datastores",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+DatastoresURI,
 		httpmock.NewStringResponder(400, testCreateDatastoreInvalidDatastoreIDResponse))
 
 	expected := &DBaaSAPIError{}
@@ -812,7 +811,7 @@ func TestCreateDatatastoreInvalidTypeID(t *testing.T) {
 
 	_, err := testClient.CreateDatastore(context.Background(), createDatastoreOpts)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestUpdateDatastore(t *testing.T) {
@@ -820,7 +819,7 @@ func TestUpdateDatastore(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/datastores/"+datastoreID,
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatastoresURI+"/"+datastoreID,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&DatastoreUpdateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -842,9 +841,8 @@ func TestUpdateDatastore(t *testing.T) {
 
 	actual, err := testClient.UpdateDatastore(context.Background(), datastoreID, updateDatastoreOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, datastoreUpdateExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, datastoreUpdateExpected, actual)
 }
 
 func TestUpdateDatatastoreInvalidName(t *testing.T) {
@@ -852,7 +850,7 @@ func TestUpdateDatatastoreInvalidName(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/datastores/"+datastoreID,
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatastoresURI+"/"+datastoreID,
 		httpmock.NewStringResponder(400, testUpdateDatastoreInvalidName))
 
 	expected := &DBaaSAPIError{}
@@ -866,7 +864,7 @@ func TestUpdateDatatastoreInvalidName(t *testing.T) {
 
 	_, err := testClient.UpdateDatastore(context.Background(), datastoreID, updateDatastoreOpts)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestResizeDatastore(t *testing.T) {
@@ -874,7 +872,7 @@ func TestResizeDatastore(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/datastores/"+datastoreID+"/resize",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/resize",
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&DatastoreResizeOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -897,9 +895,8 @@ func TestResizeDatastore(t *testing.T) {
 
 	actual, err := testClient.ResizeDatastore(context.Background(), datastoreID, resizeDatastoreOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, datastoreResizeExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, datastoreResizeExpected, actual)
 }
 
 func TestResizeDatatastoreInvalidNodeCount(t *testing.T) {
@@ -907,7 +904,7 @@ func TestResizeDatatastoreInvalidNodeCount(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/datastores/"+datastoreID+"/resize",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/resize",
 		httpmock.NewStringResponder(400, testResizeDatastoreInvalidNodeCount))
 
 	expected := &DBaaSAPIError{}
@@ -921,7 +918,7 @@ func TestResizeDatatastoreInvalidNodeCount(t *testing.T) {
 
 	_, err := testClient.ResizeDatastore(context.Background(), datastoreID, resizeDatastoreOpts)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestPoolerDatastore(t *testing.T) {
@@ -929,7 +926,7 @@ func TestPoolerDatastore(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/datastores/"+datastoreID+"/pooler",
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/pooler",
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&DatastorePoolerOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -952,9 +949,8 @@ func TestPoolerDatastore(t *testing.T) {
 
 	actual, err := testClient.PoolerDatastore(context.Background(), datastoreID, poolerDatastoreOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, datastoreUpdateExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, datastoreUpdateExpected, actual)
 }
 
 func TestPoolerDatatastoreInvalidMode(t *testing.T) {
@@ -962,7 +958,7 @@ func TestPoolerDatatastoreInvalidMode(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/datastores/"+datastoreID+"/pooler",
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/pooler",
 		httpmock.NewStringResponder(400, testPoolerDatastoreInvalidMode))
 
 	expected := &DBaaSAPIError{}
@@ -978,7 +974,7 @@ func TestPoolerDatatastoreInvalidMode(t *testing.T) {
 
 	_, err := testClient.PoolerDatastore(context.Background(), datastoreID, poolerDatastoreOpts)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestFirewallDatastore(t *testing.T) {
@@ -986,7 +982,7 @@ func TestFirewallDatastore(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/datastores/"+datastoreID+"/firewall",
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/firewall",
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&DatastoreFirewallOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -1008,9 +1004,8 @@ func TestFirewallDatastore(t *testing.T) {
 
 	actual, err := testClient.FirewallDatastore(context.Background(), datastoreID, firewallDatastoreOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, datastoreUpdateExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, datastoreUpdateExpected, actual)
 }
 
 func TestConfigDatastore(t *testing.T) {
@@ -1018,7 +1013,7 @@ func TestConfigDatastore(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/datastores/"+datastoreID+"/config",
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/config",
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&DatastoreConfigOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -1043,9 +1038,8 @@ func TestConfigDatastore(t *testing.T) {
 
 	actual, err := testClient.ConfigDatastore(context.Background(), datastoreID, configDatastoreOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, datastoreUpdateConfigExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, datastoreUpdateConfigExpected, actual)
 }
 
 func TestPasswordDatastore(t *testing.T) {
@@ -1053,7 +1047,7 @@ func TestPasswordDatastore(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/datastores/"+datastoreID+"/password",
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/password",
 		func(req *http.Request) (*http.Response, error) {
 			tempPasswordOpts := struct {
 				Password DatastorePasswordOpts `json:"password"`
@@ -1080,9 +1074,8 @@ func TestPasswordDatastore(t *testing.T) {
 
 	actual, err := testClient.PasswordDatastore(context.Background(), datastoreID, passwordDatastoreOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, datastoreUpdateExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, datastoreUpdateExpected, actual)
 }
 
 func TestBackupsDatastore(t *testing.T) {
@@ -1090,7 +1083,7 @@ func TestBackupsDatastore(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/datastores/"+datastoreID+"/backups",
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/backups",
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&DatastoreBackupsOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -1111,8 +1104,7 @@ func TestBackupsDatastore(t *testing.T) {
 	}
 
 	actual, err := testClient.BackupsDatastore(context.Background(), datastoreID, backupsDatastoreOpts)
-	if assert.NoError(t, err) {
-		assert.Equal(t, httpmock.GetTotalCallCount(), 1)
-		assert.Equal(t, datastoreUpdateExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, 1, httpmock.GetTotalCallCount())
+	assert.Equal(t, datastoreUpdateExpected, actual)
 }

@@ -3,11 +3,13 @@ package dbaas
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const aclID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
@@ -16,7 +18,7 @@ const testACLNotFoundResponse = `{
 	"error": {
 		"code": 404,
 		"title": "Not Found",
-		"message": "acl 123 not found."
+		"message": "acl %s not found."
 	}
 }`
 
@@ -119,7 +121,7 @@ func TestACLs(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/acls",
+	httpmock.RegisterResponder("GET", testClient.Endpoint+ACLsURI,
 		httpmock.NewStringResponder(200, testACLsResponse))
 
 	expected := []ACL{
@@ -153,9 +155,8 @@ func TestACLs(t *testing.T) {
 
 	actual, err := testClient.ACLs(context.Background(), nil)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestACL(t *testing.T) {
@@ -163,14 +164,13 @@ func TestACL(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/acls/"+aclID,
+	httpmock.RegisterResponder("GET", testClient.Endpoint+ACLsURI+"/"+aclID,
 		httpmock.NewStringResponder(200, testACLResponse))
 
 	actual, err := testClient.ACL(context.Background(), aclID)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, ACLExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, ACLExpected, actual)
 }
 
 func TestACLNotFound(t *testing.T) {
@@ -178,17 +178,18 @@ func TestACLNotFound(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/acls/123",
-		httpmock.NewStringResponder(404, testACLNotFoundResponse))
+	notFoundResponse := fmt.Sprintf(testACLNotFoundResponse, NotFoundEntityID)
+	httpmock.RegisterResponder("GET", testClient.Endpoint+ACLsURI+"/"+NotFoundEntityID,
+		httpmock.NewStringResponder(404, notFoundResponse))
 
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
-	expected.APIError.Message = "acl 123 not found."
+	expected.APIError.Message = fmt.Sprintf("acl %s not found.", NotFoundEntityID)
 
-	_, err := testClient.ACL(context.Background(), "123")
+	_, err := testClient.ACL(context.Background(), NotFoundEntityID)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestCreateACL(t *testing.T) {
@@ -196,7 +197,7 @@ func TestCreateACL(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/acls",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+ACLsURI,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&ACLCreateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -228,9 +229,8 @@ func TestCreateACL(t *testing.T) {
 
 	ACLCreateExpected := ACLExpected
 	ACLCreateExpected.Status = StatusPendingCreate
-	if assert.NoError(t, err) {
-		assert.Equal(t, ACLCreateExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, ACLCreateExpected, actual)
 }
 
 func TestCreateACLInvalidDatastoreID(t *testing.T) {
@@ -238,7 +238,7 @@ func TestCreateACLInvalidDatastoreID(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/acls",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+ACLsURI,
 		httpmock.NewStringResponder(400, testCreateACLInvalidDatastoreIDResponse))
 
 	expected := &DBaaSAPIError{}
@@ -258,7 +258,7 @@ func TestCreateACLInvalidDatastoreID(t *testing.T) {
 
 	_, err := testClient.CreateACL(context.Background(), createACLOpts)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestUpdateACL(t *testing.T) {
@@ -266,7 +266,7 @@ func TestUpdateACL(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/acls/"+aclID,
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+ACLsURI+"/"+aclID,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&ACLUpdateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -294,9 +294,8 @@ func TestUpdateACL(t *testing.T) {
 
 	ACLUpdateExpexted := ACLExpected
 	ACLUpdateExpexted.Status = StatusPendingUpdate
-	if assert.NoError(t, err) {
-		assert.Equal(t, ACLUpdateExpexted, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, ACLUpdateExpexted, actual)
 }
 
 func TestUpdateACLInvalidResponse(t *testing.T) {
@@ -304,7 +303,7 @@ func TestUpdateACLInvalidResponse(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/acls/"+aclID,
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+ACLsURI+"/"+aclID,
 		httpmock.NewStringResponder(400, testUpdateACLInvalidResponse))
 
 	expected := &DBaaSAPIError{}
@@ -320,5 +319,5 @@ func TestUpdateACLInvalidResponse(t *testing.T) {
 
 	_, err := testClient.UpdateACL(context.Background(), aclID, updateACLOpts)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }

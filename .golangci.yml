@@ -21,7 +21,6 @@ linters:
   - godox
   - goprintffuncname
   - gosimple
-  - ifshort
   - lll
   - makezero
   - nakedret
@@ -55,8 +54,10 @@ linters-settings:
     - fieldalignment
   lll:
     tab-width: 4
-  nolintlint:
-    allow-leading-space: false
+  dupl:
+    threshold: 500
+  revive:
+    severity: error
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0

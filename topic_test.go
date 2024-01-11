@@ -3,11 +3,13 @@ package dbaas
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const topicID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
@@ -16,7 +18,7 @@ const testTopicNotFoundResponse = `{
 	"error": {
 		"code": 404,
 		"title": "Not Found",
-		"message": "topic 123 not found."
+		"message": "topic %s not found."
 	}
 }`
 
@@ -104,7 +106,7 @@ func TestTopics(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/topics",
+	httpmock.RegisterResponder("GET", testClient.Endpoint+TopicsURI,
 		httpmock.NewStringResponder(200, testTopicsResponse))
 
 	expected := []Topic{
@@ -132,9 +134,8 @@ func TestTopics(t *testing.T) {
 
 	actual, err := testClient.Topics(context.Background(), nil)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestTopic(t *testing.T) {
@@ -142,14 +143,13 @@ func TestTopic(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/topics/"+topicID,
+	httpmock.RegisterResponder("GET", testClient.Endpoint+TopicsURI+"/"+topicID,
 		httpmock.NewStringResponder(200, testTopicResponse))
 
 	actual, err := testClient.Topic(context.Background(), topicID)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, TopicExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, TopicExpected, actual)
 }
 
 func TestTopicNotFound(t *testing.T) {
@@ -157,17 +157,18 @@ func TestTopicNotFound(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/topics/123",
-		httpmock.NewStringResponder(404, testTopicNotFoundResponse))
+	notFoundResponse := fmt.Sprintf(testTopicNotFoundResponse, NotFoundEntityID)
+	httpmock.RegisterResponder("GET", testClient.Endpoint+TopicsURI+"/"+NotFoundEntityID,
+		httpmock.NewStringResponder(404, notFoundResponse))
 
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
-	expected.APIError.Message = "topic 123 not found."
+	expected.APIError.Message = fmt.Sprintf("topic %s not found.", NotFoundEntityID)
 
-	_, err := testClient.Topic(context.Background(), "123")
+	_, err := testClient.Topic(context.Background(), NotFoundEntityID)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestCreateToopic(t *testing.T) {
@@ -175,7 +176,7 @@ func TestCreateToopic(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/topics",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+TopicsURI,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&TopicCreateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -204,9 +205,8 @@ func TestCreateToopic(t *testing.T) {
 
 	TopicCreateExpexted := TopicExpected
 	TopicCreateExpexted.Status = StatusPendingCreate
-	if assert.NoError(t, err) {
-		assert.Equal(t, TopicExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, TopicExpected, actual)
 }
 
 func TestCreateTopicInvalidDatastoreID(t *testing.T) {
@@ -214,7 +214,7 @@ func TestCreateTopicInvalidDatastoreID(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/topics",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+TopicsURI,
 		httpmock.NewStringResponder(400, testCreateTopicInvalidDatastoreIDResponse))
 
 	expected := &DBaaSAPIError{}
@@ -231,7 +231,7 @@ func TestCreateTopicInvalidDatastoreID(t *testing.T) {
 
 	_, err := testClient.CreateTopic(context.Background(), createTopicOpts)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestUpdateTopic(t *testing.T) {
@@ -239,7 +239,7 @@ func TestUpdateTopic(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/topics/"+topicID,
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+TopicsURI+"/"+topicID,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&TopicUpdateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -266,9 +266,8 @@ func TestUpdateTopic(t *testing.T) {
 
 	TopicUpdateExpected := TopicExpected
 	TopicUpdateExpected.Status = StatusPendingUpdate
-	if assert.NoError(t, err) {
-		assert.Equal(t, TopicUpdateExpected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, TopicUpdateExpected, actual)
 }
 
 func TestUpdateTopicInvalidPartitions(t *testing.T) {
@@ -276,7 +275,7 @@ func TestUpdateTopicInvalidPartitions(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/topics/"+topicID,
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+TopicsURI+"/"+topicID,
 		httpmock.NewStringResponder(400, testUpdateTopicInvalidPartitionsResponse))
 
 	expected := &DBaaSAPIError{}
@@ -291,5 +290,5 @@ func TestUpdateTopicInvalidPartitions(t *testing.T) {
 
 	_, err := testClient.UpdateTopic(context.Background(), topicID, updateTopicOpts)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }

@@ -2,10 +2,12 @@ package dbaas
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const datastoreTypeID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
@@ -14,7 +16,7 @@ const testDatastoreTypeNotFoundResponse = `{
 	"error": {
 		"code": 404,
 		"title": "Not Found",
-		"message": "datastoretype 123 not found."
+		"message": "datastoretype %s not found."
 	}
 }`
 
@@ -46,7 +48,7 @@ func TestDatastoreTypes(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/datastore-types",
+	httpmock.RegisterResponder("GET", testClient.Endpoint+DatastoreTypesURI,
 		httpmock.NewStringResponder(200, testDatastoreTypesResponse))
 
 	expected := []DatastoreType{
@@ -64,9 +66,8 @@ func TestDatastoreTypes(t *testing.T) {
 
 	actual, err := testClient.DatastoreTypes(context.Background())
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestDatastoreType(t *testing.T) {
@@ -74,7 +75,7 @@ func TestDatastoreType(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/datastore-types/"+datastoreTypeID,
+	httpmock.RegisterResponder("GET", testClient.Endpoint+DatastoreTypesURI+"/"+datastoreTypeID,
 		httpmock.NewStringResponder(200, testDatastoreTypeResponse))
 
 	expected := DatastoreType{
@@ -85,9 +86,8 @@ func TestDatastoreType(t *testing.T) {
 
 	actual, err := testClient.DatastoreType(context.Background(), datastoreTypeID)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestDatastoreTypeNotFound(t *testing.T) {
@@ -95,15 +95,16 @@ func TestDatastoreTypeNotFound(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/datastore-types/123",
-		httpmock.NewStringResponder(404, testDatastoreTypeNotFoundResponse))
+	notFoundResponse := fmt.Sprintf(testDatastoreTypeNotFoundResponse, NotFoundEntityID)
+	httpmock.RegisterResponder("GET", testClient.Endpoint+DatastoreTypesURI+"/"+NotFoundEntityID,
+		httpmock.NewStringResponder(404, notFoundResponse))
 
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
-	expected.APIError.Message = "datastoretype 123 not found."
+	expected.APIError.Message = fmt.Sprintf("datastoretype %s not found.", NotFoundEntityID)
 
-	_, err := testClient.DatastoreType(context.Background(), "123")
+	_, err := testClient.DatastoreType(context.Background(), NotFoundEntityID)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
