@@ -40,9 +40,11 @@ type TopicQueryParams struct {
 	Status      Status `json:"status,omitempty"`
 }
 
+const TopicsURI = "/topics"
+
 // Topics returns all topics.
 func (api *API) Topics(ctx context.Context, params *TopicQueryParams) ([]Topic, error) {
-	uri, err := setQueryParams("/topics", params)
+	uri, err := setQueryParams(TopicsURI, params)
 	if err != nil {
 		return []Topic{}, err
 	}
@@ -65,7 +67,7 @@ func (api *API) Topics(ctx context.Context, params *TopicQueryParams) ([]Topic, 
 
 // Topic returns a topic based on the ID.
 func (api *API) Topic(ctx context.Context, topicID string) (Topic, error) {
-	uri := fmt.Sprintf("/topics/%s", topicID)
+	uri := fmt.Sprintf("%s/%s", TopicsURI, topicID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
@@ -85,7 +87,6 @@ func (api *API) Topic(ctx context.Context, topicID string) (Topic, error) {
 
 // CreateTopic creates a new topic.
 func (api *API) CreateTopic(ctx context.Context, opts TopicCreateOpts) (Topic, error) {
-	uri := "/topics"
 	createTopicOpts := struct {
 		Topic TopicCreateOpts `json:"topic"`
 	}{
@@ -96,7 +97,7 @@ func (api *API) CreateTopic(ctx context.Context, opts TopicCreateOpts) (Topic, e
 		return Topic{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
 	}
 
-	resp, err := api.makeRequest(ctx, http.MethodPost, uri, requestBody)
+	resp, err := api.makeRequest(ctx, http.MethodPost, TopicsURI, requestBody)
 	if err != nil {
 		return Topic{}, err
 	}
@@ -114,7 +115,7 @@ func (api *API) CreateTopic(ctx context.Context, opts TopicCreateOpts) (Topic, e
 
 // UpdateTopic updates an existing topic.
 func (api *API) UpdateTopic(ctx context.Context, topicID string, opts TopicUpdateOpts) (Topic, error) {
-	uri := fmt.Sprintf("/topics/%s", topicID)
+	uri := fmt.Sprintf("%s/%s", TopicsURI, topicID)
 	updateTopicOpts := struct {
 		Topic TopicUpdateOpts `json:"topic"`
 	}{
@@ -143,7 +144,7 @@ func (api *API) UpdateTopic(ctx context.Context, topicID string, opts TopicUpdat
 
 // DeleteTopic deletes an existing topic.
 func (api *API) DeleteTopic(ctx context.Context, topicID string) error {
-	uri := fmt.Sprintf("/topics/%s", topicID)
+	uri := fmt.Sprintf("%s/%s", TopicsURI, topicID)
 
 	_, err := api.makeRequest(ctx, http.MethodDelete, uri, nil)
 	if err != nil {

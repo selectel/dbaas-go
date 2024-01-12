@@ -3,11 +3,13 @@ package dbaas
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const grantID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
@@ -16,7 +18,7 @@ const testGrantNotFoundResponse = `{
 	"error": {
 		"code": 404,
 		"title": "Not Found",
-		"message": "grant 123 not found."
+		"message": "grant %s not found."
 	}
 }`
 
@@ -65,7 +67,7 @@ func TestGrants(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/grants",
+	httpmock.RegisterResponder("GET", testClient.Endpoint+GrantsURI,
 		httpmock.NewStringResponder(200, testGrantsResponse))
 
 	expected := []Grant{
@@ -93,9 +95,8 @@ func TestGrants(t *testing.T) {
 
 	actual, err := testClient.Grants(context.Background())
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestGrant(t *testing.T) {
@@ -103,7 +104,7 @@ func TestGrant(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/grants/"+grantID,
+	httpmock.RegisterResponder("GET", testClient.Endpoint+GrantsURI+"/"+grantID,
 		httpmock.NewStringResponder(200, testGrantResponse))
 
 	expected := Grant{
@@ -119,9 +120,8 @@ func TestGrant(t *testing.T) {
 
 	actual, err := testClient.Grant(context.Background(), grantID)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestGrantNotFound(t *testing.T) {
@@ -129,17 +129,18 @@ func TestGrantNotFound(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/grants/123",
-		httpmock.NewStringResponder(404, testGrantNotFoundResponse))
+	notFoundResponse := fmt.Sprintf(testGrantNotFoundResponse, NotFoundEntityID)
+	httpmock.RegisterResponder("GET", testClient.Endpoint+GrantsURI+"/"+NotFoundEntityID,
+		httpmock.NewStringResponder(404, notFoundResponse))
 
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
-	expected.APIError.Message = "grant 123 not found."
+	expected.APIError.Message = fmt.Sprintf("grant %s not found.", NotFoundEntityID)
 
-	_, err := testClient.Grant(context.Background(), "123")
+	_, err := testClient.Grant(context.Background(), NotFoundEntityID)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestCreateGrant(t *testing.T) {
@@ -147,7 +148,7 @@ func TestCreateGrant(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/grants",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+GrantsURI,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&GrantCreateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -192,7 +193,6 @@ func TestCreateGrant(t *testing.T) {
 
 	actual, err := testClient.CreateGrant(context.Background(), createGrantOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }

@@ -3,11 +3,13 @@ package dbaas
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const extensionID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
@@ -16,7 +18,7 @@ const testExtensionNotFoundResponse = `{
 	"error": {
 		"code": 404,
 		"title": "Not Found",
-		"message": "extension 123 not found."
+		"message": "extension %s not found."
 	}
 }`
 
@@ -70,7 +72,7 @@ func TestExtensions(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/extensions",
+	httpmock.RegisterResponder("GET", testClient.Endpoint+ExtensionsURI,
 		httpmock.NewStringResponder(200, testExtensionsResponse))
 
 	expected := []Extension{
@@ -96,9 +98,8 @@ func TestExtensions(t *testing.T) {
 
 	actual, err := testClient.Extensions(context.Background(), nil)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestExtension(t *testing.T) {
@@ -106,7 +107,7 @@ func TestExtension(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/extensions/"+extensionID,
+	httpmock.RegisterResponder("GET", testClient.Endpoint+ExtensionsURI+"/"+extensionID,
 		httpmock.NewStringResponder(200, testExtensionResponse))
 
 	expected := Extension{
@@ -121,9 +122,8 @@ func TestExtension(t *testing.T) {
 
 	actual, err := testClient.Extension(context.Background(), extensionID)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestExtensionNotFound(t *testing.T) {
@@ -131,17 +131,18 @@ func TestExtensionNotFound(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/extensions/123",
-		httpmock.NewStringResponder(404, testExtensionNotFoundResponse))
+	notFoundResponse := fmt.Sprintf(testExtensionNotFoundResponse, NotFoundEntityID)
+	httpmock.RegisterResponder("GET", testClient.Endpoint+ExtensionsURI+"/"+NotFoundEntityID,
+		httpmock.NewStringResponder(404, notFoundResponse))
 
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
-	expected.APIError.Message = "extension 123 not found."
+	expected.APIError.Message = fmt.Sprintf("extension %s not found.", NotFoundEntityID)
 
-	_, err := testClient.Extension(context.Background(), "123")
+	_, err := testClient.Extension(context.Background(), NotFoundEntityID)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestCreateExtension(t *testing.T) {
@@ -149,7 +150,7 @@ func TestCreateExtension(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/extensions",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+ExtensionsURI,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&ExtensionCreateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -190,9 +191,8 @@ func TestCreateExtension(t *testing.T) {
 
 	actual, err := testClient.CreateExtension(context.Background(), createExtensionOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestCreateExtensionInvalidDatastoreID(t *testing.T) {
@@ -200,7 +200,7 @@ func TestCreateExtensionInvalidDatastoreID(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/extensions",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+ExtensionsURI,
 		httpmock.NewStringResponder(400, testCreateExtensionInvalidDatastoreIDResponse))
 
 	expected := &DBaaSAPIError{}
@@ -217,5 +217,5 @@ func TestCreateExtensionInvalidDatastoreID(t *testing.T) {
 
 	_, err := testClient.CreateExtension(context.Background(), createExtensionOpts)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }

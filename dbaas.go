@@ -247,9 +247,8 @@ func convertFieldFromStringToType(fieldValue string) interface{} {
 		return val
 	} else if val, err := strconv.ParseBool(fieldValue); err == nil {
 		return val
-	} else {
-		return fieldValue
 	}
+	return fieldValue
 }
 
 // convertConfigValues convert config map values to the corresponding types.

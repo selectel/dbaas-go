@@ -27,12 +27,14 @@ type PrometheusMetricToken struct {
 	Value     string `json:"value"`
 }
 
+const PrometheusMetricsTokensURI = "prometheus-metrics-tokens"
+
 // PrometheusMetricToken returns a token based on the ID.
 func (api *API) PrometheusMetricToken(
 	ctx context.Context,
 	prometheusMetricTokenID string,
 ) (PrometheusMetricToken, error) {
-	uri := fmt.Sprintf("/prometheus-metrics-tokens/%s", prometheusMetricTokenID)
+	uri := fmt.Sprintf("%s/%s", PrometheusMetricsTokensURI, prometheusMetricTokenID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
@@ -50,9 +52,7 @@ func (api *API) PrometheusMetricToken(
 
 // PrometheusMetricTokens returns all tokens.
 func (api *API) PrometheusMetricTokens(ctx context.Context) ([]PrometheusMetricToken, error) {
-	uri := "/prometheus-metrics-tokens"
-
-	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
+	resp, err := api.makeRequest(ctx, http.MethodGet, PrometheusMetricsTokensURI, nil)
 	if err != nil {
 		return []PrometheusMetricToken{}, err
 	}
@@ -73,7 +73,6 @@ func (api *API) CreatePrometheusMetricToken(
 	ctx context.Context,
 	opts PrometheusMetricTokenCreateOpts,
 ) (PrometheusMetricToken, error) {
-	uri := "/prometheus-metrics-tokens"
 	createPrometheusMetricTokensOpts := struct {
 		PrometheusMetricToken PrometheusMetricTokenCreateOpts `json:"prometheus-metrics-token"`
 	}{
@@ -84,7 +83,7 @@ func (api *API) CreatePrometheusMetricToken(
 		return PrometheusMetricToken{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
 	}
 
-	resp, err := api.makeRequest(ctx, http.MethodPost, uri, requestBody)
+	resp, err := api.makeRequest(ctx, http.MethodPost, PrometheusMetricsTokensURI, requestBody)
 	if err != nil {
 		return PrometheusMetricToken{}, err
 	}
@@ -102,7 +101,7 @@ func (api *API) CreatePrometheusMetricToken(
 
 // DeletePrometheusMetricToken deletes an existing token.
 func (api *API) DeletePrometheusMetricToken(ctx context.Context, prometheusMetricTokenID string) error {
-	uri := fmt.Sprintf("/prometheus-metrics-tokens/%s", prometheusMetricTokenID)
+	uri := fmt.Sprintf("%s/%s", PrometheusMetricsTokensURI, prometheusMetricTokenID)
 
 	_, err := api.makeRequest(ctx, http.MethodDelete, uri, nil)
 	if err != nil {
@@ -118,7 +117,7 @@ func (api *API) UpdatePrometheusMetricToken(
 	prometheusMetricTokenID string,
 	opts PrometheusMetricTokenUpdateOpts,
 ) (PrometheusMetricToken, error) {
-	uri := fmt.Sprintf("/prometheus-metrics-tokens/%s", prometheusMetricTokenID)
+	uri := fmt.Sprintf("%s/%s", PrometheusMetricsTokensURI, prometheusMetricTokenID)
 	updatePrometheusMetricTokensOpts := struct {
 		PrometheusMetricToken PrometheusMetricTokenUpdateOpts `json:"prometheus-metrics-token"`
 	}{

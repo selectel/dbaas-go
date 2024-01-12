@@ -30,9 +30,11 @@ type User struct {
 	Status      Status `json:"status"`
 }
 
+const UsersURI = "/users"
+
 // User returns a user based on the ID.
 func (api *API) User(ctx context.Context, userID string) (User, error) {
-	uri := fmt.Sprintf("/users/%s", userID)
+	uri := fmt.Sprintf("%s/%s", UsersURI, userID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
@@ -52,9 +54,7 @@ func (api *API) User(ctx context.Context, userID string) (User, error) {
 
 // Users returns all users.
 func (api *API) Users(ctx context.Context) ([]User, error) {
-	uri := "/users"
-
-	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
+	resp, err := api.makeRequest(ctx, http.MethodGet, UsersURI, nil)
 	if err != nil {
 		return []User{}, err
 	}
@@ -72,7 +72,6 @@ func (api *API) Users(ctx context.Context) ([]User, error) {
 
 // CreateUser creates a new user.
 func (api *API) CreateUser(ctx context.Context, opts UserCreateOpts) (User, error) {
-	uri := "/users"
 	createUserOpts := struct {
 		User UserCreateOpts `json:"user"`
 	}{
@@ -83,7 +82,7 @@ func (api *API) CreateUser(ctx context.Context, opts UserCreateOpts) (User, erro
 		return User{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
 	}
 
-	resp, err := api.makeRequest(ctx, http.MethodPost, uri, requestBody)
+	resp, err := api.makeRequest(ctx, http.MethodPost, UsersURI, requestBody)
 	if err != nil {
 		return User{}, err
 	}
@@ -101,7 +100,7 @@ func (api *API) CreateUser(ctx context.Context, opts UserCreateOpts) (User, erro
 
 // DeleteUser deletes an existing user.
 func (api *API) DeleteUser(ctx context.Context, userID string) error {
-	uri := fmt.Sprintf("/users/%s", userID)
+	uri := fmt.Sprintf("%s/%s", UsersURI, userID)
 
 	_, err := api.makeRequest(ctx, http.MethodDelete, uri, nil)
 	if err != nil {
@@ -113,7 +112,7 @@ func (api *API) DeleteUser(ctx context.Context, userID string) error {
 
 // UpdateUser updates an existing user.
 func (api *API) UpdateUser(ctx context.Context, userID string, opts UserUpdateOpts) (User, error) {
-	uri := fmt.Sprintf("/users/%s", userID)
+	uri := fmt.Sprintf("%s/%s", UsersURI, userID)
 	updateUserOpts := struct {
 		User UserUpdateOpts `json:"user"`
 	}{

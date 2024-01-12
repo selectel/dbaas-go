@@ -22,11 +22,11 @@ type ConfigurationParameter struct {
 	IsChangeable      bool          `json:"is_changeable"`
 }
 
+const ConfigurationParametersURI = "/configuration-parameters"
+
 // ConfigurationParameters returns all configuration parameters.
 func (api *API) ConfigurationParameters(ctx context.Context) ([]ConfigurationParameter, error) {
-	uri := "/configuration-parameters"
-
-	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
+	resp, err := api.makeRequest(ctx, http.MethodGet, ConfigurationParametersURI, nil)
 	if err != nil {
 		return []ConfigurationParameter{}, err
 	}
@@ -47,7 +47,7 @@ func (api *API) ConfigurationParameter(
 	ctx context.Context,
 	configurationParameterID string,
 ) (ConfigurationParameter, error) {
-	uri := fmt.Sprintf("/configuration-parameters/%s", configurationParameterID)
+	uri := fmt.Sprintf("%s/%s", ConfigurationParametersURI, configurationParameterID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {

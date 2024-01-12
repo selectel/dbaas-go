@@ -3,11 +3,13 @@ package dbaas
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const prometheusMetricTokenID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
@@ -16,7 +18,7 @@ const testPrometheusMetricTokenNotFoundResponse = `{
 	"error": {
 		"code": 404,
 		"title": "Not Found",
-		"message": "prometheusmetrictoken 123 not found."
+		"message": "prometheusmetrictoken %s not found."
 	}
 }`
 
@@ -55,7 +57,7 @@ func TestPrometheusMetricTokens(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/prometheus-metrics-tokens",
+	httpmock.RegisterResponder("GET", testClient.Endpoint+PrometheusMetricsTokensURI,
 		httpmock.NewStringResponder(200, testPrometheusMetricTokensResponse))
 
 	expected := []PrometheusMetricToken{
@@ -79,9 +81,8 @@ func TestPrometheusMetricTokens(t *testing.T) {
 
 	actual, err := testClient.PrometheusMetricTokens(context.Background())
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestPrometheusMetricToken(t *testing.T) {
@@ -89,7 +90,7 @@ func TestPrometheusMetricToken(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/prometheus-metrics-tokens/"+prometheusMetricTokenID,
+	httpmock.RegisterResponder("GET", testClient.Endpoint+PrometheusMetricsTokensURI+"/"+prometheusMetricTokenID,
 		httpmock.NewStringResponder(200, testPrometheusMetricTokenResponse))
 
 	expected := PrometheusMetricToken{
@@ -103,9 +104,8 @@ func TestPrometheusMetricToken(t *testing.T) {
 
 	actual, err := testClient.PrometheusMetricToken(context.Background(), prometheusMetricTokenID)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestPrometheusMetricTokenNotFound(t *testing.T) {
@@ -113,17 +113,18 @@ func TestPrometheusMetricTokenNotFound(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/prometheus-metrics-tokens/123",
-		httpmock.NewStringResponder(404, testPrometheusMetricTokenNotFoundResponse))
+	notFoundResponse := fmt.Sprintf(testPrometheusMetricTokenNotFoundResponse, NotFoundEntityID)
+	httpmock.RegisterResponder("GET", testClient.Endpoint+PrometheusMetricsTokensURI+"/"+NotFoundEntityID,
+		httpmock.NewStringResponder(404, notFoundResponse))
 
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
-	expected.APIError.Message = "prometheusmetrictoken 123 not found."
+	expected.APIError.Message = fmt.Sprintf("prometheusmetrictoken %s not found.", NotFoundEntityID)
 
-	_, err := testClient.PrometheusMetricToken(context.Background(), "123")
+	_, err := testClient.PrometheusMetricToken(context.Background(), NotFoundEntityID)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
 
 func TestCreatePrometheusMetricToken(t *testing.T) {
@@ -131,7 +132,7 @@ func TestCreatePrometheusMetricToken(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+"/prometheus-metrics-tokens",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+PrometheusMetricsTokensURI,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&PrometheusMetricTokenCreateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -170,9 +171,8 @@ func TestCreatePrometheusMetricToken(t *testing.T) {
 
 	actual, err := testClient.CreatePrometheusMetricToken(context.Background(), createPrometheusMetricTokenOpts)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestUpdatePrometheusMetricToken(t *testing.T) {
@@ -180,7 +180,7 @@ func TestUpdatePrometheusMetricToken(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("PUT", testClient.Endpoint+"/prometheus-metrics-tokens/"+prometheusMetricTokenID,
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+PrometheusMetricsTokensURI+"/"+prometheusMetricTokenID,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&PrometheusMetricTokenUpdateOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -222,7 +222,6 @@ func TestUpdatePrometheusMetricToken(t *testing.T) {
 		updatePrometheusMetricTokenOpts,
 	)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }

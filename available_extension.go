@@ -15,11 +15,11 @@ type AvailableExtension struct {
 	DependencyIDs    []string `json:"dependency_ids"`
 }
 
+const AvailableExtensionsURI = "/available-extensions"
+
 // AvailableExtensions returns all available extensions.
 func (api *API) AvailableExtensions(ctx context.Context) ([]AvailableExtension, error) {
-	uri := "/available-extensions"
-
-	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
+	resp, err := api.makeRequest(ctx, http.MethodGet, AvailableExtensionsURI, nil)
 	if err != nil {
 		return []AvailableExtension{}, err
 	}
@@ -37,7 +37,7 @@ func (api *API) AvailableExtensions(ctx context.Context) ([]AvailableExtension, 
 
 // AvailableExtension returns an available extension based on the ID.
 func (api *API) AvailableExtension(ctx context.Context, availableExtensionID string) (AvailableExtension, error) {
-	uri := fmt.Sprintf("/available-extensions/%s", availableExtensionID)
+	uri := fmt.Sprintf("%s/%s", AvailableExtensionsURI, availableExtensionID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {

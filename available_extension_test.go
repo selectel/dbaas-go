@@ -2,10 +2,12 @@ package dbaas
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const availableExtensionID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
@@ -14,7 +16,7 @@ const testAvailableExtensionNotFoundResponse = `{
 	"error": {
 		"code": 404,
 		"title": "Not Found",
-		"message": "availableextension 123 not found."
+		"message": "availableextension %s not found."
 	}
 }`
 
@@ -58,7 +60,7 @@ func TestAvailableExtensions(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/available-extensions",
+	httpmock.RegisterResponder("GET", testClient.Endpoint+AvailableExtensionsURI,
 		httpmock.NewStringResponder(200, testAvailableExtensionsResponse))
 
 	expected := []AvailableExtension{
@@ -84,9 +86,8 @@ func TestAvailableExtensions(t *testing.T) {
 
 	actual, err := testClient.AvailableExtensions(context.Background())
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestAvailableExtension(t *testing.T) {
@@ -94,7 +95,7 @@ func TestAvailableExtension(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/available-extensions/"+datastoreTypeID,
+	httpmock.RegisterResponder("GET", testClient.Endpoint+AvailableExtensionsURI+"/"+datastoreTypeID,
 		httpmock.NewStringResponder(200, testAvailableExtensionResponse))
 
 	expected := AvailableExtension{
@@ -109,9 +110,8 @@ func TestAvailableExtension(t *testing.T) {
 
 	actual, err := testClient.AvailableExtension(context.Background(), availableExtensionID)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, expected, actual)
-	}
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
 
 func TestAvailableExtensionNotFound(t *testing.T) {
@@ -119,15 +119,16 @@ func TestAvailableExtensionNotFound(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("GET", testClient.Endpoint+"/available-extensions/123",
-		httpmock.NewStringResponder(404, testAvailableExtensionNotFoundResponse))
+	notFoundResponse := fmt.Sprintf(testAvailableExtensionNotFoundResponse, NotFoundEntityID)
+	httpmock.RegisterResponder("GET", testClient.Endpoint+AvailableExtensionsURI+"/"+NotFoundEntityID,
+		httpmock.NewStringResponder(404, notFoundResponse))
 
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 404
 	expected.APIError.Title = ErrorNotFoundTitle
-	expected.APIError.Message = "availableextension 123 not found."
+	expected.APIError.Message = fmt.Sprintf("availableextension %s not found.", NotFoundEntityID)
 
-	_, err := testClient.AvailableExtension(context.Background(), "123")
+	_, err := testClient.AvailableExtension(context.Background(), NotFoundEntityID)
 
-	assert.ErrorAs(t, err, &expected)
+	require.ErrorAs(t, err, &expected)
 }
