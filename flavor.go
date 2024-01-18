@@ -12,6 +12,7 @@ type FlavorResponse struct {
 	ID               string   `json:"id"`
 	Name             string   `json:"name"`
 	Description      string   `json:"description"`
+	FlSize           string   `json:"fl_size"`
 	DatastoreTypeIDs []string `json:"datastore_type_ids"`
 	Vcpus            int      `json:"vcpus"`
 	RAM              int      `json:"ram"`

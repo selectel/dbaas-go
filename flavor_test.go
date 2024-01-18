@@ -32,7 +32,8 @@ const testFlavorsResponse = `{
 			"datastore_type_ids": [
 				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5"
-			]
+			],
+			"fl_size": "standard"
 		},
 		{
 			"id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
@@ -44,7 +45,8 @@ const testFlavorsResponse = `{
 			"datastore_type_ids": [
 				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5"
-			]
+			],
+			"fl_size": "standard"
 		}
 	]
 }`
@@ -60,7 +62,8 @@ const testFlavorResponse = `{
 		"datastore_type_ids": [
 			"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 			"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5"
-		]
+		],
+		"fl_size": "standard"
 	}
 }`
 
@@ -84,6 +87,7 @@ func TestFlavors(t *testing.T) {
 				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
 			},
+			FlSize: "standard",
 		},
 		{
 			ID:          "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
@@ -96,6 +100,7 @@ func TestFlavors(t *testing.T) {
 				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
 			},
+			FlSize: "standard",
 		},
 	}
 
@@ -124,6 +129,7 @@ func TestFlavor(t *testing.T) {
 			"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 			"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
 		},
+		FlSize: "standard",
 	}
 
 	actual, err := testClient.Flavor(context.Background(), flavorID)
