@@ -18,6 +18,7 @@ type ConfigurationParameter struct {
 	Max               interface{}   `json:"max"`
 	DefaultValue      interface{}   `json:"default_value"`
 	Choices           []interface{} `json:"choices"`
+	InvalidValues     []interface{} `json:"invalid_values"`
 	IsRestartRequired bool          `json:"is_restart_required"`
 	IsChangeable      bool          `json:"is_changeable"`
 }
