@@ -33,7 +33,8 @@ const testConfigurationParametersResponse = `{
 			"default_value": -1,
 			"unit": "kB",
 			"is_restart_required": false,
-			"is_changeable": true
+			"is_changeable": true,
+			"invalid_values": null
 		},
 		{
 			"id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
@@ -53,7 +54,8 @@ const testConfigurationParametersResponse = `{
 			"default_value": "AUTO",
 			"unit": "",
 			"is_restart_required": false,
-			"is_changeable": true
+			"is_changeable": true,
+			"invalid_values": ["0"]
 		}
 	]
 }`
@@ -70,7 +72,8 @@ const testConfigurationParameterResponse = `{
 		"default_value": null,
 		"unit": "",
 		"is_restart_required": true,
-		"is_changeable": true
+		"is_changeable": true,
+		"invalid_values": null
 	}
 }`
 
@@ -96,6 +99,7 @@ func TestConfigurationParameters(t *testing.T) {
 			Choices:           nil,
 			IsRestartRequired: false,
 			IsChangeable:      true,
+			InvalidValues:     nil,
 		},
 		{
 			ID:                "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
@@ -109,6 +113,7 @@ func TestConfigurationParameters(t *testing.T) {
 			Choices:           choices,
 			IsRestartRequired: false,
 			IsChangeable:      true,
+			InvalidValues:     []interface{}{"0"},
 		},
 	}
 
@@ -138,6 +143,7 @@ func TestConfigurationParameter(t *testing.T) {
 		Choices:           nil,
 		IsRestartRequired: true,
 		IsChangeable:      true,
+		InvalidValues:     nil,
 	}
 
 	actual, err := testClient.ConfigurationParameter(context.Background(), configurationParameterID)
