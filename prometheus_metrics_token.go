@@ -27,7 +27,7 @@ type PrometheusMetricToken struct {
 	Value     string `json:"value"`
 }
 
-const PrometheusMetricsTokensURI = "prometheus-metrics-tokens"
+const PrometheusMetricsTokensURI = "/prometheus-metrics-tokens"
 
 // PrometheusMetricToken returns a token based on the ID.
 func (api *API) PrometheusMetricToken(
