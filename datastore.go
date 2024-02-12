@@ -9,10 +9,12 @@ import (
 
 // Instances represents datastore's instances.
 type Instances struct {
-	IP       string `json:"ip"`
-	Role     string `json:"role"`
-	Status   Status `json:"status"`
-	Hostname string `json:"hostname"`
+	ID         string `json:"id"`
+	IP         string `json:"ip"`
+	FloatingIP string `json:"floating_ip"`
+	Role       string `json:"role"`
+	Status     Status `json:"status"`
+	Hostname   string `json:"hostname"`
 }
 
 // Flavor represents datastore's flavor.
@@ -37,6 +39,12 @@ type Pooler struct {
 // Firewall represents firewall rules parameters for datastore.
 type Firewall struct {
 	IP string `json:"ip"`
+}
+
+// FloatingIPs represents floating IPs creation schema.
+type FloatingIPs struct {
+	Master  int `json:"master"`
+	Replica int `json:"replica"`
 }
 
 // Datastore is the API response for the datastores.
@@ -69,6 +77,7 @@ type DatastoreCreateOpts struct {
 	Flavor              *Flavor                `json:"flavor,omitempty"`
 	Restore             *Restore               `json:"restore,omitempty"`
 	Pooler              *Pooler                `json:"pooler,omitempty"`
+	FloatingIPs         *FloatingIPs           `json:"floating_ips,omitempty"`
 	Config              map[string]interface{} `json:"config,omitempty"`
 	Name                string                 `json:"name"`
 	TypeID              string                 `json:"type_id"`
