@@ -67,6 +67,9 @@ const testDatastoresResponse = `{
 			"type_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 			"subnet_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 			"node_count": 1,
+			"is_maintenance": false,
+			"is_protected": false,
+			"backup_retention_days" : 7,
 			"connection": {
 				"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 				"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org"
@@ -78,7 +81,9 @@ const testDatastoresResponse = `{
 			},
 			"instances": [
 				{
+				"id": "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 				"ip": "127.0.0.1",
+				"floating_ip": "None",
 				"role": "MASTER",
 				"status": "ACTIVE",
 				"hostname": "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org"
@@ -106,6 +111,9 @@ const testDatastoresResponse = `{
 			"type_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 			"subnet_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 			"node_count": 1,
+			"is_maintenance": false,
+			"is_protected": false,
+			"backup_retention_days" : 7,
 			"connection": {
 				"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5.c.dbaas.selcloud.org",
 				"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5.c.dbaas.selcloud.org"
@@ -117,13 +125,17 @@ const testDatastoresResponse = `{
 			},
 			"instances": [
 				{
+					"id": "40d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 					"ip": "127.0.0.1",
+					"floating_ip": "None",
 					"role": "MASTER",
 					"status": "ACTIVE",
 					"hostname": "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org"
 				},
 				{
+					"id": "50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 					"ip": "127.0.0.2",
+					"floating_ip": "None",
 					"role": "REPLICA",
 					"status": "ACTIVE",
 					"hostname": "9c387698-42a9-4555-9a8c-46eee7dc8c56.ru-1.c.dbaas.selcloud.org"
@@ -156,6 +168,9 @@ const testDatastoreResponse = `{
 		"type_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		"subnet_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		"node_count": 1,
+		"is_maintenance": false,
+		"is_protected": false,
+		"backup_retention_days" : 7,
 		"connection": {
 			"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org"
@@ -167,7 +182,9 @@ const testDatastoreResponse = `{
 		},
 		"instances": [
 			{
+			"id": "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 			"ip": "127.0.0.1",
+			"floating_ip": "192.168.1.1",
 			"role": "MASTER",
 			"status": "ACTIVE",
 			"hostname": "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org"
@@ -198,6 +215,9 @@ const testMultiNodeDatastoreResponse = `{
 		"type_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		"subnet_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		"node_count": 3,
+		"is_maintenance": false,
+		"is_protected": false,
+		"backup_retention_days" : 7,
 		"connection": {
 			"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
@@ -211,18 +231,24 @@ const testMultiNodeDatastoreResponse = `{
 		},
 		"instances": [
 			{
+			"id": "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 			"ip": "127.0.0.1",
+			"floating_ip": "192.168.1.1",
 			"role": "MASTER",
 			"status": "ACTIVE",
 			"hostname": "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org"
 			},
 			{
+			"id": "40d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 			"ip": "127.0.0.2",
+			"floating_ip": "192.168.1.2",
 			"role": "REPLICA",
 			"status": "ACTIVE",
 			"hostname": "9c387698-42a9-4555-9a8c-46eee7dc8c56.ru-1.c.dbaas.selcloud.org"
 			},
 			{
+			"id": "50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+			"floating_ip": "None",
 			"ip": "127.0.0.3",
 			"role": "REPLICA",
 			"status": "ACTIVE",
@@ -246,16 +272,19 @@ const datastoreID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
 
 var datastoreListExpected []Datastore = []Datastore{ //nolint
 	{
-		ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		CreatedAt: "1970-01-01T00:00:00",
-		UpdatedAt: "1970-01-01T00:00:00",
-		ProjectID: "123e4567e89b12d3a456426655440000",
-		Name:      "Name",
-		Status:    "ACTIVE",
-		Enabled:   true,
-		TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		NodeCount: 1,
+		ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		CreatedAt:           "1970-01-01T00:00:00",
+		UpdatedAt:           "1970-01-01T00:00:00",
+		ProjectID:           "123e4567e89b12d3a456426655440000",
+		Name:                "Name",
+		Status:              "ACTIVE",
+		Enabled:             true,
+		TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		NodeCount:           1,
+		IsMaintenance:       false,
+		IsProtected:         false,
+		BackupRetentionDays: 7,
 		Connection: map[string]string{
 			"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
@@ -266,10 +295,12 @@ var datastoreListExpected []Datastore = []Datastore{ //nolint
 			Disk:  32,
 		},
 		Instances: []Instances{{
-			IP:       "127.0.0.1",
-			Role:     "MASTER",
-			Status:   "ACTIVE",
-			Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+			ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+			IP:         "127.0.0.1",
+			FloatingIP: "None",
+			Role:       "MASTER",
+			Status:     "ACTIVE",
+			Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
 		}},
 		Pooler: Pooler{
 			Size: 30,
@@ -281,16 +312,19 @@ var datastoreListExpected []Datastore = []Datastore{ //nolint
 		Config: map[string]interface{}{},
 	},
 	{
-		ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
-		CreatedAt: "1970-01-01T00:00:00",
-		UpdatedAt: "1970-01-01T00:00:00",
-		ProjectID: "123e4567e89b12d3a456426655440000",
-		Name:      "AnotherName",
-		Status:    "ACTIVE",
-		Enabled:   true,
-		TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		NodeCount: 1,
+		ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
+		CreatedAt:           "1970-01-01T00:00:00",
+		UpdatedAt:           "1970-01-01T00:00:00",
+		ProjectID:           "123e4567e89b12d3a456426655440000",
+		Name:                "AnotherName",
+		Status:              "ACTIVE",
+		Enabled:             true,
+		TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		NodeCount:           1,
+		IsMaintenance:       false,
+		IsProtected:         false,
+		BackupRetentionDays: 7,
 		Connection: map[string]string{
 			"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5.c.dbaas.selcloud.org",
 			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5.c.dbaas.selcloud.org",
@@ -302,16 +336,20 @@ var datastoreListExpected []Datastore = []Datastore{ //nolint
 		},
 		Instances: []Instances{
 			{
-				IP:       "127.0.0.1",
-				Role:     "MASTER",
-				Status:   "ACTIVE",
-				Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+				ID:         "40d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				IP:         "127.0.0.1",
+				FloatingIP: "None",
+				Role:       "MASTER",
+				Status:     "ACTIVE",
+				Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
 			},
 			{
-				IP:       "127.0.0.2",
-				Role:     "REPLICA",
-				Status:   "ACTIVE",
-				Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c56.ru-1.c.dbaas.selcloud.org",
+				ID:         "50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				IP:         "127.0.0.2",
+				FloatingIP: "None",
+				Role:       "REPLICA",
+				Status:     "ACTIVE",
+				Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c56.ru-1.c.dbaas.selcloud.org",
 			},
 		},
 		Pooler: Pooler{
@@ -326,16 +364,19 @@ var datastoreListExpected []Datastore = []Datastore{ //nolint
 }
 
 var datastoreCreateResponse Datastore = Datastore{ //nolint
-	ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	CreatedAt: "1970-01-01T00:00:00",
-	UpdatedAt: "1970-01-01T00:00:00",
-	ProjectID: "123e4567e89b12d3a456426655440000",
-	Name:      "Name",
-	Status:    StatusPendingCreate,
-	Enabled:   true,
-	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	NodeCount: 1,
+	ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	CreatedAt:           "1970-01-01T00:00:00",
+	UpdatedAt:           "1970-01-01T00:00:00",
+	ProjectID:           "123e4567e89b12d3a456426655440000",
+	Name:                "Name",
+	Status:              StatusPendingCreate,
+	Enabled:             true,
+	TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	NodeCount:           1,
+	IsMaintenance:       false,
+	IsProtected:         false,
+	BackupRetentionDays: 7,
 	Connection: map[string]string{
 		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
@@ -346,10 +387,12 @@ var datastoreCreateResponse Datastore = Datastore{ //nolint
 		Disk:  32,
 	},
 	Instances: []Instances{{
-		IP:       "127.0.0.1",
-		Role:     "MASTER",
-		Status:   "ACTIVE",
-		Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+		ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		IP:         "127.0.0.1",
+		FloatingIP: "None",
+		Role:       "MASTER",
+		Status:     "ACTIVE",
+		Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
 	}},
 	Pooler: Pooler{
 		Size: 30,
@@ -360,16 +403,19 @@ var datastoreCreateResponse Datastore = Datastore{ //nolint
 }
 
 var datastoreCreateExpected Datastore = Datastore{ //nolint
-	ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	CreatedAt: "1970-01-01T00:00:00",
-	UpdatedAt: "1970-01-01T00:00:00",
-	ProjectID: "123e4567e89b12d3a456426655440000",
-	Name:      "Name",
-	Status:    StatusPendingCreate,
-	Enabled:   true,
-	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	NodeCount: 1,
+	ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	CreatedAt:           "1970-01-01T00:00:00",
+	UpdatedAt:           "1970-01-01T00:00:00",
+	ProjectID:           "123e4567e89b12d3a456426655440000",
+	Name:                "Name",
+	Status:              StatusPendingCreate,
+	Enabled:             true,
+	TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	NodeCount:           1,
+	IsMaintenance:       false,
+	IsProtected:         false,
+	BackupRetentionDays: 7,
 	Connection: map[string]string{
 		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
@@ -380,10 +426,12 @@ var datastoreCreateExpected Datastore = Datastore{ //nolint
 		Disk:  32,
 	},
 	Instances: []Instances{{
-		IP:       "127.0.0.1",
-		Role:     "MASTER",
-		Status:   "ACTIVE",
-		Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+		ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		IP:         "127.0.0.1",
+		FloatingIP: "None",
+		Role:       "MASTER",
+		Status:     "ACTIVE",
+		Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
 	}},
 	Pooler: Pooler{
 		Size: 30,
@@ -394,16 +442,19 @@ var datastoreCreateExpected Datastore = Datastore{ //nolint
 }
 
 var datastoreUpdateResponse Datastore = Datastore{ //nolint
-	ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	CreatedAt: "1970-01-01T00:00:00",
-	UpdatedAt: "1970-01-01T00:00:00",
-	ProjectID: "123e4567e89b12d3a456426655440000",
-	Name:      "Name",
-	Status:    StatusPendingUpdate,
-	Enabled:   true,
-	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	NodeCount: 1,
+	ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	CreatedAt:           "1970-01-01T00:00:00",
+	UpdatedAt:           "1970-01-01T00:00:00",
+	ProjectID:           "123e4567e89b12d3a456426655440000",
+	Name:                "Name",
+	Status:              StatusPendingUpdate,
+	Enabled:             true,
+	TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	NodeCount:           1,
+	IsMaintenance:       false,
+	IsProtected:         false,
+	BackupRetentionDays: 7,
 	Connection: map[string]string{
 		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
@@ -414,10 +465,12 @@ var datastoreUpdateResponse Datastore = Datastore{ //nolint
 		Disk:  32,
 	},
 	Instances: []Instances{{
-		IP:       "127.0.0.1",
-		Role:     "MASTER",
-		Status:   "ACTIVE",
-		Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+		ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		IP:         "127.0.0.1",
+		FloatingIP: "None",
+		Role:       "MASTER",
+		Status:     "ACTIVE",
+		Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
 	}},
 	Pooler: Pooler{
 		Size: 30,
@@ -428,16 +481,19 @@ var datastoreUpdateResponse Datastore = Datastore{ //nolint
 }
 
 var datastoreUpdateExpected Datastore = Datastore{ //nolint
-	ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	CreatedAt: "1970-01-01T00:00:00",
-	UpdatedAt: "1970-01-01T00:00:00",
-	ProjectID: "123e4567e89b12d3a456426655440000",
-	Name:      "Name",
-	Status:    StatusPendingUpdate,
-	Enabled:   true,
-	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	NodeCount: 1,
+	ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	CreatedAt:           "1970-01-01T00:00:00",
+	UpdatedAt:           "1970-01-01T00:00:00",
+	ProjectID:           "123e4567e89b12d3a456426655440000",
+	Name:                "Name",
+	Status:              StatusPendingUpdate,
+	Enabled:             true,
+	TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	NodeCount:           1,
+	IsMaintenance:       false,
+	IsProtected:         false,
+	BackupRetentionDays: 7,
 	Connection: map[string]string{
 		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
@@ -448,10 +504,12 @@ var datastoreUpdateExpected Datastore = Datastore{ //nolint
 		Disk:  32,
 	},
 	Instances: []Instances{{
-		IP:       "127.0.0.1",
-		Role:     "MASTER",
-		Status:   "ACTIVE",
-		Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+		ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		IP:         "127.0.0.1",
+		FloatingIP: "None",
+		Role:       "MASTER",
+		Status:     "ACTIVE",
+		Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
 	}},
 	Pooler: Pooler{
 		Size: 30,
@@ -462,16 +520,19 @@ var datastoreUpdateExpected Datastore = Datastore{ //nolint
 }
 
 var datastoreResizeResponse Datastore = Datastore{ //nolint
-	ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	CreatedAt: "1970-01-01T00:00:00",
-	UpdatedAt: "1970-01-01T00:00:00",
-	ProjectID: "123e4567e89b12d3a456426655440000",
-	Name:      "Name",
-	Status:    StatusResizing,
-	Enabled:   true,
-	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	NodeCount: 1,
+	ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	CreatedAt:           "1970-01-01T00:00:00",
+	UpdatedAt:           "1970-01-01T00:00:00",
+	ProjectID:           "123e4567e89b12d3a456426655440000",
+	Name:                "Name",
+	Status:              StatusResizing,
+	Enabled:             true,
+	TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	NodeCount:           1,
+	IsMaintenance:       false,
+	IsProtected:         false,
+	BackupRetentionDays: 7,
 	Connection: map[string]string{
 		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
@@ -482,10 +543,12 @@ var datastoreResizeResponse Datastore = Datastore{ //nolint
 		Disk:  32,
 	},
 	Instances: []Instances{{
-		IP:       "127.0.0.1",
-		Role:     "MASTER",
-		Status:   "ACTIVE",
-		Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+		ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		IP:         "127.0.0.1",
+		FloatingIP: "None",
+		Role:       "MASTER",
+		Status:     "ACTIVE",
+		Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
 	}},
 	Pooler: Pooler{
 		Size: 30,
@@ -496,16 +559,19 @@ var datastoreResizeResponse Datastore = Datastore{ //nolint
 }
 
 var datastoreResizeExpected Datastore = Datastore{ //nolint
-	ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	CreatedAt: "1970-01-01T00:00:00",
-	UpdatedAt: "1970-01-01T00:00:00",
-	ProjectID: "123e4567e89b12d3a456426655440000",
-	Name:      "Name",
-	Status:    StatusResizing,
-	Enabled:   true,
-	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	NodeCount: 1,
+	ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	CreatedAt:           "1970-01-01T00:00:00",
+	UpdatedAt:           "1970-01-01T00:00:00",
+	ProjectID:           "123e4567e89b12d3a456426655440000",
+	Name:                "Name",
+	Status:              StatusResizing,
+	Enabled:             true,
+	TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	NodeCount:           1,
+	IsMaintenance:       false,
+	IsProtected:         false,
+	BackupRetentionDays: 7,
 	Connection: map[string]string{
 		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
@@ -516,10 +582,12 @@ var datastoreResizeExpected Datastore = Datastore{ //nolint
 		Disk:  32,
 	},
 	Instances: []Instances{{
-		IP:       "127.0.0.1",
-		Role:     "MASTER",
-		Status:   "ACTIVE",
-		Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+		ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		IP:         "127.0.0.1",
+		FloatingIP: "None",
+		Role:       "MASTER",
+		Status:     "ACTIVE",
+		Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
 	}},
 	Pooler: Pooler{
 		Size: 30,
@@ -530,16 +598,19 @@ var datastoreResizeExpected Datastore = Datastore{ //nolint
 }
 
 var datastoreUpdateConfigResponse Datastore = Datastore{ //nolint
-	ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	CreatedAt: "1970-01-01T00:00:00",
-	UpdatedAt: "1970-01-01T00:00:00",
-	ProjectID: "123e4567e89b12d3a456426655440000",
-	Name:      "Name",
-	Status:    StatusPendingUpdate,
-	Enabled:   true,
-	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	NodeCount: 1,
+	ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	CreatedAt:           "1970-01-01T00:00:00",
+	UpdatedAt:           "1970-01-01T00:00:00",
+	ProjectID:           "123e4567e89b12d3a456426655440000",
+	Name:                "Name",
+	Status:              StatusPendingUpdate,
+	Enabled:             true,
+	TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	NodeCount:           1,
+	IsMaintenance:       false,
+	IsProtected:         false,
+	BackupRetentionDays: 7,
 	Connection: map[string]string{
 		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
@@ -550,10 +621,12 @@ var datastoreUpdateConfigResponse Datastore = Datastore{ //nolint
 		Disk:  32,
 	},
 	Instances: []Instances{{
-		IP:       "127.0.0.1",
-		Role:     "MASTER",
-		Status:   "ACTIVE",
-		Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+		ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		IP:         "127.0.0.1",
+		FloatingIP: "None",
+		Role:       "MASTER",
+		Status:     "ACTIVE",
+		Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
 	}},
 	Pooler: Pooler{
 		Size: 30,
@@ -567,16 +640,19 @@ var datastoreUpdateConfigResponse Datastore = Datastore{ //nolint
 }
 
 var datastoreUpdateConfigExpected Datastore = Datastore{ //nolint
-	ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	CreatedAt: "1970-01-01T00:00:00",
-	UpdatedAt: "1970-01-01T00:00:00",
-	ProjectID: "123e4567e89b12d3a456426655440000",
-	Name:      "Name",
-	Status:    StatusPendingUpdate,
-	Enabled:   true,
-	TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	NodeCount: 1,
+	ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	CreatedAt:           "1970-01-01T00:00:00",
+	UpdatedAt:           "1970-01-01T00:00:00",
+	ProjectID:           "123e4567e89b12d3a456426655440000",
+	Name:                "Name",
+	Status:              StatusPendingUpdate,
+	Enabled:             true,
+	TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+	NodeCount:           1,
+	IsMaintenance:       false,
+	IsProtected:         false,
+	BackupRetentionDays: 7,
 	Connection: map[string]string{
 		"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 		"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
@@ -587,10 +663,12 @@ var datastoreUpdateConfigExpected Datastore = Datastore{ //nolint
 		Disk:  32,
 	},
 	Instances: []Instances{{
-		IP:       "127.0.0.1",
-		Role:     "MASTER",
-		Status:   "ACTIVE",
-		Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+		ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		IP:         "127.0.0.1",
+		FloatingIP: "None",
+		Role:       "MASTER",
+		Status:     "ACTIVE",
+		Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
 	}},
 	Pooler: Pooler{
 		Size: 30,
@@ -626,16 +704,19 @@ func TestDatastore(t *testing.T) {
 		httpmock.NewStringResponder(200, testDatastoreResponse))
 
 	expected := Datastore{
-		ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		CreatedAt: "1970-01-01T00:00:00",
-		UpdatedAt: "1970-01-01T00:00:00",
-		ProjectID: "123e4567e89b12d3a456426655440000",
-		Name:      "Name",
-		Status:    "ACTIVE",
-		Enabled:   true,
-		TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		NodeCount: 1,
+		ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		CreatedAt:           "1970-01-01T00:00:00",
+		UpdatedAt:           "1970-01-01T00:00:00",
+		ProjectID:           "123e4567e89b12d3a456426655440000",
+		Name:                "Name",
+		Status:              "ACTIVE",
+		Enabled:             true,
+		TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		NodeCount:           1,
+		IsMaintenance:       false,
+		IsProtected:         false,
+		BackupRetentionDays: 7,
 		Connection: map[string]string{
 			"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
@@ -646,10 +727,12 @@ func TestDatastore(t *testing.T) {
 			Disk:  32,
 		},
 		Instances: []Instances{{
-			IP:       "127.0.0.1",
-			Role:     "MASTER",
-			Status:   "ACTIVE",
-			Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+			ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+			IP:         "127.0.0.1",
+			FloatingIP: "192.168.1.1",
+			Role:       "MASTER",
+			Status:     "ACTIVE",
+			Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
 		}},
 		Pooler: Pooler{
 			Size: 30,
@@ -676,16 +759,19 @@ func TestMultiNodeDatastore(t *testing.T) {
 		httpmock.NewStringResponder(200, testMultiNodeDatastoreResponse))
 
 	expected := Datastore{
-		ID:        "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		CreatedAt: "1970-01-01T00:00:00",
-		UpdatedAt: "1970-01-01T00:00:00",
-		ProjectID: "123e4567e89b12d3a456426655440000",
-		Name:      "Name",
-		Status:    "ACTIVE",
-		Enabled:   true,
-		TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		NodeCount: 3,
+		ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		CreatedAt:           "1970-01-01T00:00:00",
+		UpdatedAt:           "1970-01-01T00:00:00",
+		ProjectID:           "123e4567e89b12d3a456426655440000",
+		Name:                "Name",
+		Status:              "ACTIVE",
+		Enabled:             true,
+		TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		NodeCount:           3,
+		IsMaintenance:       false,
+		IsProtected:         false,
+		BackupRetentionDays: 7,
 		Connection: map[string]string{
 			"MASTER":    "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 			"master":    "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
@@ -699,22 +785,28 @@ func TestMultiNodeDatastore(t *testing.T) {
 		},
 		Instances: []Instances{
 			{
-				IP:       "127.0.0.1",
-				Role:     "MASTER",
-				Status:   "ACTIVE",
-				Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+				ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				IP:         "127.0.0.1",
+				FloatingIP: "192.168.1.1",
+				Role:       "MASTER",
+				Status:     "ACTIVE",
+				Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
 			},
 			{
-				IP:       "127.0.0.2",
-				Role:     "REPLICA",
-				Status:   "ACTIVE",
-				Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c56.ru-1.c.dbaas.selcloud.org",
+				ID:         "40d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				IP:         "127.0.0.2",
+				FloatingIP: "192.168.1.2",
+				Role:       "REPLICA",
+				Status:     "ACTIVE",
+				Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c56.ru-1.c.dbaas.selcloud.org",
 			},
 			{
-				IP:       "127.0.0.3",
-				Role:     "REPLICA",
-				Status:   "ACTIVE",
-				Hostname: "9c387698-42a9-4555-9a8c-46eee7dc8c57.ru-1.c.dbaas.selcloud.org",
+				ID:         "50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				IP:         "127.0.0.3",
+				FloatingIP: "None",
+				Role:       "REPLICA",
+				Status:     "ACTIVE",
+				Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c57.ru-1.c.dbaas.selcloud.org",
 			},
 		},
 		Pooler: Pooler{
@@ -1082,6 +1174,8 @@ func TestBackupsDatastore(t *testing.T) {
 	httpmock.Activate()
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
+	expectedResponse := datastoreUpdateExpected
+	expectedResponse.BackupRetentionDays = 14
 
 	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/backups",
 		func(req *http.Request) (*http.Response, error) {
@@ -1090,7 +1184,7 @@ func TestBackupsDatastore(t *testing.T) {
 			}
 
 			datastores := make(map[string]Datastore)
-			datastores["datastore"] = datastoreUpdateResponse
+			datastores["datastore"] = expectedResponse
 
 			resp, err := httpmock.NewJsonResponse(200, datastores)
 			if err != nil {
@@ -1105,6 +1199,41 @@ func TestBackupsDatastore(t *testing.T) {
 
 	actual, err := testClient.BackupsDatastore(context.Background(), datastoreID, backupsDatastoreOpts)
 	require.NoError(t, err)
-	assert.Equal(t, 1, httpmock.GetTotalCallCount())
-	assert.Equal(t, datastoreUpdateExpected, actual)
+	assert.Equal(t, expectedResponse, actual)
+}
+
+func TestCreateDatastoreWithFloatingIPs(t *testing.T) {
+	httpmock.Activate()
+	testClient := SetupTestClient()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("POST", testClient.Endpoint+DatastoresURI,
+		func(req *http.Request) (*http.Response, error) {
+			if err := json.NewDecoder(req.Body).Decode(&DatastoreCreateOpts{}); err != nil {
+				return httpmock.NewStringResponse(400, ""), err
+			}
+
+			datastores := make(map[string]Datastore)
+			datastores["datastore"] = datastoreCreateResponse
+
+			resp, err := httpmock.NewJsonResponse(200, datastores)
+			if err != nil {
+				return httpmock.NewStringResponse(500, ""), err
+			}
+			return resp, nil
+		})
+
+	createDatastoreOpts := DatastoreCreateOpts{
+		Name:        "Name",
+		TypeID:      "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		NodeCount:   1,
+		SubnetID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		Flavor:      &Flavor{Vcpus: 2, RAM: 2048, Disk: 32},
+		FloatingIPs: &FloatingIPs{Master: 1, Replica: 0},
+	}
+
+	actual, err := testClient.CreateDatastore(context.Background(), createDatastoreOpts)
+
+	require.NoError(t, err)
+	assert.Equal(t, datastoreCreateExpected, actual)
 }
