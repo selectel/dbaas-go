@@ -18,7 +18,7 @@ const FloatingIPsURI = "/floating-ips"
 // CreateFloatingIP creates FloatingIP for provided instance of an existing datastore.
 func (api *API) CreateFloatingIP(ctx context.Context, opts FloatingIPsOpts) error {
 	floatingIPsOpts := struct {
-		FloatingIP FloatingIPsOpts `json:"floating-ip"`
+		FloatingIP FloatingIPsOpts `json:"floating_ip"`
 	}{
 		FloatingIP: opts,
 	}
@@ -38,7 +38,7 @@ func (api *API) CreateFloatingIP(ctx context.Context, opts FloatingIPsOpts) erro
 // DeleteFloatingIP deletes FloatingIP from provided instance of an existing datastore.
 func (api *API) DeleteFloatingIP(ctx context.Context, opts FloatingIPsOpts) error {
 	floatingIPsOpts := struct {
-		FloatingIP FloatingIPsOpts `json:"floating-ip"`
+		FloatingIP FloatingIPsOpts `json:"floating_ip"`
 	}{
 		FloatingIP: opts,
 	}
