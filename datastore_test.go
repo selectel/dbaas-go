@@ -906,7 +906,7 @@ func TestCreateDatastoreWithFlavorDiskType(t *testing.T) {
 
 			datastores := make(map[string]Datastore)
 			datastoreCreateResponseWithFlavorDiskType := datastoreCreateResponse
-			datastoreCreateResponseWithFlavorDiskType.Flavor.DiskType = "network-ultra"
+			datastoreCreateResponseWithFlavorDiskType.Flavor.DiskType = DiskNetworkUltra
 			datastores["datastore"] = datastoreCreateResponseWithFlavorDiskType
 
 			resp, err := httpmock.NewJsonResponse(200, datastores)
@@ -921,11 +921,11 @@ func TestCreateDatastoreWithFlavorDiskType(t *testing.T) {
 		TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		NodeCount: 1,
 		SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		Flavor:    &Flavor{Vcpus: 2, RAM: 2048, Disk: 32, DiskType: "network-ultra"},
+		Flavor:    &Flavor{Vcpus: 2, RAM: 2048, Disk: 32, DiskType: DiskNetworkUltra},
 	}
 
 	datastoreCreateExpectedWithDiskType := datastoreCreateExpected
-	datastoreCreateExpectedWithDiskType.Flavor.DiskType = "network-ultra"
+	datastoreCreateExpectedWithDiskType.Flavor.DiskType = DiskNetworkUltra
 
 	actual, err := testClient.CreateDatastore(context.Background(), createDatastoreOpts)
 
@@ -1081,7 +1081,7 @@ func TestResizeDatatastoreWithDiskType(t *testing.T) {
 	expected.APIError.Message = "Validation failure: {'resize.flavor': \"Additional properties are not allowed ('disk_type' was unexpected)\"}"
 
 	resizeDatastoreOpts := DatastoreResizeOpts{
-		Flavor: &Flavor{Vcpus: 2, RAM: 4096, Disk: 32, DiskType: "network-ultra"},
+		Flavor: &Flavor{Vcpus: 2, RAM: 4096, Disk: 32, DiskType: DiskNetworkUltra},
 	}
 
 	_, err := testClient.ResizeDatastore(context.Background(), datastoreID, resizeDatastoreOpts)
