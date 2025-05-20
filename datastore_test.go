@@ -45,6 +45,14 @@ const testResizeDatastoreInvalidNodeCount = `{
 	}
 }`
 
+const testResizeDatastoreWithDiskType = `{
+	"error": {
+		"code": 400,
+		"title": "Bad Request",
+		"message": "Validation failure: {'resize.flavor': \"Additional properties are not allowed ('disk_type' was unexpected)\"}"
+	}
+}`
+
 const testPoolerDatastoreInvalidMode = `{
 	"error": {
 		"code": 400,
@@ -1052,6 +1060,28 @@ func TestResizeDatatastoreInvalidNodeCount(t *testing.T) {
 
 	resizeDatastoreOpts := DatastoreResizeOpts{
 		NodeCount: 0,
+	}
+
+	_, err := testClient.ResizeDatastore(context.Background(), datastoreID, resizeDatastoreOpts)
+
+	require.ErrorAs(t, err, &expected)
+}
+
+func TestResizeDatatastoreWithDiskType(t *testing.T) {
+	httpmock.Activate()
+	testClient := SetupTestClient()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("POST", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/resize",
+		httpmock.NewStringResponder(400, testResizeDatastoreWithDiskType))
+
+	expected := &DBaaSAPIError{}
+	expected.APIError.Code = 400
+	expected.APIError.Title = ErrorBadRequestTitle
+	expected.APIError.Message = "Validation failure: {'resize.flavor': \"Additional properties are not allowed ('disk_type' was unexpected)\"}"
+
+	resizeDatastoreOpts := DatastoreResizeOpts{
+		Flavor: &Flavor{Vcpus: 2, RAM: 4096, Disk: 32, DiskType: "network-ultra"},
 	}
 
 	_, err := testClient.ResizeDatastore(context.Background(), datastoreID, resizeDatastoreOpts)
