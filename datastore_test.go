@@ -1019,6 +1019,7 @@ func TestResizeDatastore(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
+	//nolint:goconst // string `/resize` has 3 occurrences, make it a constant
 	httpmock.RegisterResponder("POST", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/resize",
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&DatastoreResizeOpts{}); err != nil {
