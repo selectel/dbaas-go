@@ -45,6 +45,7 @@ const testResizeDatastoreInvalidNodeCount = `{
 	}
 }`
 
+//nolint:lll //The line is 130 characters long, which exceeds the maximum of 120 characters.
 const testResizeDatastoreWithDiskType = `{
 	"error": {
 		"code": 400,
@@ -1078,7 +1079,8 @@ func TestResizeDatatastoreWithDiskType(t *testing.T) {
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 400
 	expected.APIError.Title = ErrorBadRequestTitle
-	expected.APIError.Message = "Validation failure: {'resize.flavor': \"Additional properties are not allowed ('disk_type' was unexpected)\"}"
+	expected.APIError.Message = `Validation failure: {'resize.flavor': \"Additional properties are not allowed 
+	('disk_type' was unexpected)\"}`
 
 	resizeDatastoreOpts := DatastoreResizeOpts{
 		Flavor: &Flavor{Vcpus: 2, RAM: 4096, Disk: 32, DiskType: DiskNetworkUltra},
