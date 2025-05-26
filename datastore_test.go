@@ -282,6 +282,8 @@ const testMultiNodeDatastoreResponse = `{
 
 const datastoreID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
 
+var datastoreResizeURI = fmt.Sprintf("%s/%s/resize", DatastoresURI, datastoreID)
+
 var datastoreListExpected []Datastore = []Datastore{ //nolint
 	{
 		ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
@@ -1019,8 +1021,7 @@ func TestResizeDatastore(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	//nolint:goconst // string `/resize` has 3 occurrences, make it a constant
-	httpmock.RegisterResponder("POST", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/resize",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+datastoreResizeURI,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&DatastoreResizeOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -1052,7 +1053,7 @@ func TestResizeDatatastoreInvalidNodeCount(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/resize",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+datastoreResizeURI,
 		httpmock.NewStringResponder(400, testResizeDatastoreInvalidNodeCount))
 
 	expected := &DBaaSAPIError{}
@@ -1074,7 +1075,7 @@ func TestResizeDatatastoreWithDiskType(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/resize",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+datastoreResizeURI,
 		httpmock.NewStringResponder(400, testResizeDatastoreWithDiskType))
 
 	expected := &DBaaSAPIError{}
