@@ -42,6 +42,14 @@ const (
 	StatusResizing      Status = "RESIZING"
 )
 
+// DiskType represents custom type for various flavor disk types.
+type DiskType string
+
+const (
+	DiskLocal        DiskType = "local"
+	DiskNetworkUltra DiskType = "network-ultra"
+)
+
 // API stores details that are needed to work with Selectel DBaaS API.
 type API struct {
 	HTTPClient *http.Client

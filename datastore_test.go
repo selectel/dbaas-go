@@ -45,6 +45,15 @@ const testResizeDatastoreInvalidNodeCount = `{
 	}
 }`
 
+//nolint:lll //The line is 130 characters long, which exceeds the maximum of 120 characters.
+const testResizeDatastoreWithDiskType = `{
+	"error": {
+		"code": 400,
+		"title": "Bad Request",
+		"message": "Validation failure: {'resize.flavor': \"Additional properties are not allowed ('disk_type' was unexpected)\"}"
+	}
+}`
+
 const testPoolerDatastoreInvalidMode = `{
 	"error": {
 		"code": 400,
@@ -77,7 +86,8 @@ const testDatastoresResponse = `{
 			"flavor": {
 				"vcpus": 2,
 				"ram": 2048,
-				"disk": 32
+				"disk": 32,
+				"disk_type": "local" 
 			},
 			"instances": [
 				{
@@ -121,7 +131,8 @@ const testDatastoresResponse = `{
 			"flavor": {
 				"vcpus": 2,
 				"ram": 2048,
-				"disk": 32
+				"disk": 32,
+				"disk_type": "network-ultra"
 			},
 			"instances": [
 				{
@@ -178,7 +189,8 @@ const testDatastoreResponse = `{
 		"flavor": {
 			"vcpus": 2,
 			"ram": 2048,
-			"disk": 32
+			"disk": 32,
+			"disk_type": "local"
 		},
 		"instances": [
 			{
@@ -270,6 +282,8 @@ const testMultiNodeDatastoreResponse = `{
 
 const datastoreID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
 
+var datastoreResizeURI = fmt.Sprintf("%s/%s/resize", DatastoresURI, datastoreID) //nolint:gochecknoglobals
+
 var datastoreListExpected []Datastore = []Datastore{ //nolint
 	{
 		ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
@@ -290,9 +304,10 @@ var datastoreListExpected []Datastore = []Datastore{ //nolint
 			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 		},
 		Flavor: Flavor{
-			Vcpus: 2,
-			RAM:   2048,
-			Disk:  32,
+			Vcpus:    2,
+			RAM:      2048,
+			Disk:     32,
+			DiskType: "local",
 		},
 		Instances: []Instances{{
 			ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
@@ -330,9 +345,10 @@ var datastoreListExpected []Datastore = []Datastore{ //nolint
 			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5.c.dbaas.selcloud.org",
 		},
 		Flavor: Flavor{
-			Vcpus: 2,
-			RAM:   2048,
-			Disk:  32,
+			Vcpus:    2,
+			RAM:      2048,
+			Disk:     32,
+			DiskType: "network-ultra",
 		},
 		Instances: []Instances{
 			{
@@ -722,9 +738,10 @@ func TestDatastore(t *testing.T) {
 			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
 		},
 		Flavor: Flavor{
-			Vcpus: 2,
-			RAM:   2048,
-			Disk:  32,
+			Vcpus:    2,
+			RAM:      2048,
+			Disk:     32,
+			DiskType: "local",
 		},
 		Instances: []Instances{{
 			ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
@@ -879,6 +896,46 @@ func TestCreateDatastore(t *testing.T) {
 	assert.Equal(t, datastoreCreateExpected, actual)
 }
 
+func TestCreateDatastoreWithFlavorDiskType(t *testing.T) {
+	httpmock.Activate()
+	testClient := SetupTestClient()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("POST", testClient.Endpoint+DatastoresURI,
+		func(req *http.Request) (*http.Response, error) {
+			if err := json.NewDecoder(req.Body).Decode(&DatastoreCreateOpts{}); err != nil {
+				return httpmock.NewStringResponse(400, ""), err
+			}
+
+			datastores := make(map[string]Datastore)
+			datastoreCreateResponseWithFlavorDiskType := datastoreCreateResponse
+			datastoreCreateResponseWithFlavorDiskType.Flavor.DiskType = DiskNetworkUltra
+			datastores["datastore"] = datastoreCreateResponseWithFlavorDiskType
+
+			resp, err := httpmock.NewJsonResponse(200, datastores)
+			if err != nil {
+				return httpmock.NewStringResponse(500, ""), err
+			}
+			return resp, nil
+		})
+
+	createDatastoreOpts := DatastoreCreateOpts{
+		Name:      "Name",
+		TypeID:    "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		NodeCount: 1,
+		SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		Flavor:    &Flavor{Vcpus: 2, RAM: 2048, Disk: 32, DiskType: DiskNetworkUltra},
+	}
+
+	datastoreCreateExpectedWithDiskType := datastoreCreateExpected
+	datastoreCreateExpectedWithDiskType.Flavor.DiskType = DiskNetworkUltra
+
+	actual, err := testClient.CreateDatastore(context.Background(), createDatastoreOpts)
+
+	require.NoError(t, err)
+	assert.Equal(t, datastoreCreateExpectedWithDiskType, actual)
+}
+
 func TestCreateDatatastoreInvalidTypeID(t *testing.T) {
 	httpmock.Activate()
 	testClient := SetupTestClient()
@@ -964,7 +1021,7 @@ func TestResizeDatastore(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/resize",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+datastoreResizeURI,
 		func(req *http.Request) (*http.Response, error) {
 			if err := json.NewDecoder(req.Body).Decode(&DatastoreResizeOpts{}); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
@@ -996,7 +1053,7 @@ func TestResizeDatatastoreInvalidNodeCount(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/resize",
+	httpmock.RegisterResponder("POST", testClient.Endpoint+datastoreResizeURI,
 		httpmock.NewStringResponder(400, testResizeDatastoreInvalidNodeCount))
 
 	expected := &DBaaSAPIError{}
@@ -1006,6 +1063,29 @@ func TestResizeDatatastoreInvalidNodeCount(t *testing.T) {
 
 	resizeDatastoreOpts := DatastoreResizeOpts{
 		NodeCount: 0,
+	}
+
+	_, err := testClient.ResizeDatastore(context.Background(), datastoreID, resizeDatastoreOpts)
+
+	require.ErrorAs(t, err, &expected)
+}
+
+func TestResizeDatatastoreWithDiskType(t *testing.T) {
+	httpmock.Activate()
+	testClient := SetupTestClient()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("POST", testClient.Endpoint+datastoreResizeURI,
+		httpmock.NewStringResponder(400, testResizeDatastoreWithDiskType))
+
+	expected := &DBaaSAPIError{}
+	expected.APIError.Code = 400
+	expected.APIError.Title = ErrorBadRequestTitle
+	expected.APIError.Message = `Validation failure: {'resize.flavor': \"Additional properties are not allowed 
+	('disk_type' was unexpected)\"}`
+
+	resizeDatastoreOpts := DatastoreResizeOpts{
+		Flavor: &Flavor{Vcpus: 2, RAM: 4096, Disk: 32, DiskType: DiskNetworkUltra},
 	}
 
 	_, err := testClient.ResizeDatastore(context.Background(), datastoreID, resizeDatastoreOpts)

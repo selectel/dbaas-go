@@ -19,9 +19,10 @@ type Instances struct {
 
 // Flavor represents datastore's flavor.
 type Flavor struct {
-	Vcpus int `json:"vcpus"`
-	RAM   int `json:"ram"`
-	Disk  int `json:"disk"`
+	DiskType DiskType `json:"disk_type,omitempty"`
+	Vcpus    int      `json:"vcpus"`
+	RAM      int      `json:"ram"`
+	Disk     int      `json:"disk"`
 }
 
 // Restore represents restore parameters for datastore.
