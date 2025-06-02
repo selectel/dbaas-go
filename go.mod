@@ -1,6 +1,6 @@
 module github.com/selectel/dbaas-go
 
-go 1.24.3
+go 1.20
 
 require (
 	github.com/gophercloud/gophercloud v1.0.0
