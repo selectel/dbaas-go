@@ -900,6 +900,10 @@ func TestCreateDatastore(t *testing.T) {
 		NodeCount: 1,
 		SubnetID:  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		Flavor:    &Flavor{Vcpus: 2, RAM: 2048, Disk: 32},
+		Disk: &InitDisk{
+			Type: "local",
+			Size: 30,
+		},
 	}
 
 	actual, err := testClient.CreateDatastore(context.Background(), createDatastoreOpts)
@@ -1052,6 +1056,9 @@ func TestResizeDatastore(t *testing.T) {
 	resizeDatastoreOpts := DatastoreResizeOpts{
 		NodeCount: 3,
 		Flavor:    &Flavor{Vcpus: 2, RAM: 4096, Disk: 32},
+		Disk: &ResizeDisk{
+			Size: 30,
+		},
 	}
 
 	actual, err := testClient.ResizeDatastore(context.Background(), datastoreID, resizeDatastoreOpts)
