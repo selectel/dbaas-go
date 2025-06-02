@@ -15,6 +15,7 @@ type FlavorHost struct {
 
 // FlavorResponse is the API response for the flavors.
 type FlavorResponse struct {
+	Host             *FlavorHost `json:"host"`
 	ID               string      `json:"id"`
 	Name             string      `json:"name"`
 	Description      string      `json:"description"`
@@ -23,7 +24,6 @@ type FlavorResponse struct {
 	Vcpus            int         `json:"vcpus"`
 	RAM              int         `json:"ram"`
 	Disk             int         `json:"disk"`
-	Host             *FlavorHost `json:"host"`
 }
 
 const FlavorsURI = "/flavors"

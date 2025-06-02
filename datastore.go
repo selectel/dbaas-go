@@ -97,15 +97,15 @@ type DatastoreCreateOpts struct {
 	Pooler              *Pooler        `json:"pooler,omitempty"`
 	FloatingIPs         *FloatingIPs   `json:"floating_ips,omitempty"`
 	Config              map[string]any `json:"config,omitempty"`
-	Name                string         `json:"name"`
+	Disk                *InitDisk      `json:"disk,omitempty"`
 	TypeID              string         `json:"type_id"`
 	SubnetID            string         `json:"subnet_id"`
 	FlavorID            string         `json:"flavor_id,omitempty"`
 	ProjectID           string         `json:"project_id"`
 	RedisPassword       string         `json:"redis_password,omitempty"`
+	Name                string         `json:"name"`
 	NodeCount           int            `json:"node_count"`
 	BackupRetentionDays int            `json:"backup_retention_days,omitempty"`
-	Disk                *InitDisk      `json:"disk,omitempty"`
 }
 
 // DatastoreUpdateOpts represents options for the datastore Update request.
@@ -116,9 +116,9 @@ type DatastoreUpdateOpts struct {
 // DatastoreResizeOpts represents options for the datastore Resize request.
 type DatastoreResizeOpts struct {
 	Flavor    *Flavor     `json:"flavor,omitempty"`
+	Disk      *ResizeDisk `json:"disk,omitempty"`
 	FlavorID  string      `json:"flavor_id,omitempty"`
 	NodeCount int         `json:"node_count,omitempty"`
-	Disk      *ResizeDisk `json:"disk,omitempty"`
 }
 
 // DatastorePoolerOpts represents options for the datastore's pooler Update request.
