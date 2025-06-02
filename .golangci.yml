@@ -1,69 +1,122 @@
+version: "2"
 linters:
-  presets:
-  - bugs
-  - comment
-  - complexity
-  - error
-  - format
-  - metalinter
-  - performance
-  - sql
-  - unused
   enable:
-  - gomoddirectives
-  - asciicheck
-  - dogsled
-  - dupl
-  - forcetypeassert
-  - gochecknoglobals
-  - gochecknoinits
-  - goconst
-  - godox
-  - goprintffuncname
-  - gosimple
-  - lll
-  - makezero
-  - nakedret
-  - nolintlint
-  - predeclared
-  - stylecheck
-  - thelper
-  - tparallel
-  - unconvert
-  - whitespace
-  - wastedassign
-  - tparallel
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - contextcheck
+    - cyclop
+    - dogsled
+    - dupl
+    - dupword
+    - durationcheck
+    - err113
+    - errchkjson
+    - errorlint
+    - exhaustive
+    - fatcontext
+    - forcetypeassert
+    - gocheckcompilerdirectives
+    - gochecknoglobals
+    - gochecknoinits
+    - gochecksumtype
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - godox
+    - gomoddirectives
+    - goprintffuncname
+    - gosec
+    - gosmopolitan
+    - lll
+    - loggercheck
+    - maintidx
+    - makezero
+    - misspell
+    - musttag
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnesserr
+    - noctx
+    - nolintlint
+    - perfsprint
+    - prealloc
+    - predeclared
+    - protogetter
+    - reassign
+    - recvcheck
+    - revive
+    - rowserrcheck
+    - spancheck
+    - sqlclosecheck
+    - staticcheck
+    - testifylint
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - wastedassign
+    - whitespace
+    - wrapcheck
+    - zerologlint
   disable:
-  - scopelint
-  - funlen
-  - maligned
-linters-settings:
-  dogsled:
-    max-blank-identifiers: 3
-  errorlint:
-    errorf: true
-  godot:
-    scope: declarations
-  goimports:
-    local-prefixes: github.com/selectel/dbaas-go
-  gomoddirectives:
-    replace-local: true
-    retract-allow-no-explanation: false
-  govet:
-    enable:
-    - fieldalignment
-  lll:
-    tab-width: 4
-  dupl:
-    threshold: 500
-  revive:
-    severity: error
+    - funlen
+  settings:
+    dogsled:
+      max-blank-identifiers: 3
+    dupl:
+      threshold: 500
+    errorlint:
+      errorf: true
+    godot:
+      scope: declarations
+    gomoddirectives:
+      replace-local: true
+      retract-allow-no-explanation: false
+    govet:
+      enable:
+        - fieldalignment
+    lll:
+      tab-width: 4
+    revive:
+      severity: error
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - err113
+          - forcetypeassert
+          - gosec
+        path: _test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude-rules:
-  - path: _test\.go
-    linters:
-    - goerr113
-    - forcetypeassert
-    - gosec
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/selectel/dbaas-go
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
