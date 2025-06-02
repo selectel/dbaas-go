@@ -146,7 +146,6 @@ func main() {
 
     // Create options for a new datastore.
     datastoreCreateOpts := dbaas.DatastoreCreateOpts{
-        ProjectID: <PORJECT_ID>
         Name:      "go_cluster",
         TypeID:    datastoreTypes[0].ID,
         NodeCount: 1,
