@@ -85,7 +85,7 @@ func TestConfigurationParameters(t *testing.T) {
 	httpmock.RegisterResponder("GET", testClient.Endpoint+ConfigurationParametersURI,
 		httpmock.NewStringResponder(200, testConfigurationParametersResponse))
 
-	choices := []interface{}{"NEVER", "AUTO", "ALWAYS", "0", "1", "2"}
+	choices := []any{"NEVER", "AUTO", "ALWAYS", "0", "1", "2"}
 	expected := []ConfigurationParameter{
 		{
 			ID:                "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
@@ -113,7 +113,7 @@ func TestConfigurationParameters(t *testing.T) {
 			Choices:           choices,
 			IsRestartRequired: false,
 			IsChangeable:      true,
-			InvalidValues:     []interface{}{"0"},
+			InvalidValues:     []any{"0"},
 		},
 	}
 

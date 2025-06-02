@@ -62,6 +62,16 @@ Selectel Managed Databases Service currently has the following API endpoint:
 You can also retrieve all available API endpoints from the Identity
 catalog.
 
+### Docs
+You can use Godoc to view methods and signatures
+```shell
+go install golang.org/x/tools/cmd/godoc@latest
+export PATH="$PATH:$HOME/go/bin/"
+godoc -http=localhost:6060
+```
+View
+http://localhost:6060/pkg/github.com/selectel/dbaas-go/
+
 ### Usage example
 
 ```go
@@ -136,6 +146,7 @@ func main() {
 
     // Create options for a new datastore.
     datastoreCreateOpts := dbaas.DatastoreCreateOpts{
+        ProjectID: <PORJECT_ID>
         Name:      "go_cluster",
         TypeID:    datastoreTypes[0].ID,
         NodeCount: 1,
