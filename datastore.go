@@ -79,8 +79,8 @@ type Datastore struct {
 	DiskUsed            int               `json:"disk_used"`
 }
 
-// InitDisk represents disk parameters for a get/create datastore ops.
-type InitDisk struct {
+// Disk represents disk parameters for a get/create datastore ops.
+type Disk struct {
 	Type string `json:"type"`
 	Size int    `json:"size"`
 }
@@ -97,7 +97,7 @@ type DatastoreCreateOpts struct {
 	Pooler              *Pooler        `json:"pooler,omitempty"`
 	FloatingIPs         *FloatingIPs   `json:"floating_ips,omitempty"`
 	Config              map[string]any `json:"config,omitempty"`
-	Disk                *InitDisk      `json:"disk,omitempty"`
+	Disk                *Disk          `json:"disk,omitempty"`
 	TypeID              string         `json:"type_id"`
 	SubnetID            string         `json:"subnet_id"`
 	FlavorID            string         `json:"flavor_id,omitempty"`
