@@ -85,7 +85,7 @@ type Disk struct {
 	Size int    `json:"size"`
 }
 
-// ResizeDisk represents disk parameters for a data store resize operation.
+// ResizeDisk represents disk parameters for a datastore resize operation.
 type ResizeDisk struct {
 	Size int `json:"size"`
 }
