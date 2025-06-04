@@ -178,7 +178,7 @@ func (api *API) request(ctx context.Context, method, uri string, body io.Reader)
 }
 
 // handleParams converts body params to slice of bytes if they are not nil.
-func handleParams(params interface{}) ([]byte, error) {
+func handleParams(params any) ([]byte, error) {
 	var jsonBody []byte
 	var err error
 
@@ -213,10 +213,10 @@ func handleStatusCode(statusCode int, body []byte, uri string) error {
 }
 
 // setQueryParams updates uri string with query parameters.
-func setQueryParams(uri string, params interface{}) (string, error) {
+func setQueryParams(uri string, params any) (string, error) {
 	v := url.Values{}
 
-	var queryParams map[string]interface{}
+	var queryParams map[string]any
 	jsonParams, err := json.Marshal(params)
 	if err != nil {
 		return "", fmt.Errorf("Error marshalling params to JSON, %w", err)
@@ -238,7 +238,7 @@ func setQueryParams(uri string, params interface{}) (string, error) {
 }
 
 // convertFieldToType converts interface to the corresponding type.
-func convertFieldToType(fieldValue interface{}) interface{} {
+func convertFieldToType(fieldValue any) any {
 	switch fieldValue := fieldValue.(type) {
 	case string:
 		return convertFieldFromStringToType(fieldValue)
@@ -248,7 +248,7 @@ func convertFieldToType(fieldValue interface{}) interface{} {
 }
 
 // convertFieldFromStringToType converts string to the type that it represents.
-func convertFieldFromStringToType(fieldValue string) interface{} {
+func convertFieldFromStringToType(fieldValue string) any {
 	if val, err := strconv.Atoi(fieldValue); err == nil {
 		return val
 	} else if val, err := strconv.ParseFloat(fieldValue, 64); err == nil {
@@ -260,8 +260,8 @@ func convertFieldFromStringToType(fieldValue string) interface{} {
 }
 
 // convertConfigValues convert config map values to the corresponding types.
-func convertConfigValues(configMap map[string]interface{}) map[string]interface{} {
-	config := make(map[string]interface{})
+func convertConfigValues(configMap map[string]any) map[string]any {
+	config := make(map[string]any)
 	for paramName, paramValue := range configMap {
 		config[paramName] = convertFieldToType(paramValue)
 	}

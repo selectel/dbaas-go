@@ -9,18 +9,18 @@ import (
 
 // ConfigurationParameter is the API response for the configuration parameters.
 type ConfigurationParameter struct {
-	ID                string        `json:"id"`
-	DatastoreTypeID   string        `json:"datastore_type_id"`
-	Name              string        `json:"name"`
-	Type              string        `json:"type"`
-	Unit              string        `json:"unit"`
-	Min               interface{}   `json:"min"`
-	Max               interface{}   `json:"max"`
-	DefaultValue      interface{}   `json:"default_value"`
-	Choices           []interface{} `json:"choices"`
-	InvalidValues     []interface{} `json:"invalid_values"`
-	IsRestartRequired bool          `json:"is_restart_required"`
-	IsChangeable      bool          `json:"is_changeable"`
+	ID                string `json:"id"`
+	DatastoreTypeID   string `json:"datastore_type_id"`
+	Name              string `json:"name"`
+	Type              string `json:"type"`
+	Unit              string `json:"unit"`
+	Min               any    `json:"min"`
+	Max               any    `json:"max"`
+	DefaultValue      any    `json:"default_value"`
+	Choices           []any  `json:"choices"`
+	InvalidValues     []any  `json:"invalid_values"`
+	IsRestartRequired bool   `json:"is_restart_required"`
+	IsChangeable      bool   `json:"is_changeable"`
 }
 
 const ConfigurationParametersURI = "/configuration-parameters"
