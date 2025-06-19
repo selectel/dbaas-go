@@ -46,7 +46,12 @@ const testFlavorsResponse = `{
 				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5"
 			],
-			"fl_size": "standard"
+			"fl_size": "standard",
+			"host": {
+				"line": "L",
+				"processor": "Intel-Gold6240",
+				"available_count": 2
+			}
 		}
 	]
 }`
@@ -101,6 +106,11 @@ func TestFlavors(t *testing.T) {
 				"20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
 			},
 			FlSize: "standard",
+			Host: &FlavorHost{
+				Line:           "L",
+				Processor:      "Intel-Gold6240",
+				AvailableCount: 2,
+			},
 		},
 	}
 

@@ -9,12 +9,14 @@ import (
 
 // Instances represents datastore's instances.
 type Instances struct {
-	ID         string `json:"id"`
-	IP         string `json:"ip"`
-	FloatingIP string `json:"floating_ip"`
-	Role       string `json:"role"`
-	Status     Status `json:"status"`
-	Hostname   string `json:"hostname"`
+	ID               string `json:"id"`
+	IP               string `json:"ip"`
+	FloatingIP       string `json:"floating_ip"`
+	Role             string `json:"role"`
+	RoleName         string `json:"role_name"`
+	Status           Status `json:"status"`
+	Hostname         string `json:"hostname"`
+	AvailabilityZone string `json:"availability_zone"`
 }
 
 // Flavor represents datastore's flavor.
@@ -50,43 +52,60 @@ type FloatingIPs struct {
 
 // Datastore is the API response for the datastores.
 type Datastore struct {
-	ID                  string                 `json:"id"`
-	CreatedAt           string                 `json:"created_at"`
-	UpdatedAt           string                 `json:"updated_at"`
-	ProjectID           string                 `json:"project_id"`
-	Name                string                 `json:"name"`
-	TypeID              string                 `json:"type_id"`
-	SubnetID            string                 `json:"subnet_id"`
-	FlavorID            string                 `json:"flavor_id"`
-	Status              Status                 `json:"status"`
-	Connection          map[string]string      `json:"connection"`
-	Firewall            []Firewall             `json:"firewall"`
-	Instances           []Instances            `json:"instances"`
-	Config              map[string]interface{} `json:"config"`
-	Pooler              Pooler                 `json:"pooler"`
-	Flavor              Flavor                 `json:"flavor"`
-	NodeCount           int                    `json:"node_count"`
-	Enabled             bool                   `json:"enabled"`
-	AllowRestore        bool                   `json:"allow_restore"`
-	IsMaintenance       bool                   `json:"is_maintenance"`
-	IsProtected         bool                   `json:"is_protected"`
-	BackupRetentionDays int                    `json:"backup_retention_days"`
+	ID                  string            `json:"id"`
+	CreatedAt           string            `json:"created_at"`
+	UpdatedAt           string            `json:"updated_at"`
+	CreationFinishedAt  string            `json:"creation_finished_at"`
+	ProjectID           string            `json:"project_id"`
+	Name                string            `json:"name"`
+	TypeID              string            `json:"type_id"`
+	SubnetID            string            `json:"subnet_id"`
+	FlavorID            string            `json:"flavor_id"`
+	Status              Status            `json:"status"`
+	Connection          map[string]string `json:"connection"`
+	Firewall            []Firewall        `json:"firewall"`
+	Instances           []Instances       `json:"instances"`
+	Config              map[string]any    `json:"config"`
+	Pooler              Pooler            `json:"pooler"`
+	Flavor              Flavor            `json:"flavor"`
+	NodeCount           int               `json:"node_count"`
+	Enabled             bool              `json:"enabled"`
+	AllowRestore        bool              `json:"allow_restore"`
+	IsMaintenance       bool              `json:"is_maintenance"`
+	IsProtected         bool              `json:"is_protected"`
+	BackupRetentionDays int               `json:"backup_retention_days"`
+	DatabasesCount      int               `json:"databases_count"`
+	TopicsCount         int               `json:"topics_count"`
+	DiskUsed            int               `json:"disk_used"`
+}
+
+// Disk represents disk parameters for a get/create datastore ops.
+type Disk struct {
+	Type string `json:"type"`
+	Size int    `json:"size"`
+}
+
+// ResizeDisk represents disk parameters for a datastore resize operation.
+type ResizeDisk struct {
+	Size int `json:"size"`
 }
 
 // DatastoreCreateOpts represents options for the datastore Create request.
 type DatastoreCreateOpts struct {
-	Flavor              *Flavor                `json:"flavor,omitempty"`
-	Restore             *Restore               `json:"restore,omitempty"`
-	Pooler              *Pooler                `json:"pooler,omitempty"`
-	FloatingIPs         *FloatingIPs           `json:"floating_ips,omitempty"`
-	Config              map[string]interface{} `json:"config,omitempty"`
-	Name                string                 `json:"name"`
-	TypeID              string                 `json:"type_id"`
-	SubnetID            string                 `json:"subnet_id"`
-	FlavorID            string                 `json:"flavor_id,omitempty"`
-	RedisPassword       string                 `json:"redis_password,omitempty"`
-	NodeCount           int                    `json:"node_count"`
-	BackupRetentionDays int                    `json:"backup_retention_days,omitempty"`
+	Flavor              *Flavor        `json:"flavor,omitempty"`
+	Restore             *Restore       `json:"restore,omitempty"`
+	Pooler              *Pooler        `json:"pooler,omitempty"`
+	FloatingIPs         *FloatingIPs   `json:"floating_ips,omitempty"`
+	Config              map[string]any `json:"config,omitempty"`
+	Disk                *Disk          `json:"disk,omitempty"`
+	TypeID              string         `json:"type_id"`
+	SubnetID            string         `json:"subnet_id"`
+	FlavorID            string         `json:"flavor_id,omitempty"`
+	ProjectID           string         `json:"project_id"`
+	RedisPassword       string         `json:"redis_password,omitempty"`
+	Name                string         `json:"name"`
+	NodeCount           int            `json:"node_count"`
+	BackupRetentionDays int            `json:"backup_retention_days,omitempty"`
 }
 
 // DatastoreUpdateOpts represents options for the datastore Update request.
@@ -96,9 +115,10 @@ type DatastoreUpdateOpts struct {
 
 // DatastoreResizeOpts represents options for the datastore Resize request.
 type DatastoreResizeOpts struct {
-	Flavor    *Flavor `json:"flavor,omitempty"`
-	FlavorID  string  `json:"flavor_id,omitempty"`
-	NodeCount int     `json:"node_count,omitempty"`
+	Flavor    *Flavor     `json:"flavor,omitempty"`
+	Disk      *ResizeDisk `json:"disk,omitempty"`
+	FlavorID  string      `json:"flavor_id,omitempty"`
+	NodeCount int         `json:"node_count,omitempty"`
 }
 
 // DatastorePoolerOpts represents options for the datastore's pooler Update request.
@@ -114,7 +134,7 @@ type DatastoreFirewallOpts struct {
 
 // DatastoreConfigOpts represents options for the datastore's configuration parameters Update request.
 type DatastoreConfigOpts struct {
-	Config map[string]interface{} `json:"config"`
+	Config map[string]any `json:"config"`
 }
 
 // DatastorePasswordOpts represents options for the Redis datastore's password Update request.
