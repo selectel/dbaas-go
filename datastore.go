@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 // Instances represents datastore's instances.
@@ -190,6 +192,10 @@ func (api *API) Datastores(ctx context.Context, params *DatastoreQueryParams) ([
 
 // Datastore returns a datastore based on the ID.
 func (api *API) Datastore(ctx context.Context, datastoreID string) (Datastore, error) {
+	if err := uuid.Validate(datastoreID); err != nil {
+		return Datastore{}, err
+	}
+
 	uri := fmt.Sprintf("%s/%s", DatastoresURI, datastoreID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)
@@ -240,6 +246,10 @@ func (api *API) CreateDatastore(ctx context.Context, opts DatastoreCreateOpts) (
 
 // UpdateDatastore updates an existing datastore.
 func (api *API) UpdateDatastore(ctx context.Context, datastoreID string, opts DatastoreUpdateOpts) (Datastore, error) {
+	if err := uuid.Validate(datastoreID); err != nil {
+		return Datastore{}, err
+	}
+
 	uri := fmt.Sprintf("%s/%s", DatastoresURI, datastoreID)
 	updateDatastoreOpts := struct {
 		Datastore DatastoreUpdateOpts `json:"datastore"`
@@ -269,6 +279,10 @@ func (api *API) UpdateDatastore(ctx context.Context, datastoreID string, opts Da
 
 // DeleteDatastore deletes an existing datastore.
 func (api *API) DeleteDatastore(ctx context.Context, datastoreID string) error {
+	if err := uuid.Validate(datastoreID); err != nil {
+		return err
+	}
+
 	uri := fmt.Sprintf("%s/%s", DatastoresURI, datastoreID)
 
 	_, err := api.makeRequest(ctx, http.MethodDelete, uri, nil)
@@ -281,6 +295,10 @@ func (api *API) DeleteDatastore(ctx context.Context, datastoreID string) error {
 
 // ResizeDatastore resizes an existing datastore.
 func (api *API) ResizeDatastore(ctx context.Context, datastoreID string, opts DatastoreResizeOpts) (Datastore, error) {
+	if err := uuid.Validate(datastoreID); err != nil {
+		return Datastore{}, err
+	}
+
 	uri := fmt.Sprintf("%s/%s/resize", DatastoresURI, datastoreID)
 	resizeDatastoreOpts := struct {
 		Datastore DatastoreResizeOpts `json:"resize"`
@@ -310,6 +328,10 @@ func (api *API) ResizeDatastore(ctx context.Context, datastoreID string, opts Da
 
 // PoolerDatastore updates pooler parameters of an existing datastore.
 func (api *API) PoolerDatastore(ctx context.Context, datastoreID string, opts DatastorePoolerOpts) (Datastore, error) {
+	if err := uuid.Validate(datastoreID); err != nil {
+		return Datastore{}, err
+	}
+
 	uri := fmt.Sprintf("%s/%s/pooler", DatastoresURI, datastoreID)
 	poolerDatastoreOpts := struct {
 		Datastore DatastorePoolerOpts `json:"pooler"`
@@ -339,6 +361,10 @@ func (api *API) PoolerDatastore(ctx context.Context, datastoreID string, opts Da
 
 // FirewallDatastore updates firewall rules of an existing datastore.
 func (api *API) FirewallDatastore(ctx context.Context, datastoreID string, opts DatastoreFirewallOpts) (Datastore, error) { //nolint
+	if err := uuid.Validate(datastoreID); err != nil {
+		return Datastore{}, err
+	}
+
 	uri := fmt.Sprintf("%s/%s/firewall", DatastoresURI, datastoreID)
 	firewallDatastoreOpts := struct {
 		Datastore DatastoreFirewallOpts `json:"firewall"`
@@ -368,6 +394,10 @@ func (api *API) FirewallDatastore(ctx context.Context, datastoreID string, opts 
 
 // ConfigDatastore updates configuration parameters rules of an existing datastore.
 func (api *API) ConfigDatastore(ctx context.Context, datastoreID string, opts DatastoreConfigOpts) (Datastore, error) { //nolint
+	if err := uuid.Validate(datastoreID); err != nil {
+		return Datastore{}, err
+	}
+
 	uri := fmt.Sprintf("%s/%s/config", DatastoresURI, datastoreID)
 	opts.Config = convertConfigValues(opts.Config)
 	requestBody, err := json.Marshal(opts)
@@ -393,6 +423,10 @@ func (api *API) ConfigDatastore(ctx context.Context, datastoreID string, opts Da
 
 // PasswordDatastore updates password of an existing Redis datastore.
 func (api *API) PasswordDatastore(ctx context.Context, datastoreID string, opts DatastorePasswordOpts) (Datastore, error) { //nolint
+	if err := uuid.Validate(datastoreID); err != nil {
+		return Datastore{}, err
+	}
+
 	uri := fmt.Sprintf("%s/%s/password", DatastoresURI, datastoreID)
 	passwordDatastoreOpts := struct {
 		Datastore DatastorePasswordOpts `json:"password"`
@@ -422,6 +456,10 @@ func (api *API) PasswordDatastore(ctx context.Context, datastoreID string, opts 
 
 // BackupsDatastore updates backups parameters of an existing datastore.
 func (api *API) BackupsDatastore(ctx context.Context, datastoreID string, opts DatastoreBackupsOpts) (Datastore, error) { //nolint
+	if err := uuid.Validate(datastoreID); err != nil {
+		return Datastore{}, err
+	}
+
 	uri := fmt.Sprintf("%s/%s/backups", DatastoresURI, datastoreID)
 	backupsDatastoreOpts := struct {
 		Datastore DatastoreBackupsOpts `json:"backups"`
