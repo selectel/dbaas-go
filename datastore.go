@@ -193,7 +193,7 @@ func (api *API) Datastores(ctx context.Context, params *DatastoreQueryParams) ([
 // Datastore returns a datastore based on the ID.
 func (api *API) Datastore(ctx context.Context, datastoreID string) (Datastore, error) {
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, err
+		return Datastore{}, fmt.Errorf("Error during datastoreID validate, %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s", DatastoresURI, datastoreID)
@@ -247,7 +247,7 @@ func (api *API) CreateDatastore(ctx context.Context, opts DatastoreCreateOpts) (
 // UpdateDatastore updates an existing datastore.
 func (api *API) UpdateDatastore(ctx context.Context, datastoreID string, opts DatastoreUpdateOpts) (Datastore, error) {
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, err
+		return Datastore{}, fmt.Errorf("Error during datastoreID validate, %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s", DatastoresURI, datastoreID)
@@ -280,7 +280,7 @@ func (api *API) UpdateDatastore(ctx context.Context, datastoreID string, opts Da
 // DeleteDatastore deletes an existing datastore.
 func (api *API) DeleteDatastore(ctx context.Context, datastoreID string) error {
 	if err := uuid.Validate(datastoreID); err != nil {
-		return err
+		return fmt.Errorf("Error during datastoreID validate, %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s", DatastoresURI, datastoreID)
@@ -296,7 +296,7 @@ func (api *API) DeleteDatastore(ctx context.Context, datastoreID string) error {
 // ResizeDatastore resizes an existing datastore.
 func (api *API) ResizeDatastore(ctx context.Context, datastoreID string, opts DatastoreResizeOpts) (Datastore, error) {
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, err
+		return Datastore{}, fmt.Errorf("Error during datastoreID validate, %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/resize", DatastoresURI, datastoreID)
@@ -329,7 +329,7 @@ func (api *API) ResizeDatastore(ctx context.Context, datastoreID string, opts Da
 // PoolerDatastore updates pooler parameters of an existing datastore.
 func (api *API) PoolerDatastore(ctx context.Context, datastoreID string, opts DatastorePoolerOpts) (Datastore, error) {
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, err
+		return Datastore{}, fmt.Errorf("Error during datastoreID validate, %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/pooler", DatastoresURI, datastoreID)
@@ -362,7 +362,7 @@ func (api *API) PoolerDatastore(ctx context.Context, datastoreID string, opts Da
 // FirewallDatastore updates firewall rules of an existing datastore.
 func (api *API) FirewallDatastore(ctx context.Context, datastoreID string, opts DatastoreFirewallOpts) (Datastore, error) { //nolint
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, err
+		return Datastore{}, fmt.Errorf("Error during datastoreID validate, %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/firewall", DatastoresURI, datastoreID)
@@ -395,7 +395,7 @@ func (api *API) FirewallDatastore(ctx context.Context, datastoreID string, opts 
 // ConfigDatastore updates configuration parameters rules of an existing datastore.
 func (api *API) ConfigDatastore(ctx context.Context, datastoreID string, opts DatastoreConfigOpts) (Datastore, error) { //nolint
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, err
+		return Datastore{}, fmt.Errorf("Error during datastoreID validate, %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/config", DatastoresURI, datastoreID)
@@ -424,7 +424,7 @@ func (api *API) ConfigDatastore(ctx context.Context, datastoreID string, opts Da
 // PasswordDatastore updates password of an existing Redis datastore.
 func (api *API) PasswordDatastore(ctx context.Context, datastoreID string, opts DatastorePasswordOpts) (Datastore, error) { //nolint
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, err
+		return Datastore{}, fmt.Errorf("Error during datastoreID validate, %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/password", DatastoresURI, datastoreID)
@@ -457,7 +457,7 @@ func (api *API) PasswordDatastore(ctx context.Context, datastoreID string, opts 
 // BackupsDatastore updates backups parameters of an existing datastore.
 func (api *API) BackupsDatastore(ctx context.Context, datastoreID string, opts DatastoreBackupsOpts) (Datastore, error) { //nolint
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, err
+		return Datastore{}, fmt.Errorf("Error during datastoreID validate, %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/backups", DatastoresURI, datastoreID)
