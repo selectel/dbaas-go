@@ -54,6 +54,8 @@ type FloatingIPs struct {
 
 // Datastore is the API response for the datastores.
 type Datastore struct {
+	Connection          map[string]string `json:"connection"`
+	Config              map[string]any    `json:"config"`
 	ID                  string            `json:"id"`
 	CreatedAt           string            `json:"created_at"`
 	UpdatedAt           string            `json:"updated_at"`
@@ -64,22 +66,20 @@ type Datastore struct {
 	SubnetID            string            `json:"subnet_id"`
 	FlavorID            string            `json:"flavor_id"`
 	Status              Status            `json:"status"`
-	Connection          map[string]string `json:"connection"`
-	Firewall            []Firewall        `json:"firewall"`
 	Instances           []Instances       `json:"instances"`
-	Config              map[string]any    `json:"config"`
+	Firewall            []Firewall        `json:"firewall"`
 	Pooler              Pooler            `json:"pooler"`
+	SecurityGroups      []string          `json:"security_groups"`
 	Flavor              Flavor            `json:"flavor"`
+	DatabasesCount      int               `json:"databases_count"`
+	BackupRetentionDays int               `json:"backup_retention_days"`
+	TopicsCount         int               `json:"topics_count"`
+	DiskUsed            int               `json:"disk_used"`
 	NodeCount           int               `json:"node_count"`
-	Enabled             bool              `json:"enabled"`
 	AllowRestore        bool              `json:"allow_restore"`
 	IsMaintenance       bool              `json:"is_maintenance"`
 	IsProtected         bool              `json:"is_protected"`
-	BackupRetentionDays int               `json:"backup_retention_days"`
-	DatabasesCount      int               `json:"databases_count"`
-	TopicsCount         int               `json:"topics_count"`
-	DiskUsed            int               `json:"disk_used"`
-	SecurityGroups      []string          `json:"security_groups"`
+	Enabled             bool              `json:"enabled"`
 }
 
 // Disk represents disk parameters for a get/create datastore ops.
@@ -107,9 +107,9 @@ type DatastoreCreateOpts struct {
 	ProjectID           string         `json:"project_id"`
 	RedisPassword       string         `json:"redis_password,omitempty"`
 	Name                string         `json:"name"`
+	SecurityGroups      []string       `json:"security_groups,omitempty"`
 	NodeCount           int            `json:"node_count"`
 	BackupRetentionDays int            `json:"backup_retention_days,omitempty"`
-	SecurityGroups      []string       `json:"security_groups,omitempty"`
 }
 
 // DatastoreUpdateOpts represents options for the datastore Update request.
