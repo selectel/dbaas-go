@@ -70,7 +70,6 @@ const testDatastoresResponse = `{
 			"created_at": "1970-01-01T00:00:00",
 			"updated_at": "1970-01-01T00:00:00",
 			"creation_finished_at": "1970-01-01T00:00:01",
-			"creation_finished_at": "1970-01-01T00:00:01",
 			"project_id": "123e4567e89b12d3a456426655440000",
 			"name": "Name",
 			"status": "ACTIVE",
@@ -98,10 +97,8 @@ const testDatastoresResponse = `{
 				"floating_ip": "None",
 				"role": "MASTER",
 				"role_name": "Some Role Name",
-				"role_name": "Some Role Name",
 				"status": "ACTIVE",
 				"hostname": "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
-				"availability_zone": "ru-1",
 				"availability_zone": "ru-1"
 				}
 			],
