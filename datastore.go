@@ -77,6 +77,7 @@ type Datastore struct {
 	DatabasesCount      int               `json:"databases_count"`
 	TopicsCount         int               `json:"topics_count"`
 	DiskUsed            int               `json:"disk_used"`
+	SecurityGroups      []string          `json:"security_groups"`
 }
 
 // Disk represents disk parameters for a get/create datastore ops.
@@ -106,6 +107,7 @@ type DatastoreCreateOpts struct {
 	Name                string         `json:"name"`
 	NodeCount           int            `json:"node_count"`
 	BackupRetentionDays int            `json:"backup_retention_days,omitempty"`
+	SecurityGroups      []string       `json:"security_groups,omitempty"`
 }
 
 // DatastoreUpdateOpts represents options for the datastore Update request.
@@ -161,6 +163,11 @@ type DatastoreQueryParams struct {
 // DatastoreBackupsOpts represents update options for the Datastore backups.
 type DatastoreBackupsOpts struct {
 	BackupRetentionDays int `json:"backup_retention_days"`
+}
+
+// DatastoreSecurityGroupOpts represents update options for the Datastore security groups.
+type DatastoreSecurityGroupOpts struct {
+	SecurityGroups []string `json:"security_groups"`
 }
 
 const DatastoresURI = "/datastores"
@@ -247,6 +254,31 @@ func (api *API) UpdateDatastore(ctx context.Context, datastoreID string, opts Da
 		Datastore: opts,
 	}
 	requestBody, err := json.Marshal(updateDatastoreOpts)
+	if err != nil {
+		return Datastore{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
+	}
+
+	resp, err := api.makeRequest(ctx, http.MethodPut, uri, requestBody)
+	if err != nil {
+		return Datastore{}, err
+	}
+
+	var result struct {
+		Datastore Datastore `json:"datastore"`
+	}
+	err = json.Unmarshal(resp, &result)
+	if err != nil {
+		return Datastore{}, fmt.Errorf("Error during Unmarshal, %w", err)
+	}
+
+	return result.Datastore, nil
+}
+
+// Datastore security group updates.
+func (api *API) UpdateSecurityGroup(ctx context.Context, datastoreID string, opts DatastoreSecurityGroupOpts) (Datastore, error) { //nolint
+	uri := fmt.Sprintf("%s/%s/security-groups", DatastoresURI, datastoreID)
+
+	requestBody, err := json.Marshal(opts)
 	if err != nil {
 		return Datastore{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
 	}

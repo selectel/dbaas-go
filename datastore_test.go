@@ -114,6 +114,7 @@ const testDatastoresResponse = `{
 			"databases_count" : 1,
 			"topics_count": 0,
 			"disk_used": 2,
+			"security_groups": [],
 			"config": {}
 		},
 		{
@@ -167,6 +168,10 @@ const testDatastoresResponse = `{
 					"ip": "127.0.0.1"
 				}
 			],
+			"security_groups": [
+				"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f1",
+				"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f0"
+			],
 			"config": {}
 		}
 	]
@@ -216,6 +221,10 @@ const testDatastoreResponse = `{
 			{
 				"ip": "127.0.0.1"
 			}
+		],
+		"security_groups": [
+			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f1",
+			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f0"
 		],
 		"config": {}
 	}
@@ -282,6 +291,7 @@ const testMultiNodeDatastoreResponse = `{
 				"ip": "127.0.0.1"
 			}
 		],
+		"security_groups": [],
 		"config": {}
 	}
 }`
@@ -336,6 +346,7 @@ var datastoreListExpected []Datastore = []Datastore{ //nolint
 		DatabasesCount: 1,
 		TopicsCount:    0,
 		DiskUsed:       2,
+		SecurityGroups: []string{},
 		Config:         map[string]any{},
 	},
 	{
@@ -387,6 +398,10 @@ var datastoreListExpected []Datastore = []Datastore{ //nolint
 		Firewall: []Firewall{{
 			IP: "127.0.0.1",
 		}},
+		SecurityGroups: []string{
+			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f1",
+			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f0",
+		},
 		Config: map[string]any{},
 	},
 }
@@ -770,6 +785,10 @@ func TestDatastore(t *testing.T) {
 		Firewall: []Firewall{{
 			IP: "127.0.0.1",
 		}},
+		SecurityGroups: []string{
+			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f1",
+			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f0",
+		},
 		Config: map[string]any{},
 	}
 
@@ -845,7 +864,8 @@ func TestMultiNodeDatastore(t *testing.T) {
 		Firewall: []Firewall{{
 			IP: "127.0.0.1",
 		}},
-		Config: map[string]any{},
+		SecurityGroups: []string{},
+		Config:         map[string]any{},
 	}
 
 	actual, err := testClient.Datastore(context.Background(), datastoreID)
@@ -1335,4 +1355,71 @@ func TestCreateDatastoreWithFloatingIPs(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, datastoreCreateExpected, actual)
+}
+
+func TestUpdateDatastoreSecurityGroup(t *testing.T) {
+	httpmock.Activate()
+	testClient := SetupTestClient()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/security-groups",
+		httpmock.NewStringResponder(200, testDatastoreResponse))
+
+	var DatastoreUpdateSecurityGroup DatastoreSecurityGroupOpts = DatastoreSecurityGroupOpts{
+		SecurityGroups: []string{
+			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f1",
+			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f0",
+		},
+	}
+
+	expected := Datastore{
+		ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		CreatedAt:           "1970-01-01T00:00:00",
+		UpdatedAt:           "1970-01-01T00:00:00",
+		ProjectID:           "123e4567e89b12d3a456426655440000",
+		Name:                "Name",
+		Status:              "ACTIVE",
+		Enabled:             true,
+		TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		NodeCount:           1,
+		IsMaintenance:       false,
+		IsProtected:         false,
+		BackupRetentionDays: 7,
+		Connection: map[string]string{
+			"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+		},
+		Flavor: Flavor{
+			Vcpus:    2,
+			RAM:      2048,
+			Disk:     32,
+			DiskType: "local",
+		},
+		Instances: []Instances{{
+			ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+			IP:         "127.0.0.1",
+			FloatingIP: "192.168.1.1",
+			Role:       "MASTER",
+			Status:     "ACTIVE",
+			Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+		}},
+		Pooler: Pooler{
+			Size: 30,
+			Mode: "session",
+		},
+		Firewall: []Firewall{{
+			IP: "127.0.0.1",
+		}},
+		SecurityGroups: []string{
+			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f1",
+			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f0",
+		},
+		Config: map[string]any{},
+	}
+
+	actual, err := testClient.UpdateSecurityGroup(context.Background(), datastoreID, DatastoreUpdateSecurityGroup)
+
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }
