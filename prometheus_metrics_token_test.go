@@ -23,12 +23,14 @@ const testPrometheusMetricTokenNotFoundResponse = `{
 }`
 
 const testPrometheusMetricTokenResponse = `{
-	"id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-	"created_at": "1970-01-01T00:00:00",
-	"updated_at": "1970-01-01T00:00:00",
-	"project_id": "123e4567e89b12d3a456426655440000",
-	"name": "token",
-	"value": "GlEDgjR4oWaOjxy4a4YMorlrj81Jb93cR5Zpww6lx9fJs50dv3NygIB2zs3not5I"
+	"prometheus-metrics-token": {
+		"id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		"created_at": "1970-01-01T00:00:00",
+		"updated_at": "1970-01-01T00:00:00",
+		"project_id": "123e4567e89b12d3a456426655440000",
+		"name": "token",
+		"value": "GlEDgjR4oWaOjxy4a4YMorlrj81Jb93cR5Zpww6lx9fJs50dv3NygIB2zs3not5I"
+	}
 }`
 
 const testPrometheusMetricTokensResponse = `{
