@@ -41,13 +41,15 @@ func (api *API) PrometheusMetricToken(
 		return PrometheusMetricToken{}, err
 	}
 
-	var result PrometheusMetricToken
+	var result struct {
+		PrometheusMetricToken PrometheusMetricToken `json:"prometheus-metrics-token"`
+	}
 	err = json.Unmarshal(resp, &result)
 	if err != nil {
 		return PrometheusMetricToken{}, fmt.Errorf("Error during Unmarshal, %w", err)
 	}
 
-	return result, nil
+	return result.PrometheusMetricToken, nil
 }
 
 // PrometheusMetricTokens returns all tokens.
