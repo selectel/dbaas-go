@@ -1368,7 +1368,7 @@ func TestUpdateDatastoreSecurityGroup(t *testing.T) {
 	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/security-groups",
 		httpmock.NewStringResponder(200, testDatastoreResponse))
 
-	var DatastoreUpdateSecurityGroup DatastoreSecurityGroupOpts = DatastoreSecurityGroupOpts{
+	var DatastoreUpdateSecurityGroup = DatastoreSecurityGroupOpts{
 		SecurityGroups: []string{
 			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f1",
 			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f0",
