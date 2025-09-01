@@ -286,6 +286,10 @@ func (api *API) UpdateDatastore(ctx context.Context, datastoreID string, opts Da
 
 // Datastore security group updates.
 func (api *API) UpdateSecurityGroup(ctx context.Context, datastoreID string, opts DatastoreSecurityGroupOpts) (Datastore, error) { //nolint
+	if err := uuid.Validate(datastoreID); err != nil {
+		return Datastore{}, fmt.Errorf("validate id: %w", err)
+	}
+
 	uri := fmt.Sprintf("%s/%s/security-groups", DatastoresURI, datastoreID)
 
 	requestBody, err := json.Marshal(opts)
