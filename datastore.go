@@ -54,6 +54,8 @@ type FloatingIPs struct {
 
 // Datastore is the API response for the datastores.
 type Datastore struct {
+	Connection          map[string]string `json:"connection"`
+	Config              map[string]any    `json:"config"`
 	ID                  string            `json:"id"`
 	CreatedAt           string            `json:"created_at"`
 	UpdatedAt           string            `json:"updated_at"`
@@ -64,21 +66,20 @@ type Datastore struct {
 	SubnetID            string            `json:"subnet_id"`
 	FlavorID            string            `json:"flavor_id"`
 	Status              Status            `json:"status"`
-	Connection          map[string]string `json:"connection"`
-	Firewall            []Firewall        `json:"firewall"`
 	Instances           []Instances       `json:"instances"`
-	Config              map[string]any    `json:"config"`
+	Firewall            []Firewall        `json:"firewall"`
 	Pooler              Pooler            `json:"pooler"`
+	SecurityGroups      []string          `json:"security_groups"`
 	Flavor              Flavor            `json:"flavor"`
+	DatabasesCount      int               `json:"databases_count"`
+	BackupRetentionDays int               `json:"backup_retention_days"`
+	TopicsCount         int               `json:"topics_count"`
+	DiskUsed            int               `json:"disk_used"`
 	NodeCount           int               `json:"node_count"`
-	Enabled             bool              `json:"enabled"`
 	AllowRestore        bool              `json:"allow_restore"`
 	IsMaintenance       bool              `json:"is_maintenance"`
 	IsProtected         bool              `json:"is_protected"`
-	BackupRetentionDays int               `json:"backup_retention_days"`
-	DatabasesCount      int               `json:"databases_count"`
-	TopicsCount         int               `json:"topics_count"`
-	DiskUsed            int               `json:"disk_used"`
+	Enabled             bool              `json:"enabled"`
 }
 
 // Disk represents disk parameters for a get/create datastore ops.
@@ -106,6 +107,7 @@ type DatastoreCreateOpts struct {
 	ProjectID           string         `json:"project_id"`
 	RedisPassword       string         `json:"redis_password,omitempty"`
 	Name                string         `json:"name"`
+	SecurityGroups      []string       `json:"security_groups,omitempty"`
 	NodeCount           int            `json:"node_count"`
 	BackupRetentionDays int            `json:"backup_retention_days,omitempty"`
 }
@@ -163,6 +165,11 @@ type DatastoreQueryParams struct {
 // DatastoreBackupsOpts represents update options for the Datastore backups.
 type DatastoreBackupsOpts struct {
 	BackupRetentionDays int `json:"backup_retention_days"`
+}
+
+// DatastoreSecurityGroupOpts represents update options for the Datastore security groups.
+type DatastoreSecurityGroupOpts struct {
+	SecurityGroups []string `json:"security_groups"`
 }
 
 const DatastoresURI = "/datastores"
@@ -257,6 +264,35 @@ func (api *API) UpdateDatastore(ctx context.Context, datastoreID string, opts Da
 		Datastore: opts,
 	}
 	requestBody, err := json.Marshal(updateDatastoreOpts)
+	if err != nil {
+		return Datastore{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
+	}
+
+	resp, err := api.makeRequest(ctx, http.MethodPut, uri, requestBody)
+	if err != nil {
+		return Datastore{}, err
+	}
+
+	var result struct {
+		Datastore Datastore `json:"datastore"`
+	}
+	err = json.Unmarshal(resp, &result)
+	if err != nil {
+		return Datastore{}, fmt.Errorf("Error during Unmarshal, %w", err)
+	}
+
+	return result.Datastore, nil
+}
+
+// Datastore security group updates.
+func (api *API) UpdateSecurityGroup(ctx context.Context, datastoreID string, opts DatastoreSecurityGroupOpts) (Datastore, error) { //nolint
+	if err := uuid.Validate(datastoreID); err != nil {
+		return Datastore{}, fmt.Errorf("validate id: %w", err)
+	}
+
+	uri := fmt.Sprintf("%s/%s/security-groups", DatastoresURI, datastoreID)
+
+	requestBody, err := json.Marshal(opts)
 	if err != nil {
 		return Datastore{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
 	}
