@@ -792,6 +792,9 @@ func TestDatastore(t *testing.T) {
 			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f1",
 			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f0",
 		},
+		LogPlatform: DatastoreLogGroup{
+			"s/dbaas/My-first-group",
+		},
 		Config: map[string]any{},
 	}
 
@@ -1417,6 +1420,9 @@ func TestUpdateDatastoreSecurityGroup(t *testing.T) {
 		SecurityGroups: []string{
 			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f1",
 			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f0",
+		},
+		LogPlatform: DatastoreLogGroup{
+			LogGroup: "s/dbaas/My-first-group",
 		},
 		Config: map[string]any{},
 	}

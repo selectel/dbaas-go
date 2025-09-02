@@ -52,7 +52,7 @@ type FloatingIPs struct {
 	Replica int `json:"replica"`
 }
 
-// DatastoreLogGroup represents log platform schema
+// DatastoreLogGroup represents log platform schema.
 type DatastoreLogGroup struct {
 	LogGroup string `json:"log_group"`
 }
@@ -179,7 +179,7 @@ type DatastoreSecurityGroupOpts struct {
 	SecurityGroups []string `json:"security_groups"`
 }
 
-// LogPlatformOpts represents enable options for the Datastore log platform
+// LogPlatformOpts represents enable options for the Datastore log platform.
 type LogPlatformOpts struct {
 	LogPlatform DatastoreLogGroup `json:"log_platform"`
 }
@@ -567,7 +567,7 @@ func (api *API) EnableLogPlatform(ctx context.Context, datastoreID string, opts 
 
 
 // DisableLogPlatform disables log platform for an existing datastore.
-func (api *API) DisableLogPlatform(ctx context.Context, datastoreID string) error { //nolint
+func (api *API) DisableLogPlatform(ctx context.Context, datastoreID string) error {
 	if err := uuid.Validate(datastoreID); err != nil {
 		return fmt.Errorf("validate id: %w", err)
 	}
