@@ -101,22 +101,22 @@ type ResizeDisk struct {
 
 // DatastoreCreateOpts represents options for the datastore Create request.
 type DatastoreCreateOpts struct {
-	Flavor              *Flavor           `json:"flavor,omitempty"`
-	Restore             *Restore          `json:"restore,omitempty"`
-	Pooler              *Pooler           `json:"pooler,omitempty"`
-	FloatingIPs         *FloatingIPs      `json:"floating_ips,omitempty"`
-	Config              map[string]any    `json:"config,omitempty"`
-	Disk                *Disk             `json:"disk,omitempty"`
-	TypeID              string            `json:"type_id"`
-	SubnetID            string            `json:"subnet_id"`
-	FlavorID            string            `json:"flavor_id,omitempty"`
-	ProjectID           string            `json:"project_id"`
-	RedisPassword       string            `json:"redis_password,omitempty"`
-	Name                string            `json:"name"`
-	SecurityGroups      []string          `json:"security_groups,omitempty"`
-	LogPlatform         DatastoreLogGroup `json:"log_platform"`
-	NodeCount           int               `json:"node_count"`
-	BackupRetentionDays int               `json:"backup_retention_days,omitempty"`
+	Flavor              *Flavor            `json:"flavor,omitempty"`
+	Restore             *Restore           `json:"restore,omitempty"`
+	Pooler              *Pooler            `json:"pooler,omitempty"`
+	FloatingIPs         *FloatingIPs       `json:"floating_ips,omitempty"`
+	LogPlatform         *DatastoreLogGroup `json:"log_platform,omitempty"`
+	Config              map[string]any     `json:"config,omitempty"`
+	Disk                *Disk              `json:"disk,omitempty"`
+	TypeID              string             `json:"type_id"`
+	SubnetID            string             `json:"subnet_id"`
+	FlavorID            string             `json:"flavor_id,omitempty"`
+	ProjectID           string             `json:"project_id"`
+	RedisPassword       string             `json:"redis_password,omitempty"`
+	Name                string             `json:"name"`
+	SecurityGroups      []string           `json:"security_groups,omitempty"`
+	NodeCount           int                `json:"node_count"`
+	BackupRetentionDays int                `json:"backup_retention_days,omitempty"`
 }
 
 // DatastoreUpdateOpts represents options for the datastore Update request.
@@ -184,8 +184,10 @@ type LogPlatformOpts struct {
 	LogPlatform DatastoreLogGroup `json:"log_platform"`
 }
 
-const DatastoresURI      = "/datastores"
-const LogPlatformPostfix = "log-platform"
+const (
+	DatastoresURI      = "/datastores"
+	LogPlatformPostfix = "log-platform"
+)
 
 // Datastores returns all datastores.
 func (api *API) Datastores(ctx context.Context, params *DatastoreQueryParams) ([]Datastore, error) {
@@ -564,7 +566,6 @@ func (api *API) EnableLogPlatform(ctx context.Context, datastoreID string, opts 
 
 	return result.Datastore, nil
 }
-
 
 // DisableLogPlatform disables log platform for an existing datastore.
 func (api *API) DisableLogPlatform(ctx context.Context, datastoreID string) error {
