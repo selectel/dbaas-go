@@ -52,6 +52,11 @@ type FloatingIPs struct {
 	Replica int `json:"replica"`
 }
 
+// DatastoreLogGroup represents log platform schema.
+type DatastoreLogGroup struct {
+	LogGroup string `json:"log_group"`
+}
+
 // Datastore is the API response for the datastores.
 type Datastore struct {
 	Connection          map[string]string `json:"connection"`
@@ -70,6 +75,7 @@ type Datastore struct {
 	Firewall            []Firewall        `json:"firewall"`
 	Pooler              Pooler            `json:"pooler"`
 	SecurityGroups      []string          `json:"security_groups"`
+	LogPlatform         DatastoreLogGroup `json:"log_platform"`
 	Flavor              Flavor            `json:"flavor"`
 	DatabasesCount      int               `json:"databases_count"`
 	BackupRetentionDays int               `json:"backup_retention_days"`
@@ -95,21 +101,22 @@ type ResizeDisk struct {
 
 // DatastoreCreateOpts represents options for the datastore Create request.
 type DatastoreCreateOpts struct {
-	Flavor              *Flavor        `json:"flavor,omitempty"`
-	Restore             *Restore       `json:"restore,omitempty"`
-	Pooler              *Pooler        `json:"pooler,omitempty"`
-	FloatingIPs         *FloatingIPs   `json:"floating_ips,omitempty"`
-	Config              map[string]any `json:"config,omitempty"`
-	Disk                *Disk          `json:"disk,omitempty"`
-	TypeID              string         `json:"type_id"`
-	SubnetID            string         `json:"subnet_id"`
-	FlavorID            string         `json:"flavor_id,omitempty"`
-	ProjectID           string         `json:"project_id"`
-	RedisPassword       string         `json:"redis_password,omitempty"`
-	Name                string         `json:"name"`
-	SecurityGroups      []string       `json:"security_groups,omitempty"`
-	NodeCount           int            `json:"node_count"`
-	BackupRetentionDays int            `json:"backup_retention_days,omitempty"`
+	Flavor              *Flavor            `json:"flavor,omitempty"`
+	Restore             *Restore           `json:"restore,omitempty"`
+	Pooler              *Pooler            `json:"pooler,omitempty"`
+	FloatingIPs         *FloatingIPs       `json:"floating_ips,omitempty"`
+	LogPlatform         *DatastoreLogGroup `json:"log_platform,omitempty"`
+	Config              map[string]any     `json:"config,omitempty"`
+	Disk                *Disk              `json:"disk,omitempty"`
+	TypeID              string             `json:"type_id"`
+	SubnetID            string             `json:"subnet_id"`
+	FlavorID            string             `json:"flavor_id,omitempty"`
+	ProjectID           string             `json:"project_id"`
+	RedisPassword       string             `json:"redis_password,omitempty"`
+	Name                string             `json:"name"`
+	SecurityGroups      []string           `json:"security_groups,omitempty"`
+	NodeCount           int                `json:"node_count"`
+	BackupRetentionDays int                `json:"backup_retention_days,omitempty"`
 }
 
 // DatastoreUpdateOpts represents options for the datastore Update request.
@@ -172,7 +179,15 @@ type DatastoreSecurityGroupOpts struct {
 	SecurityGroups []string `json:"security_groups"`
 }
 
-const DatastoresURI = "/datastores"
+// LogPlatformOpts represents enable options for the Datastore log platform.
+type LogPlatformOpts struct {
+	LogPlatform DatastoreLogGroup `json:"log_platform"`
+}
+
+const (
+	DatastoresURI      = "/datastores"
+	LogPlatformPostfix = "log-platform"
+)
 
 // Datastores returns all datastores.
 func (api *API) Datastores(ctx context.Context, params *DatastoreQueryParams) ([]Datastore, error) {
@@ -200,7 +215,7 @@ func (api *API) Datastores(ctx context.Context, params *DatastoreQueryParams) ([
 // Datastore returns a datastore based on the ID.
 func (api *API) Datastore(ctx context.Context, datastoreID string) (Datastore, error) {
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, fmt.Errorf("validate id: %w", err)
+		return Datastore{}, fmt.Errorf("validate datastore id: %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s", DatastoresURI, datastoreID)
@@ -254,7 +269,7 @@ func (api *API) CreateDatastore(ctx context.Context, opts DatastoreCreateOpts) (
 // UpdateDatastore updates an existing datastore.
 func (api *API) UpdateDatastore(ctx context.Context, datastoreID string, opts DatastoreUpdateOpts) (Datastore, error) {
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, fmt.Errorf("validate id: %w", err)
+		return Datastore{}, fmt.Errorf("validate datastore id: %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s", DatastoresURI, datastoreID)
@@ -287,7 +302,7 @@ func (api *API) UpdateDatastore(ctx context.Context, datastoreID string, opts Da
 // Datastore security group updates.
 func (api *API) UpdateSecurityGroup(ctx context.Context, datastoreID string, opts DatastoreSecurityGroupOpts) (Datastore, error) { //nolint
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, fmt.Errorf("validate id: %w", err)
+		return Datastore{}, fmt.Errorf("validate datastore id: %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/security-groups", DatastoresURI, datastoreID)
@@ -316,7 +331,7 @@ func (api *API) UpdateSecurityGroup(ctx context.Context, datastoreID string, opt
 // DeleteDatastore deletes an existing datastore.
 func (api *API) DeleteDatastore(ctx context.Context, datastoreID string) error {
 	if err := uuid.Validate(datastoreID); err != nil {
-		return fmt.Errorf("validate id: %w", err)
+		return fmt.Errorf("validate datastore id: %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s", DatastoresURI, datastoreID)
@@ -332,7 +347,7 @@ func (api *API) DeleteDatastore(ctx context.Context, datastoreID string) error {
 // ResizeDatastore resizes an existing datastore.
 func (api *API) ResizeDatastore(ctx context.Context, datastoreID string, opts DatastoreResizeOpts) (Datastore, error) {
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, fmt.Errorf("validate id: %w", err)
+		return Datastore{}, fmt.Errorf("validate datastore id: %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/resize", DatastoresURI, datastoreID)
@@ -365,7 +380,7 @@ func (api *API) ResizeDatastore(ctx context.Context, datastoreID string, opts Da
 // PoolerDatastore updates pooler parameters of an existing datastore.
 func (api *API) PoolerDatastore(ctx context.Context, datastoreID string, opts DatastorePoolerOpts) (Datastore, error) {
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, fmt.Errorf("validate id: %w", err)
+		return Datastore{}, fmt.Errorf("validate datastore id: %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/pooler", DatastoresURI, datastoreID)
@@ -398,7 +413,7 @@ func (api *API) PoolerDatastore(ctx context.Context, datastoreID string, opts Da
 // FirewallDatastore updates firewall rules of an existing datastore.
 func (api *API) FirewallDatastore(ctx context.Context, datastoreID string, opts DatastoreFirewallOpts) (Datastore, error) { //nolint
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, fmt.Errorf("validate id: %w", err)
+		return Datastore{}, fmt.Errorf("validate datastore id: %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/firewall", DatastoresURI, datastoreID)
@@ -431,7 +446,7 @@ func (api *API) FirewallDatastore(ctx context.Context, datastoreID string, opts 
 // ConfigDatastore updates configuration parameters rules of an existing datastore.
 func (api *API) ConfigDatastore(ctx context.Context, datastoreID string, opts DatastoreConfigOpts) (Datastore, error) { //nolint
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, fmt.Errorf("validate id: %w", err)
+		return Datastore{}, fmt.Errorf("validate datastore id: %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/config", DatastoresURI, datastoreID)
@@ -460,7 +475,7 @@ func (api *API) ConfigDatastore(ctx context.Context, datastoreID string, opts Da
 // PasswordDatastore updates password of an existing Redis datastore.
 func (api *API) PasswordDatastore(ctx context.Context, datastoreID string, opts DatastorePasswordOpts) (Datastore, error) { //nolint
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, fmt.Errorf("validate id: %w", err)
+		return Datastore{}, fmt.Errorf("validate datastore id: %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/password", DatastoresURI, datastoreID)
@@ -493,7 +508,7 @@ func (api *API) PasswordDatastore(ctx context.Context, datastoreID string, opts 
 // BackupsDatastore updates backups parameters of an existing datastore.
 func (api *API) BackupsDatastore(ctx context.Context, datastoreID string, opts DatastoreBackupsOpts) (Datastore, error) { //nolint
 	if err := uuid.Validate(datastoreID); err != nil {
-		return Datastore{}, fmt.Errorf("validate id: %w", err)
+		return Datastore{}, fmt.Errorf("validate datastore id: %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/backups", DatastoresURI, datastoreID)
@@ -521,4 +536,49 @@ func (api *API) BackupsDatastore(ctx context.Context, datastoreID string, opts D
 	}
 
 	return result.Datastore, nil
+}
+
+// EnableLogPlatform enables log platform for an existing datastore.
+func (api *API) EnableLogPlatform(ctx context.Context, datastoreID string, opts LogPlatformOpts) (Datastore, error) { //nolint
+	if err := uuid.Validate(datastoreID); err != nil {
+		return Datastore{}, fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	uri := fmt.Sprintf("%s/%s/%s", DatastoresURI, datastoreID, LogPlatformPostfix)
+
+	requestBody, err := json.Marshal(opts)
+	if err != nil {
+		return Datastore{}, fmt.Errorf("marshalling params to JSON: %w", err)
+	}
+
+	resp, err := api.makeRequest(ctx, http.MethodPut, uri, requestBody)
+	if err != nil {
+		return Datastore{}, fmt.Errorf("make request: %w", err)
+	}
+
+	var result struct {
+		Datastore Datastore `json:"datastore"`
+	}
+	err = json.Unmarshal(resp, &result)
+	if err != nil {
+		return Datastore{}, fmt.Errorf("unmarshaling params from JSON: %w", err)
+	}
+
+	return result.Datastore, nil
+}
+
+// DisableLogPlatform disables log platform for an existing datastore.
+func (api *API) DisableLogPlatform(ctx context.Context, datastoreID string) error {
+	if err := uuid.Validate(datastoreID); err != nil {
+		return fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	uri := fmt.Sprintf("%s/%s/%s", DatastoresURI, datastoreID, LogPlatformPostfix)
+
+	_, err := api.makeRequest(ctx, http.MethodDelete, uri, nil)
+	if err != nil {
+		return fmt.Errorf("make request: %w", err)
+	}
+
+	return nil
 }

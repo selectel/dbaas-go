@@ -88,7 +88,7 @@ const testDatastoresResponse = `{
 				"vcpus": 2,
 				"ram": 2048,
 				"disk": 32,
-				"disk_type": "local" 
+				"disk_type": "local"
 			},
 			"instances": [
 				{
@@ -226,6 +226,9 @@ const testDatastoreResponse = `{
 			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f1",
 			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f0"
 		],
+		"log_platform": {
+			"log_group": "s/dbaas/My-first-group"
+		},
 		"config": {}
 	}
 }`
@@ -789,6 +792,9 @@ func TestDatastore(t *testing.T) {
 			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f1",
 			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f0",
 		},
+		LogPlatform: DatastoreLogGroup{
+			"s/dbaas/My-first-group",
+		},
 		Config: map[string]any{},
 	}
 
@@ -1120,7 +1126,7 @@ func TestResizeDatatastoreWithDiskType(t *testing.T) {
 	expected := &DBaaSAPIError{}
 	expected.APIError.Code = 400
 	expected.APIError.Title = ErrorBadRequestTitle
-	expected.APIError.Message = `Validation failure: {'resize.flavor': \"Additional properties are not allowed 
+	expected.APIError.Message = `Validation failure: {'resize.flavor': \"Additional properties are not allowed
 	('disk_type' was unexpected)\"}`
 
 	resizeDatastoreOpts := DatastoreResizeOpts{
@@ -1415,6 +1421,9 @@ func TestUpdateDatastoreSecurityGroup(t *testing.T) {
 			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f1",
 			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f0",
 		},
+		LogPlatform: DatastoreLogGroup{
+			LogGroup: "s/dbaas/My-first-group",
+		},
 		Config: map[string]any{},
 	}
 
@@ -1422,4 +1431,86 @@ func TestUpdateDatastoreSecurityGroup(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, expected, actual)
+}
+
+func TestEnableDatastoreLogPlatform(t *testing.T) {
+	httpmock.Activate()
+	testClient := SetupTestClient()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/"+LogPlatformPostfix,
+		httpmock.NewStringResponder(200, testDatastoreResponse))
+
+	DatastoreEnableLogPlatform := LogPlatformOpts{
+		LogPlatform: DatastoreLogGroup{
+			"s/dbaas/My-first-group",
+		},
+	}
+
+	expected := Datastore{
+		ID:                  "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		CreatedAt:           "1970-01-01T00:00:00",
+		UpdatedAt:           "1970-01-01T00:00:00",
+		ProjectID:           "123e4567e89b12d3a456426655440000",
+		Name:                "Name",
+		Status:              "ACTIVE",
+		Enabled:             true,
+		TypeID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		SubnetID:            "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		NodeCount:           1,
+		IsMaintenance:       false,
+		IsProtected:         false,
+		BackupRetentionDays: 7,
+		Connection: map[string]string{
+			"MASTER": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+			"master": "master.20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4.c.dbaas.selcloud.org",
+		},
+		Flavor: Flavor{
+			Vcpus:    2,
+			RAM:      2048,
+			Disk:     32,
+			DiskType: "local",
+		},
+		Instances: []Instances{{
+			ID:         "30d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+			IP:         "127.0.0.1",
+			FloatingIP: "192.168.1.1",
+			Role:       "MASTER",
+			Status:     "ACTIVE",
+			Hostname:   "9c387698-42a9-4555-9a8c-46eee7dc8c55.ru-1.c.dbaas.selcloud.org",
+		}},
+		Pooler: Pooler{
+			Size: 30,
+			Mode: "session",
+		},
+		Firewall: []Firewall{{
+			IP: "127.0.0.1",
+		}},
+		SecurityGroups: []string{
+			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f1",
+			"50d7bcf4-f8d6-4bf6-b8f6-46cb440a87f0",
+		},
+		LogPlatform: DatastoreLogGroup{
+			LogGroup: "s/dbaas/My-first-group",
+		},
+		Config: map[string]any{},
+	}
+
+	actual, err := testClient.EnableLogPlatform(context.Background(), datastoreID, DatastoreEnableLogPlatform)
+
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
+}
+
+func TestDisableDatastoreLogPlatform(t *testing.T) {
+	httpmock.Activate()
+	testClient := SetupTestClient()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("DELETE", testClient.Endpoint+DatastoresURI+"/"+datastoreID+"/"+LogPlatformPostfix,
+		httpmock.NewStringResponder(204, ""))
+
+	err := testClient.DisableLogPlatform(context.Background(), datastoreID)
+
+	require.NoError(t, err)
 }
