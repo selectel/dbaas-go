@@ -111,7 +111,7 @@ type DatastoreCreateOpts struct {
 	TypeID              string             `json:"type_id"`
 	SubnetID            string             `json:"subnet_id"`
 	FlavorID            string             `json:"flavor_id,omitempty"`
-	ProjectID           string             `json:"project_id"`
+	ProjectID           string             `json:"project_id,omitempty"`
 	RedisPassword       string             `json:"redis_password,omitempty"`
 	Name                string             `json:"name"`
 	SecurityGroups      []string           `json:"security_groups,omitempty"`
