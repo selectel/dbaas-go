@@ -10,9 +10,11 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
+	v2 "github.com/selectel/dbaas-go/v2"
 )
 
 const (
@@ -66,6 +68,15 @@ func NewDBAASClient(token, endpoint string) (*API, error) {
 		Endpoint:   endpoint,
 		UserAgent:  userAgent,
 	}, nil
+}
+
+// NewDBAASClient initializes a new DBaaS client for the V2 API.
+func NewDBAASClientV2(token, endpoint string) (*v2.API, error) {
+	if !strings.HasSuffix(endpoint, "v2") {
+		return nil, ErrorEndpointVersionMismatch
+	}
+
+	return v2.NewAPI(token, endpoint)
 }
 
 // NewDBAASClientV1WithCustomHTTP initializes a new DBaaS client for the V1 API using custom HTTP client.

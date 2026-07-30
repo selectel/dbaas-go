@@ -1,6 +1,7 @@
 package dbaas
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -9,6 +10,8 @@ const (
 	ErrorNotFoundTitle   = "Not Found"
 	ErrorBadRequestTitle = "Bad Request"
 )
+
+var ErrorEndpointVersionMismatch = errors.New("endpoint version mismatch")
 
 // DBaaSAPIError is a type of an error raised by API calls made by this library.
 type DBaaSAPIError struct {
