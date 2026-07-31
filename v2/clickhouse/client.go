@@ -7,13 +7,13 @@ import (
 
 type API struct {
 	Datastore *DatastoreService
+	// NodeGroup
+	// ShardGroup
 }
 
 func NewAPI(c transport.Client) *API {
-	engine := internal.EngineService{
-		Client: c,
-		Engine: "clickhouse",
-	}
+	engine := internal.NewEngineService(c, "clickhouse")
+
 	datastoreSvc := &DatastoreService{engine}
 
 	return &API{

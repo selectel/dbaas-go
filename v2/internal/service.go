@@ -7,15 +7,19 @@ import (
 )
 
 type EngineService struct {
-	Client transport.Client
-	Engine string
+	client transport.Client
+	engine string
 }
 
 func NewEngineService(c transport.Client, engine string) EngineService {
 
+	if engine == "" {
+		panic("engine must not be empty")
+	}
+
 	return EngineService{
-		Client: c,
-		Engine: engine,
+		client: c,
+		engine: engine,
 	}
 }
 
@@ -23,7 +27,7 @@ func (s EngineService) Path(parts ...string) string {
 
 	path := []string{
 		"datastores",
-		s.Engine,
+		s.engine,
 	}
 
 	path = append(path, parts...)

@@ -19,19 +19,23 @@ const (
 )
 
 type API struct {
-	client transport.Client
+	// Flavors
+	// DatastoreTypes
 
 	ClickHouse *clickhouse.API
+	// Opensearch
+
 }
 
 func NewAPI(token, endpoint string) (*API, error) {
 
 	client := transport.NewHTTPClient(http.DefaultClient, token, endpoint, userAgent)
 
-	api := &API{
-		client:     client,
+	return NewAPIWithClient(client), nil
+}
+
+func NewAPIWithClient(client transport.Client) *API {
+	return &API{
 		ClickHouse: clickhouse.NewAPI(client),
 	}
-
-	return api, nil
 }
