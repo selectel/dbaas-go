@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 )
 
 type Client interface {
@@ -34,67 +35,107 @@ func NewHTTPClient(httpClient *http.Client, token, endpoint, userAgent string) *
 	}
 }
 
+func marshalBody(body any) (io.Reader, error) {
+
+	if body == nil {
+		return nil, nil
+	}
+
+	if b, ok := body.([]byte); ok {
+		return bytes.NewReader(b), nil
+	}
+
+	data, err := json.Marshal(body)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling params to JSON, %w", err)
+	}
+
+	return bytes.NewReader(data), nil
+}
+
 func (c *HTTPClient) Do(ctx context.Context, method, path string, body, result any) error {
 
-	var requestBody io.Reader
+	requestBody, err := marshalBody(body)
+	if err != nil {
+		return err
+	}
+
+	request, err := c.newRequest(ctx, method, path, requestBody)
+	if err != nil {
+		return err
+	}
+
+	response, err := c.HTTPClient.Do(request)
+
+	if err != nil {
+		return fmt.Errorf("HTTP request failed, %w", err)
+	}
+
+	defer response.Body.Close()
+
+	return decodeResponse(request, response, result)
+}
+
+func (c *HTTPClient) newRequest(ctx context.Context, method, path string, body io.Reader) (*http.Request, error) {
+
+	fullURL, err := url.JoinPath(c.Endpoint, path)
+
+	req, err := http.NewRequestWithContext(ctx, method, fullURL, body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("User-Agent", c.UserAgent)
+	req.Header.Set("X-Auth-Token", c.Token)
 
 	if body != nil {
-
-		data, err := json.Marshal(body)
-
-		if err != nil {
-			return fmt.Errorf("marshal request body: %w", err)
-		}
-
-		requestBody = bytes.NewReader(data)
+		req.Header.Set("Content-Type", "application/json")
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, c.Endpoint+path, requestBody)
+	return req, nil
+}
 
+func decodeResponse(req *http.Request, resp *http.Response, result any) error {
+
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("create http request: %w", err)
+		return fmt.Errorf("could not read response body, %w", err)
 	}
-
-	c.setHeaders(req)
-
-	resp, err := c.HTTPClient.Do(req)
-
-	if err != nil {
-		return fmt.Errorf("execute http request: %w", err)
-	}
-
-	defer resp.Body.Close()
 
 	if resp.StatusCode >= http.StatusBadRequest {
+		return HandleStatusCode(resp.StatusCode, body, req.URL.String())
+	}
 
-		return decodeError(resp)
+	if resp.StatusCode == http.StatusNoContent {
+		return nil
 	}
 
 	if result == nil {
 		return nil
 	}
 
-	err = json.NewDecoder(resp.Body).Decode(result)
+	if len(body) == 0 {
+		return nil
+	}
 
-	if err != nil {
-
-		if err == io.EOF {
-			return nil
-		}
-
-		return fmt.Errorf("decode response: %w", err)
+	if err := json.Unmarshal(body, result); err != nil {
+		return fmt.Errorf("could not decode response body: %w", err)
 	}
 
 	return nil
 }
 
-func (c *HTTPClient) setHeaders(req *http.Request) {
-
-	req.Header.Set("X-Auth-Token", c.Token)
-	req.Header.Set("User-Agent", c.UserAgent)
-
-	if req.Body != nil {
-		req.Header.Set("Content-Type", "application/json")
+// HandleStatusCode checks status code and returns corresponding error.
+func HandleStatusCode(statusCode int, body []byte, path string) error {
+	if statusCode >= http.StatusInternalServerError {
+		return fmt.Errorf("http status %d: service failed.\n%v\n%v", statusCode, body, path) //nolint
 	}
 
+	errBody := &DBaaSAPIError{}
+	err := json.Unmarshal(body, &errBody)
+	if err != nil {
+		return fmt.Errorf("can't unmarshal response:\n%s, %w", body, err)
+	}
+	return errBody
 }

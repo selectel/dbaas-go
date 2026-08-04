@@ -1,9 +1,7 @@
 package transport
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 )
 
 type APIError struct {
@@ -19,18 +17,21 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("api error (%d): %s: %s", e.StatusCode, e.Code, e.Message)
 }
 
-func decodeError(resp *http.Response) error {
+// DBaaSAPIError is a type of an error raised by API calls made by this library.
+type DBaaSAPIError struct {
+	APIError struct {
+		Message string `json:"message"`
+		Title   string `json:"title"`
+		Code    int    `json:"code"`
+	} `json:"error"`
+}
 
-	apiErr := &APIError{
-		StatusCode: resp.StatusCode,
-	}
+// Error returns string representation of the error.
+func (e DBaaSAPIError) Error() string {
+	return fmt.Sprintf("%v: %v. Code: %v", e.APIError.Title, e.APIError.Message, e.APIError.Code)
+}
 
-	err := json.NewDecoder(resp.Body).Decode(apiErr)
-
-	if err != nil {
-
-		return fmt.Errorf("http error %d", resp.StatusCode)
-	}
-
-	return apiErr
+// StatusCode returns the HTTP status from the error response.
+func (e DBaaSAPIError) StatusCode() int {
+	return e.APIError.Code
 }
