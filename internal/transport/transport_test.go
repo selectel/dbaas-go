@@ -5,7 +5,9 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -16,6 +18,17 @@ func newTransport(serverURL string) *HTTPClient {
 		"test-token",
 		serverURL,
 		"dbaas-go/test",
+	)
+}
+
+func newTransportWithRetry(serverURL string, maxRetries int, backoff time.Duration) *HTTPClient {
+	return NewHTTPClientWithRetry(
+		http.DefaultClient,
+		"test-token",
+		serverURL,
+		"dbaas-go/test",
+		maxRetries,
+		backoff,
 	)
 }
 
@@ -146,9 +159,7 @@ func TestDo_APIError(t *testing.T) {
 		_, _ = w.Write([]byte(`
 		{
 			"error": {
-				"message": "validation failed",
-				"title": "invalid_request",
-				"code": 400
+				"message": "validation failed"
 			}
 		}
 		`))
@@ -171,4 +182,91 @@ func TestDo_APIError(t *testing.T) {
 	require.ErrorAs(t, err, &apiErr)
 
 	require.Equal(t, "validation failed", apiErr.APIError.Message)
+}
+
+func TestDo_NoRetry(t *testing.T) {
+	var attempts int32
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&attempts, 1)
+
+		w.WriteHeader(http.StatusServiceUnavailable)
+
+		_, _ = w.Write([]byte(`{
+			"error": {
+				"message": "temporary unavailable"
+			}
+		}`))
+	}))
+	defer server.Close()
+
+	client := newTransport(server.URL)
+
+	var result any
+
+	err := client.Do(
+		context.Background(),
+		http.MethodGet,
+		"/test",
+		nil,
+		&result,
+	)
+
+	require.Error(t, err)
+
+	var apiErr *DBaaSAPIError
+	require.ErrorAs(t, err, &apiErr)
+
+	require.Equal(t, http.StatusServiceUnavailable, apiErr.StatusCode)
+	require.Equal(t, "temporary unavailable", apiErr.APIError.Message)
+
+	require.Equal(t, int32(1), atomic.LoadInt32(&attempts))
+}
+
+func TestDo_Retry503(t *testing.T) {
+	var attempts int32
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		n := atomic.AddInt32(&attempts, 1)
+
+		if n < 3 {
+			w.WriteHeader(http.StatusServiceUnavailable)
+
+			_, _ = w.Write([]byte(`{
+				"error": {
+					"message": "temporary unavailable"
+				}
+			}`))
+
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+
+		_, _ = w.Write([]byte(`{
+			"id":"123"
+		}`))
+	}))
+	defer server.Close()
+
+	client := newTransportWithRetry(server.URL, 2, 0)
+
+	var result struct {
+		ID string `json:"id"`
+	}
+
+	err := client.Do(
+		context.Background(),
+		http.MethodGet,
+		"/test",
+		nil,
+		&result,
+	)
+
+	require.NoError(t, err)
+
+	require.Equal(t, "123", result.ID)
+
+	require.Equal(t, int32(3), atomic.LoadInt32(&attempts))
 }

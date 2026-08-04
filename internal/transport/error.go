@@ -1,37 +1,41 @@
 package transport
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
-type APIError struct {
-	StatusCode int
-
-	Code string `json:"code"`
-
-	Message string `json:"message"`
-}
-
-func (e *APIError) Error() string {
-
-	return fmt.Sprintf("api error (%d): %s: %s", e.StatusCode, e.Code, e.Message)
-}
-
-// DBaaSAPIError is a type of an error raised by API calls made by this library.
 type DBaaSAPIError struct {
+	StatusCode int    `json:"-"`
+	Method     string `json:"-"`
+	Path       string `json:"-"`
+
 	APIError struct {
 		Message string `json:"message"`
-		Title   string `json:"title"`
-		Code    int    `json:"code"`
 	} `json:"error"`
 }
 
-// Error returns string representation of the error.
-func (e DBaaSAPIError) Error() string {
-	return fmt.Sprintf("%v: %v. Code: %v", e.APIError.Title, e.APIError.Message, e.APIError.Code)
+func (e *DBaaSAPIError) Error() string {
+	return fmt.Sprintf(
+		"%s %s: http %d: %s",
+		e.Method,
+		e.Path,
+		e.StatusCode,
+		e.APIError.Message,
+	)
 }
 
-// StatusCode returns the HTTP status from the error response.
-func (e DBaaSAPIError) StatusCode() int {
-	return e.APIError.Code
+func decodeError(statusCode int, method string, path string, body []byte) error {
+
+	apiErr := &DBaaSAPIError{
+		StatusCode: statusCode,
+		Method:     method,
+		Path:       path,
+	}
+
+	if err := json.Unmarshal(body, apiErr); err != nil {
+		return fmt.Errorf("could not unmarshal error response: %w", err)
+	}
+
+	return apiErr
 }

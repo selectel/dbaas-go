@@ -14,7 +14,6 @@ import (
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
-	"github.com/selectel/dbaas-go/internal/transport"
 	v2 "github.com/selectel/dbaas-go/v2"
 )
 
@@ -160,7 +159,7 @@ func (api *API) makeRequest(ctx context.Context, method, uri string, params inte
 	}
 
 	if resp.StatusCode >= http.StatusBadRequest {
-		return nil, transport.HandleStatusCode(resp.StatusCode, respBody, uri)
+		return nil, handleStatusCode(resp.StatusCode, respBody, uri)
 	}
 
 	return respBody, nil
@@ -208,6 +207,20 @@ func handleParams(params any) ([]byte, error) {
 	}
 
 	return jsonBody, nil
+}
+
+// handleStatusCode checks status code and returns corresponding error.
+func handleStatusCode(statusCode int, body []byte, uri string) error {
+	if statusCode >= http.StatusInternalServerError {
+		return fmt.Errorf("http status %d: service failed.\n%v\n%v", statusCode, body, uri) //nolint
+	}
+
+	errBody := &DBaaSAPIError{}
+	err := json.Unmarshal(body, &errBody)
+	if err != nil {
+		return fmt.Errorf("can't unmarshal response:\n%s, %w", body, err)
+	}
+	return errBody
 }
 
 // setQueryParams updates uri string with query parameters.
