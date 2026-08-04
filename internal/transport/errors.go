@@ -6,7 +6,7 @@ import (
 )
 
 type DBaaSAPIError struct {
-	StatusCode int    `json:"-"`
+	HTTPStatus int    `json:"-"`
 	Method     string `json:"-"`
 	Path       string `json:"-"`
 
@@ -20,15 +20,19 @@ func (e *DBaaSAPIError) Error() string {
 		"%s %s: http %d: %s",
 		e.Method,
 		e.Path,
-		e.StatusCode,
+		e.HTTPStatus,
 		e.APIError.Message,
 	)
+}
+
+func (e *DBaaSAPIError) StatusCode() int {
+	return e.HTTPStatus
 }
 
 func decodeError(statusCode int, method string, path string, body []byte) error {
 
 	apiErr := &DBaaSAPIError{
-		StatusCode: statusCode,
+		HTTPStatus: statusCode,
 		Method:     method,
 		Path:       path,
 	}
@@ -38,4 +42,10 @@ func decodeError(statusCode int, method string, path string, body []byte) error 
 	}
 
 	return apiErr
+}
+
+// HTTPStatusError describes interface for retry policy
+type HTTPStatusError interface {
+	error
+	StatusCode() int
 }

@@ -21,64 +21,50 @@ type HTTPClient struct {
 	endpoint   string
 	userAgent  string
 
-	retry RetryConfig
+	retry RetryPolicy
 }
 
-func NewHTTPClient(httpClient *http.Client, token, endpoint, userAgent string) *HTTPClient {
+func NewHTTPClient(httpClient *http.Client, token, endpoint, userAgent string, options ...Option) *HTTPClient {
 
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
-	return &HTTPClient{
+	client := &HTTPClient{
 		httpClient: httpClient,
 		token:      token,
 		endpoint:   endpoint,
 		userAgent:  userAgent,
 	}
-}
 
-func NewHTTPClientWithRetry(httpClient *http.Client, token, endpoint, userAgent string, maxRetries int, backoff time.Duration) *HTTPClient {
-
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+	for _, option := range options {
+		option(client)
 	}
 
-	return &HTTPClient{
-		httpClient: httpClient,
-		token:      token,
-		endpoint:   endpoint,
-		userAgent:  userAgent,
-		retry: RetryConfig{
-			MaxRetries: maxRetries,
-			Backoff:    backoff,
-		},
-	}
+	return client
 }
 
 func (c *HTTPClient) Do(ctx context.Context, method, path string, body, result any) error {
+	for attempt := 0; ; attempt++ {
 
-	var lastErr error
-
-	for attempt := 0; attempt <= c.retry.MaxRetries; attempt++ {
 		err := c.doOnce(ctx, method, path, body, result)
 
 		if err == nil {
 			return nil
 		}
 
-		lastErr = err
-
-		if !isRetryable(err) {
+		if c.retry == nil {
 			return err
 		}
 
-		if err := sleepBackoff(ctx, attempt, c.retry.Backoff); err != nil {
+		if !c.retry.ShouldRetry(err, attempt) {
+			return err
+		}
+
+		if err := wait(ctx, c.retry.Delay(attempt)); err != nil {
 			return err
 		}
 	}
-
-	return lastErr
 }
 
 func (c *HTTPClient) doOnce(ctx context.Context, method, path string, body, result any) error {
@@ -170,4 +156,19 @@ func decodeResponse(req *http.Request, resp *http.Response, result any) error {
 	}
 
 	return nil
+}
+
+func wait(ctx context.Context, delay time.Duration) error {
+
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+
+	select {
+
+	case <-ctx.Done():
+		return ctx.Err()
+
+	case <-timer.C:
+		return nil
+	}
 }

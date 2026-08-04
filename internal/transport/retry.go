@@ -10,24 +10,46 @@ import (
 
 type RetryConfig struct {
 	MaxRetries int
-	Backoff    time.Duration
+
+	InitialBackoff time.Duration
+	MaxBackoff     time.Duration
 }
 
-func isRetryable(err error) bool {
-	var apiErr *DBaaSAPIError
+type RetryPolicy interface {
+	ShouldRetry(err error, attempt int) bool
+	Delay(attempt int) time.Duration
+}
 
-	if errors.As(err, &apiErr) {
-		switch apiErr.StatusCode {
-		case http.StatusTooManyRequests,
+type defaultRetryPolicy struct {
+	config RetryConfig
+}
+
+func (r *defaultRetryPolicy) ShouldRetry(err error, attempt int) bool {
+
+	if attempt >= r.config.MaxRetries {
+		return false
+	}
+
+	var httpErr HTTPStatusError
+
+	if errors.As(err, &httpErr) {
+
+		switch httpErr.StatusCode() {
+		case
+			http.StatusTooManyRequests,
 			http.StatusInternalServerError,
 			http.StatusBadGateway,
 			http.StatusServiceUnavailable,
 			http.StatusGatewayTimeout:
+
 			return true
 		}
+
+		return false
 	}
 
 	var netErr net.Error
+
 	if errors.As(err, &netErr) {
 		return netErr.Timeout()
 	}
@@ -35,19 +57,27 @@ func isRetryable(err error) bool {
 	return errors.Is(err, context.DeadlineExceeded)
 }
 
-func sleepBackoff(ctx context.Context, attempt int, base time.Duration) error {
+// Delay calculates exponential backoff delay
+func (r *defaultRetryPolicy) Delay(attempt int) time.Duration {
 
-	delay := base * time.Duration(1<<attempt)
+	delay := r.config.InitialBackoff * time.Duration(1<<attempt)
 
-	timer := time.NewTimer(delay)
+	if delay > r.config.MaxBackoff {
+		return r.config.MaxBackoff
+	}
+	return delay
+}
 
-	defer timer.Stop()
+func NewRetry(config RetryConfig) RetryPolicy {
+	if config.InitialBackoff <= 0 {
+		config.InitialBackoff = time.Second
+	}
 
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
+	if config.MaxBackoff <= 0 {
+		config.MaxBackoff = 30 * time.Second
+	}
 
-	case <-timer.C:
-		return nil
+	return &defaultRetryPolicy{
+		config: config,
 	}
 }

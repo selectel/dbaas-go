@@ -21,14 +21,13 @@ func newTransport(serverURL string) *HTTPClient {
 	)
 }
 
-func newTransportWithRetry(serverURL string, maxRetries int, backoff time.Duration) *HTTPClient {
-	return NewHTTPClientWithRetry(
+func newTransportWithRetry(serverURL string, retryConfig RetryConfig) *HTTPClient {
+	return NewHTTPClient(
 		http.DefaultClient,
 		"test-token",
 		serverURL,
 		"dbaas-go/test",
-		maxRetries,
-		backoff,
+		WithRetry(retryConfig),
 	)
 }
 
@@ -217,7 +216,7 @@ func TestDo_NoRetry(t *testing.T) {
 	var apiErr *DBaaSAPIError
 	require.ErrorAs(t, err, &apiErr)
 
-	require.Equal(t, http.StatusServiceUnavailable, apiErr.StatusCode)
+	require.Equal(t, http.StatusServiceUnavailable, apiErr.HTTPStatus)
 	require.Equal(t, "temporary unavailable", apiErr.APIError.Message)
 
 	require.Equal(t, int32(1), atomic.LoadInt32(&attempts))
@@ -230,7 +229,7 @@ func TestDo_Retry503(t *testing.T) {
 
 		n := atomic.AddInt32(&attempts, 1)
 
-		if n < 3 {
+		if n < 4 {
 			w.WriteHeader(http.StatusServiceUnavailable)
 
 			_, _ = w.Write([]byte(`{
@@ -250,7 +249,10 @@ func TestDo_Retry503(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := newTransportWithRetry(server.URL, 2, 0)
+	client := newTransportWithRetry(
+		server.URL,
+		RetryConfig{MaxRetries: 3, InitialBackoff: 500 * time.Millisecond},
+	)
 
 	var result struct {
 		ID string `json:"id"`
@@ -268,5 +270,5 @@ func TestDo_Retry503(t *testing.T) {
 
 	require.Equal(t, "123", result.ID)
 
-	require.Equal(t, int32(3), atomic.LoadInt32(&attempts))
+	require.Equal(t, int32(4), atomic.LoadInt32(&attempts))
 }
