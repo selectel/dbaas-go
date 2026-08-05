@@ -7,11 +7,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/selectel/dbaas-go/internal/transport"
 	"github.com/selectel/dbaas-go/v2/common"
 	"github.com/selectel/dbaas-go/v2/internal"
+	"github.com/stretchr/testify/require"
 )
 
 func newDatastoreService(t *testing.T, serverURL string) *DatastoreService {
