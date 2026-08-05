@@ -1,36 +1,50 @@
 package internal
 
 import (
-	"strings"
+	"context"
+	"net/http"
 
 	"github.com/selectel/dbaas-go/internal/transport"
+	"github.com/selectel/dbaas-go/v2/common"
 )
 
-type EngineService struct {
-	client transport.Client
-	engine string
+// BaseService presents base service logic with helpers
+type BaseService struct {
+	client   transport.Client
+	rootPath string
 }
 
-func NewEngineService(c transport.Client, engine string) EngineService {
+func (s *BaseService) Get(ctx context.Context, path string, resp any) error {
+	return s.client.Do(ctx, http.MethodGet, s.rootPath+path, nil, resp)
+}
 
-	if engine == "" {
-		panic("engine must not be empty")
-	}
+func (s *BaseService) Post(ctx context.Context, path string, body any, resp any) error {
+	return s.client.Do(ctx, http.MethodPost, s.rootPath+path, body, resp)
+}
 
-	return EngineService{
-		client: c,
+func (s *BaseService) Put(ctx context.Context, path string, body any, resp any) error {
+	return s.client.Do(ctx, http.MethodPut, s.rootPath+path, body, resp)
+}
+
+func (s *BaseService) Delete(ctx context.Context, path string) error {
+	return s.client.Do(ctx, http.MethodPut, s.rootPath+path, nil, nil)
+}
+
+// EngineService presents engine service for specific engine (datastore type)
+type EngineService struct {
+	*BaseService
+	engine common.Engine
+}
+
+func NewEngineService(client transport.Client, engine common.Engine) *EngineService {
+
+	root := "/datastores/" + string(engine)
+
+	return &EngineService{
+		BaseService: &BaseService{
+			client:   client,
+			rootPath: root,
+		},
 		engine: engine,
 	}
-}
-
-func (s EngineService) Path(parts ...string) string {
-
-	path := []string{
-		"datastores",
-		s.engine,
-	}
-
-	path = append(path, parts...)
-
-	return "/" + strings.Join(path, "/")
 }

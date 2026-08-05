@@ -35,3 +35,11 @@ const (
 	DiskLocal        DiskType = "local"
 	DiskNetworkUltra DiskType = "network-ultra"
 )
+
+// Engine represents engine type (datastore type).
+type Engine string
+
+const (
+	EngineClickHouse Engine = "clickhouse"
+	EngineOpenSearch Engine = "opensearch"
+)
