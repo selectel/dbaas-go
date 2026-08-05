@@ -21,12 +21,11 @@ type DatastoreService struct {
 }
 
 func (s *DatastoreService) List(ctx context.Context) (DatastoreListResponse, error) {
-
 	response := DatastoreListResponse{}
 
 	err := s.Get(ctx, "", &response)
-
 	if err != nil {
+		//nolint:wrapcheck
 		return response, err
 	}
 

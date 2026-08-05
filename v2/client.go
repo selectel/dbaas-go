@@ -19,17 +19,16 @@ const (
 	userAgent = appName + "/" + appVersion
 )
 
-// API is the main manager for DBAAS v2 resources
+// API is the main manager for DBAAS v2 resources.
 type API struct {
 	// Flavors
 	// DatastoreTypes
 
 	ClickHouse *clickhouse.API
 	// Opensearch
-
 }
 
-// Public retry config
+// Public retry config.
 type RetryConfig struct {
 	MaxRetries     int
 	InitialBackoff time.Duration
@@ -43,14 +42,12 @@ func newAPIWithClient(client transport.Client) *API {
 }
 
 func NewAPI(token, endpoint string) (*API, error) {
-
 	client := transport.NewHTTPClient(http.DefaultClient, token, endpoint, userAgent)
 
 	return newAPIWithClient(client), nil
 }
 
 func NewAPIWithRetry(token, endpoint string, retryConfig RetryConfig) (*API, error) {
-
 	client := transport.NewHTTPClient(
 		http.DefaultClient,
 		token,

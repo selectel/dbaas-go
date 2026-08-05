@@ -25,7 +25,6 @@ type defaultRetryPolicy struct {
 }
 
 func (r *defaultRetryPolicy) ShouldRetry(err error, attempt int) bool {
-
 	if attempt >= r.config.MaxRetries {
 		return false
 	}
@@ -33,7 +32,6 @@ func (r *defaultRetryPolicy) ShouldRetry(err error, attempt int) bool {
 	var httpErr HTTPStatusError
 
 	if errors.As(err, &httpErr) {
-
 		switch httpErr.StatusCode() {
 		case
 			http.StatusTooManyRequests,
@@ -57,9 +55,8 @@ func (r *defaultRetryPolicy) ShouldRetry(err error, attempt int) bool {
 	return errors.Is(err, context.DeadlineExceeded)
 }
 
-// Delay calculates exponential backoff delay
+// Delay calculates exponential backoff delay.
 func (r *defaultRetryPolicy) Delay(attempt int) time.Duration {
-
 	delay := r.config.InitialBackoff * time.Duration(1<<attempt)
 
 	if delay > r.config.MaxBackoff {

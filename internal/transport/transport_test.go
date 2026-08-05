@@ -125,7 +125,6 @@ func TestDo_Headers(t *testing.T) {
 	)
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		token = r.Header.Get("X-Auth-Token")
 		userAgent = r.Header.Get("User-Agent")
 
@@ -150,9 +149,7 @@ func TestDo_Headers(t *testing.T) {
 }
 
 func TestDo_APIError(t *testing.T) {
-
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		w.WriteHeader(http.StatusBadRequest)
 
 		_, _ = w.Write([]byte(`
@@ -226,7 +223,6 @@ func TestDo_Retry503(t *testing.T) {
 	var attempts int32
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		n := atomic.AddInt32(&attempts, 1)
 
 		if n < 4 {

@@ -16,16 +16,14 @@ type Client interface {
 }
 
 type HTTPClient struct {
+	retry      RetryPolicy
 	httpClient *http.Client
-	token      string
 	endpoint   string
 	userAgent  string
-
-	retry RetryPolicy
+	token      string
 }
 
 func NewHTTPClient(httpClient *http.Client, token, endpoint, userAgent string, options ...Option) *HTTPClient {
-
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
@@ -46,7 +44,6 @@ func NewHTTPClient(httpClient *http.Client, token, endpoint, userAgent string, o
 
 func (c *HTTPClient) Do(ctx context.Context, method, path string, body, result any) error {
 	for attempt := 0; ; attempt++ {
-
 		err := c.doOnce(ctx, method, path, body, result)
 
 		if err == nil {
@@ -68,7 +65,6 @@ func (c *HTTPClient) Do(ctx context.Context, method, path string, body, result a
 }
 
 func (c *HTTPClient) doOnce(ctx context.Context, method, path string, body, result any) error {
-
 	requestBody, err := marshalBody(body)
 	if err != nil {
 		return err
@@ -80,7 +76,6 @@ func (c *HTTPClient) doOnce(ctx context.Context, method, path string, body, resu
 	}
 
 	response, err := c.httpClient.Do(request)
-
 	if err != nil {
 		return fmt.Errorf("HTTP request failed, %w", err)
 	}
@@ -91,13 +86,14 @@ func (c *HTTPClient) doOnce(ctx context.Context, method, path string, body, resu
 }
 
 func (c *HTTPClient) newRequest(ctx context.Context, method, path string, body io.Reader) (*http.Request, error) {
-
 	fullURL, err := url.JoinPath(c.endpoint, path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to join path: %w", err)
+	}
 
 	req, err := http.NewRequestWithContext(ctx, method, fullURL, body)
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("HTTP request creation failed, %w", err)
 	}
 
 	req.Header.Set("User-Agent", c.userAgent)
@@ -111,7 +107,6 @@ func (c *HTTPClient) newRequest(ctx context.Context, method, path string, body i
 }
 
 func marshalBody(body any) (io.Reader, error) {
-
 	if body == nil {
 		return nil, nil
 	}
@@ -129,7 +124,6 @@ func marshalBody(body any) (io.Reader, error) {
 }
 
 func decodeResponse(req *http.Request, resp *http.Response, result any) error {
-
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("could not read response body, %w", err)
@@ -159,13 +153,12 @@ func decodeResponse(req *http.Request, resp *http.Response, result any) error {
 }
 
 func wait(ctx context.Context, delay time.Duration) error {
-
 	timer := time.NewTimer(delay)
 	defer timer.Stop()
 
 	select {
-
 	case <-ctx.Done():
+		//nolint:wrapcheck
 		return ctx.Err()
 
 	case <-timer.C:
