@@ -6,6 +6,7 @@ import (
 	"github.com/selectel/dbaas-go/v2/internal"
 )
 
+// API is api client to manage clickhouse resources.
 type API struct {
 	Datastore *DatastoreService
 	// NodeGroup

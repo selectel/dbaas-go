@@ -6,16 +6,18 @@ import (
 	"github.com/selectel/dbaas-go/v2/internal"
 )
 
-// Datastore is the API response for the clickhouse datastores.
+// DatastoreResponse is the API response for the clickhouse datastore.
 type DatastoreResponse struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
+// DatastoreListResponse is the API response for the clickhouse datastore list.
 type DatastoreListResponse struct {
 	Datastores []DatastoreResponse `json:"datastores"`
 }
 
+// DatastoreService is service to interact with clickhouse datastore resource.
 type DatastoreService struct {
 	*internal.EngineService
 }

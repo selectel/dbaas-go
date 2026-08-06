@@ -11,10 +11,12 @@ import (
 	"time"
 )
 
+// Client presents interface for transport client.
 type Client interface {
 	Do(ctx context.Context, method, path string, body, result any) error
 }
 
+// HTTPClient is transport client implementation.
 type HTTPClient struct {
 	retry      RetryPolicy
 	httpClient *http.Client
@@ -42,6 +44,7 @@ func NewHTTPClient(httpClient *http.Client, token, endpoint, userAgent string, o
 	return client
 }
 
+// Do is main method to make request.
 func (c *HTTPClient) Do(ctx context.Context, method, path string, body, result any) error {
 	for attempt := 0; ; attempt++ {
 		err := c.doOnce(ctx, method, path, body, result)

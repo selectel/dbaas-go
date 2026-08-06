@@ -1,39 +1,39 @@
 package common
 
-// Status represents custom type for various DBaaS v2 objects states.
-type State string
+// DatastoreState represents custom type for DBaaS v2 datastore states.
+type DatastoreState string
 
 const (
-	StateRunning  State = "RUNNING"
-	StateDegraded State = "DEGRADED"
-	StateDown     State = "DOWN"
-	StateUnknown  State = "UNKNOWN"
+	DatastoreStateRunning  DatastoreState = "RUNNING"
+	DatastoreStateDegraded DatastoreState = "DEGRADED"
+	DatastoreStateDown     DatastoreState = "DOWN"
+	DatastoreStateUnknown  DatastoreState = "UNKNOWN"
 )
 
-// Status represents custom type for various DBaaS v2 objects statuses.
-type Status string
+// DatastoreStatus represents custom type for DBaaS v2 datastore statuses.
+type DatastoreStatus string
 
 const (
-	StatusCreating   Status = "CREATING"
-	StatusActive     Status = "ACTIVE"
-	StatusUpdatin    Status = "UPDATING"
-	StatusResizing   Status = "RESIZING"
-	StatusError      Status = "ERROR"
-	StatusDeleting   Status = "DELETING"
-	StatusDeleted    Status = "DELETED"
-	StatusLocking    Status = "LOCKING"
-	StatusLocked     Status = "LOCKED"
-	StatusUnlocking  Status = "UNLOCKING"
-	StatusRebuilding Status = "REBUILGING"
-	StatusMaintaince Status = "MAINTENANCE"
+	DatastoreStatusCreating   DatastoreStatus = "CREATING"
+	DatastoreStatusActive     DatastoreStatus = "ACTIVE"
+	DatastoreStatusUpdatin    DatastoreStatus = "UPDATING"
+	DatastoreStatusResizing   DatastoreStatus = "RESIZING"
+	DatastoreStatusError      DatastoreStatus = "ERROR"
+	DatastoreStatusDeleting   DatastoreStatus = "DELETING"
+	DatastoreStatusDeleted    DatastoreStatus = "DELETED"
+	DatastoreStatusLocking    DatastoreStatus = "LOCKING"
+	DatastoreStatusLocked     DatastoreStatus = "LOCKED"
+	DatastoreStatusUnlocking  DatastoreStatus = "UNLOCKING"
+	DatastoreStatusRebuilding DatastoreStatus = "REBUILGING"
+	DatastoreStatusMaintaince DatastoreStatus = "MAINTENANCE"
 )
 
-// DiskType represents custom type for various flavor disk types.
-type DiskType string
+// FlavorDiskType represents custom type for flavor disk types.
+type FlavorDiskType string
 
 const (
-	DiskLocal        DiskType = "local"
-	DiskNetworkUltra DiskType = "network-ultra"
+	FlavorDiskLocal        FlavorDiskType = "local"
+	FlavorDiskNetworkUltra FlavorDiskType = "network-ultra"
 )
 
 // Engine represents engine type (datastore type).
