@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/selectel/dbaas-go/internal/version"
 )
 
 // Client presents interface for transport client.
@@ -25,7 +27,15 @@ type HTTPClient struct {
 	token      string
 }
 
-func NewHTTPClient(httpClient *http.Client, token, endpoint, userAgent string, options ...Option) *HTTPClient {
+func NewHTTPClient(httpClient *http.Client, token, endpoint string, options ...Option) (*HTTPClient, error) {
+	if token == "" {
+		return nil, ErrorTokenRequired
+	}
+
+	if endpoint == "" {
+		return nil, ErrorEndpointRequired
+	}
+
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
@@ -34,14 +44,14 @@ func NewHTTPClient(httpClient *http.Client, token, endpoint, userAgent string, o
 		httpClient: httpClient,
 		token:      token,
 		endpoint:   endpoint,
-		userAgent:  userAgent,
+		userAgent:  version.UserAgent,
 	}
 
 	for _, option := range options {
 		option(client)
 	}
 
-	return client
+	return client, nil
 }
 
 // Do is main method to make request.

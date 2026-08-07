@@ -2,9 +2,17 @@ package transport
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
+var (
+	ErrorTokenRequired    = errors.New("token is required")
+	ErrorEndpointRequired = errors.New("endpoint is required")
+)
+
+// DBaaSAPIError stores useful fields from DBAAS api.
+// We use a new structure to avoid breaking backward compatibility with v1 DBaaSAPIError.
 type DBaaSAPIError struct {
 	Method   string `json:"-"`
 	Path     string `json:"-"`

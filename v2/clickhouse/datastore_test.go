@@ -17,12 +17,12 @@ import (
 func newDatastoreService(t *testing.T, serverURL string) *DatastoreService {
 	t.Helper()
 
-	client := transport.NewHTTPClient(
+	client, err := transport.NewHTTPClient(
 		http.DefaultClient,
 		"token",
 		serverURL+"/v2",
-		"test-agent",
 	)
+	require.NoError(t, err)
 
 	engine := internal.NewEngineService(
 		client,

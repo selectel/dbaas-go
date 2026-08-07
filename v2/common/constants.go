@@ -14,18 +14,18 @@ const (
 type DatastoreStatus string
 
 const (
-	DatastoreStatusCreating   DatastoreStatus = "CREATING"
-	DatastoreStatusActive     DatastoreStatus = "ACTIVE"
-	DatastoreStatusUpdatin    DatastoreStatus = "UPDATING"
-	DatastoreStatusResizing   DatastoreStatus = "RESIZING"
-	DatastoreStatusError      DatastoreStatus = "ERROR"
-	DatastoreStatusDeleting   DatastoreStatus = "DELETING"
-	DatastoreStatusDeleted    DatastoreStatus = "DELETED"
-	DatastoreStatusLocking    DatastoreStatus = "LOCKING"
-	DatastoreStatusLocked     DatastoreStatus = "LOCKED"
-	DatastoreStatusUnlocking  DatastoreStatus = "UNLOCKING"
-	DatastoreStatusRebuilding DatastoreStatus = "REBUILGING"
-	DatastoreStatusMaintaince DatastoreStatus = "MAINTENANCE"
+	DatastoreStatusCreating    DatastoreStatus = "CREATING"
+	DatastoreStatusActive      DatastoreStatus = "ACTIVE"
+	DatastoreStatusUpdating    DatastoreStatus = "UPDATING"
+	DatastoreStatusResizing    DatastoreStatus = "RESIZING"
+	DatastoreStatusError       DatastoreStatus = "ERROR"
+	DatastoreStatusDeleting    DatastoreStatus = "DELETING"
+	DatastoreStatusDeleted     DatastoreStatus = "DELETED"
+	DatastoreStatusLocking     DatastoreStatus = "LOCKING"
+	DatastoreStatusLocked      DatastoreStatus = "LOCKED"
+	DatastoreStatusUnlocking   DatastoreStatus = "UNLOCKING"
+	DatastoreStatusRebuilding  DatastoreStatus = "REBUILDING"
+	DatastoreStatusMaintenance DatastoreStatus = "MAINTENANCE"
 )
 
 // FlavorDiskType represents custom type for flavor disk types.

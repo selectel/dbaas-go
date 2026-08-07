@@ -10,24 +10,70 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/selectel/dbaas-go/internal/version"
 )
 
-func newTransport(serverURL string) *HTTPClient {
-	return NewHTTPClient(
+func newTransport(t *testing.T, serverURL string) *HTTPClient {
+	t.Helper()
+	client, err := NewHTTPClient(
 		http.DefaultClient,
 		"test-token",
 		serverURL,
-		"dbaas-go/test",
+	)
+	require.NoError(t, err)
+
+	return client
+}
+
+func newTransportWithRetry(t *testing.T, serverURL string, retryConfig RetryConfig) *HTTPClient {
+	t.Helper()
+	client, err := NewHTTPClient(
+		http.DefaultClient,
+		"test-token",
+		serverURL,
+		WithRetry(retryConfig),
+	)
+	require.NoError(t, err)
+
+	return client
+}
+
+func TestNewHTTPClient_RequiresToken(t *testing.T) {
+	t.Parallel()
+
+	client, err := NewHTTPClient(
+		http.DefaultClient,
+		"",
+		"https://api.example.com/v2",
+	)
+
+	require.Error(t, err)
+	require.Nil(t, client)
+
+	require.ErrorIs(
+		t,
+		err,
+		ErrorTokenRequired,
 	)
 }
 
-func newTransportWithRetry(serverURL string, retryConfig RetryConfig) *HTTPClient {
-	return NewHTTPClient(
+func TestNewHTTPClient_RequiresEndpoint(t *testing.T) {
+	t.Parallel()
+
+	client, err := NewHTTPClient(
 		http.DefaultClient,
 		"test-token",
-		serverURL,
-		"dbaas-go/test",
-		WithRetry(retryConfig),
+		"",
+	)
+
+	require.Error(t, err)
+	require.Nil(t, client)
+
+	require.ErrorIs(
+		t,
+		err,
+		ErrorEndpointRequired,
 	)
 }
 
@@ -50,7 +96,7 @@ func TestDo_GET(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := newTransport(server.URL)
+	client := newTransport(t, server.URL)
 
 	var resp struct {
 		ID   string `json:"id"`
@@ -94,7 +140,7 @@ func TestDo_POSTBody(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := newTransport(server.URL)
+	client := newTransport(t, server.URL)
 
 	req := struct {
 		Name string `json:"name"`
@@ -132,7 +178,7 @@ func TestDo_Headers(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := newTransport(server.URL)
+	client := newTransport(t, server.URL)
 
 	err := client.Do(
 		context.Background(),
@@ -145,7 +191,7 @@ func TestDo_Headers(t *testing.T) {
 	require.NoError(t, err)
 
 	require.Equal(t, "test-token", token)
-	require.Equal(t, "dbaas-go/test", userAgent)
+	require.Equal(t, version.UserAgent, userAgent)
 }
 
 func TestDo_APIError(t *testing.T) {
@@ -162,7 +208,7 @@ func TestDo_APIError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := newTransport(server.URL)
+	client := newTransport(t, server.URL)
 
 	err := client.Do(
 		context.Background(),
@@ -196,7 +242,7 @@ func TestDo_NoRetry(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := newTransport(server.URL)
+	client := newTransport(t, server.URL)
 
 	var result any
 
@@ -246,6 +292,7 @@ func TestDo_Retry503(t *testing.T) {
 	defer server.Close()
 
 	client := newTransportWithRetry(
+		t,
 		server.URL,
 		RetryConfig{MaxRetries: 3, InitialBackoff: 500 * time.Millisecond},
 	)
