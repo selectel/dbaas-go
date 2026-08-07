@@ -46,6 +46,9 @@ linters-settings:
     scope: declarations
   goimports:
     local-prefixes: github.com/selectel/dbaas-go
+  gci:
+    local-prefixes: github.com/selectel/dbaas-go
+    skip-generated: true
   gomoddirectives:
     replace-local: true
     retract-allow-no-explanation: false
