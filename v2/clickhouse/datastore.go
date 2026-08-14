@@ -61,24 +61,24 @@ func (r DatastoreCreateRequest) validate() error {
 	}
 
 	if r.Password == "" {
-		return errors.New("password is required") //nolint:goerr113 // Dynamic error
+		return errors.New("datastore.password is required") //nolint:goerr113 // Dynamic error
 	}
 
 	if err := uuid.Validate(r.TypeID); err != nil {
-		return fmt.Errorf("type_id must be a valid UUID: %w", err)
+		return fmt.Errorf("datastore.type_id must be a valid UUID: %w", err)
 	}
 
 	if err := uuid.Validate(r.SubnetID); err != nil {
-		return fmt.Errorf("subnet_id must be a valid UUID: %w", err)
+		return fmt.Errorf("datastore.subnet_id must be a valid UUID: %w", err)
 	}
 
 	if len(r.NodeGroups) == 0 {
-		return errors.New("at least one node_group is required") //nolint:goerr113 // Dynamic error
+		return errors.New("datastore.node_groups must be at least one") //nolint:goerr113 // Dynamic error
 	}
 
 	for i, group := range r.NodeGroups {
 		if err := group.validate(); err != nil {
-			return fmt.Errorf("groups[%d]: %w", i, err)
+			return fmt.Errorf("node_groups[%d]: %w", i, err)
 		}
 	}
 

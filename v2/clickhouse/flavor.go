@@ -35,7 +35,7 @@ func (f FlavorForNodeGroupCreate) validate() error {
 	switch f.Type {
 	case common.FlavorTypeFIXED:
 		if err := uuid.Validate(f.ID); err != nil {
-			return fmt.Errorf("validate flavor id: %w", err)
+			return fmt.Errorf("flavor.id must be a valid UUID for FIXED flavor: %w", err)
 		}
 
 	case common.FlavorTypeFlexible:
@@ -56,7 +56,7 @@ func (f FlavorForNodeGroupCreate) validate() error {
 		}
 
 	default:
-		return fmt.Errorf("unsupported flavor type %q", f.Type)
+		return fmt.Errorf("%w: %q", common.ErrUnsupportedFlavorType, f.Type)
 	}
 
 	// API requires DiskType for bouth types.
