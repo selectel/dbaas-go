@@ -55,30 +55,20 @@ func (n NodeGroupCreateRequest) validate() error {
 		return errors.New("node_group.name is required") //nolint:goerr113 // Dynamic error
 	}
 
-	if err := n.validateRole(); err != nil {
-		return err
+	if n.Role != NodeGroupRoleData && n.Role != NodeGroupRoleKeeper {
+		return errors.New("node_group.role must be DATA or KEEPER") //nolint:goerr113 // Dynamic error
 	}
 
 	if err := n.Flavor.validate(); err != nil {
-		return fmt.Errorf("node_group flavor: %w", err)
+		return fmt.Errorf("node_group.flavor: %w", err)
 	}
 
 	if n.NodeCount <= 0 {
-		return errors.New("node_count must be greater than 0") //nolint:goerr113 // Dynamic error
+		return errors.New("node_group.node_count must be greater than 0") //nolint:goerr113 // Dynamic error
 	}
 
 	if n.Weight != nil && n.Role == NodeGroupRoleKeeper {
-		return errors.New("KEEPER could not have Weight") //nolint:goerr113 // Dynamic error
+		return errors.New("node_group.role KEEPER could not have weight") //nolint:goerr113 // Dynamic error
 	}
 	return nil
-}
-
-func (n NodeGroupCreateRequest) validateRole() error {
-	switch n.Role {
-	case NodeGroupRoleData, NodeGroupRoleKeeper:
-		// valid
-		return nil
-	default:
-		return fmt.Errorf("unsupported group role %q", n.Role)
-	}
 }
