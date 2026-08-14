@@ -15,7 +15,8 @@ const (
 	InstanceStatusDown     InstanceStatus = "DOWN"
 )
 
-type Instance struct {
+// InstanceResponse is the API response for the clickhouse node group.
+type InstanceResponse struct {
 	ID               string         `json:"id"`
 	IP               string         `json:"ip"`
 	FlavorID         string         `json:"flavor_id"`
