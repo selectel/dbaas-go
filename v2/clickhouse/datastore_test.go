@@ -559,3 +559,42 @@ func TestDatastoreService_DisableLogPlatform_Success(t *testing.T) {
 
 	require.NoError(t, err)
 }
+
+func TestDatastoreService_UpdateDatasoreConfig_Success(t *testing.T) {
+	url := datastoreEndpoint + "/config"
+	config := map[string]any{
+		"param_first":  1,
+		"param_second": "test",
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPut, r.Method)
+		require.Equal(t, url, r.URL.Path)
+
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		var req DatastoreConfigRequest
+		require.NoError(t, json.Unmarshal(body, &req))
+		require.Equal(t, float64(1), req.Config["param_first"])
+		require.Equal(t, "test", req.Config["param_second"])
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Mock response from API
+		_, err = w.Write([]byte(simpleDatastoreResponse))
+		require.NoError(t, err)
+	}))
+	defer server.Close()
+
+	srv := newDatastoreService(t, server.URL)
+
+	req := DatastoreConfigRequest{
+		Config: config,
+	}
+
+	result, err := srv.UpdateDatastoreConfig(context.Background(), dsID, req)
+
+	require.NoError(t, err)
+	require.Equal(t, dsID, result.ID)
+}
