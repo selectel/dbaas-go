@@ -39,6 +39,14 @@ func (s *BaseService) Put(ctx context.Context, path string, body any, resp any) 
 	return nil
 }
 
+func (s *BaseService) Patch(ctx context.Context, path string, body any, resp any) error {
+	err := s.client.Do(ctx, http.MethodPatch, s.rootPath+path, body, resp)
+	if err != nil {
+		return fmt.Errorf("failed to execute PATCH request to %s: %w", path, err)
+	}
+	return nil
+}
+
 func (s *BaseService) Delete(ctx context.Context, path string) error {
 	err := s.client.Do(ctx, http.MethodDelete, s.rootPath+path, nil, nil)
 	if err != nil {

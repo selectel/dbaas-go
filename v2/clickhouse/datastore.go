@@ -85,6 +85,18 @@ func (r DatastoreCreateRequest) validate() error {
 	return nil
 }
 
+// DatastoreUpdateRequest represents options for the datastore Update request.
+type DatastoreUpdateRequest struct {
+	Name string `json:"name"`
+}
+
+func (r DatastoreUpdateRequest) validate() error {
+	if r.Name == "" {
+		return errors.New("datastore.name is required") //nolint:goerr113 // Dynamic error
+	}
+	return nil
+}
+
 // GetDatastoreList returns datastore list from api.
 func (s *DatastoreService) GetDatastoreList(ctx context.Context) (DatastoreListResponse, error) {
 	response := DatastoreListResponse{}
@@ -122,13 +134,35 @@ func (s *DatastoreService) CreateDatastore(
 	response := DatastoreResponse{}
 
 	if err := body.validate(); err != nil {
-		return response, fmt.Errorf("validate datastore: %w", err)
+		return response, fmt.Errorf("validate body: %w", err)
 	}
 
 	err := s.Post(ctx, "", body, &response)
 	if err != nil {
 		//nolint:wrapcheck
 		return response, err
+	}
+
+	return response, nil
+}
+
+// UpdateDatastore updates an existing datastore.
+func (s *DatastoreService) UpdateDatastore(
+	ctx context.Context, datastoreID string, body DatastoreUpdateRequest,
+) (DatastoreResponse, error) {
+	response := DatastoreResponse{}
+
+	if err := uuid.Validate(datastoreID); err != nil {
+		return response, fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	if err := body.validate(); err != nil {
+		return response, fmt.Errorf("validate body: %w", err)
+	}
+
+	err := s.Patch(ctx, "/"+datastoreID, body, &response)
+	if err != nil {
+		return response, err //nolint:wrapcheck
 	}
 
 	return response, nil
