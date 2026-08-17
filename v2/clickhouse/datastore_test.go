@@ -19,6 +19,12 @@ const dsID = "550e8400-e29b-41d4-a716-446655440000"
 
 var datastoreEndpoint = "/v2/datastores/clickhouse/" + dsID //nolint:gochecknoglobals
 
+//nolint:gochecknoglobals
+var simpleDatastoreResponse = `{
+	"id": "550e8400-e29b-41d4-a716-446655440000",
+	"name": "NewNameDS"
+}`
+
 func newDatastoreService(t *testing.T, serverURL string) *DatastoreService {
 	t.Helper()
 
@@ -317,10 +323,7 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 		w.WriteHeader(http.StatusCreated)
 
 		// Mock response from API
-		_, err = w.Write([]byte(`{
-			"id": "123",
-			"name": "Test_cluster"
-		}`))
+		_, err = w.Write([]byte(simpleDatastoreResponse))
 		require.NoError(t, err)
 	}))
 	defer server.Close()
@@ -361,8 +364,8 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 	result, err := srv.CreateDatastore(context.Background(), req)
 
 	require.NoError(t, err)
-	require.Equal(t, "123", result.ID)
-	require.Equal(t, "Test_cluster", result.Name)
+	require.Equal(t, dsID, result.ID)
+	require.Equal(t, "NewNameDS", result.Name)
 }
 
 func TestDatastoreService_CreateDatastore_InvalidRequest(t *testing.T) {
@@ -409,10 +412,7 @@ func TestDatastoreService_UpdateDatastore_Success(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 
 		// Mock response from API
-		_, err = w.Write([]byte(`{
-			"id": "550e8400-e29b-41d4-a716-446655440000",
-			"name": "NewNameDS"
-		}`))
+		_, err = w.Write([]byte(simpleDatastoreResponse))
 		require.NoError(t, err)
 	}))
 	defer server.Close()
@@ -432,7 +432,6 @@ func TestDatastoreService_UpdateDatastore_Success(t *testing.T) {
 
 func TestDatastoreService_UpdateDatastorePassword_Success(t *testing.T) {
 	url := datastoreEndpoint + "/password"
-	newPassword := "secret"
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodPatch, r.Method)
@@ -444,16 +443,13 @@ func TestDatastoreService_UpdateDatastorePassword_Success(t *testing.T) {
 		var req DatastoreUpdatePasswordRequest
 		require.NoError(t, json.Unmarshal(body, &req))
 
-		require.Equal(t, newPassword, req.NewPassword)
+		require.Equal(t, "secret", req.NewPassword)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
 		// Mock response from API
-		_, err = w.Write([]byte(`{
-			"id": "550e8400-e29b-41d4-a716-446655440000",
-			"name": "NewNameDS"
-		}`))
+		_, err = w.Write([]byte(simpleDatastoreResponse))
 		require.NoError(t, err)
 	}))
 	defer server.Close()
@@ -461,7 +457,7 @@ func TestDatastoreService_UpdateDatastorePassword_Success(t *testing.T) {
 	srv := newDatastoreService(t, server.URL)
 
 	req := DatastoreUpdatePasswordRequest{
-		NewPassword: newPassword,
+		NewPassword: "secret",
 	}
 
 	result, err := srv.UpdateDatastorePassword(context.Background(), dsID, req)
@@ -492,10 +488,7 @@ func TestDatastoreService_UpdateDatastoreSecurityGroups_Success(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 
 		// Mock response from API
-		_, err = w.Write([]byte(`{
-			"id": "550e8400-e29b-41d4-a716-446655440000",
-			"name": "NewNameDS"
-		}`))
+		_, err = w.Write([]byte(simpleDatastoreResponse))
 		require.NoError(t, err)
 	}))
 	defer server.Close()
@@ -510,4 +503,59 @@ func TestDatastoreService_UpdateDatastoreSecurityGroups_Success(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, dsID, result.ID)
+}
+
+func TestDatastoreService_EnableLogPlatform_Success(t *testing.T) {
+	url := datastoreEndpoint + "/log-platform"
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPut, r.Method)
+		require.Equal(t, url, r.URL.Path)
+
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		var req DatastoreLogPlatformRequest
+		require.NoError(t, json.Unmarshal(body, &req))
+
+		require.Equal(t, "TestGroup", req.LogPlatform.LogGroup)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Mock response from API
+		_, err = w.Write([]byte(simpleDatastoreResponse))
+		require.NoError(t, err)
+	}))
+	defer server.Close()
+
+	srv := newDatastoreService(t, server.URL)
+
+	req := DatastoreLogPlatformRequest{
+		LogPlatform: DatastoreLogGroup{
+			LogGroup: "TestGroup",
+		},
+	}
+
+	result, err := srv.EnableLogPlatform(context.Background(), dsID, req)
+
+	require.NoError(t, err)
+	require.Equal(t, dsID, result.ID)
+}
+
+func TestDatastoreService_DisableLogPlatform_Success(t *testing.T) {
+	url := datastoreEndpoint + "/log-platform"
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodDelete, r.Method)
+		require.Equal(t, url, r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	srv := newDatastoreService(t, server.URL)
+
+	err := srv.DisableLogPlatform(context.Background(), dsID)
+
+	require.NoError(t, err)
 }
