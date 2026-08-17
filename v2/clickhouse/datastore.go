@@ -92,7 +92,19 @@ type DatastoreUpdateRequest struct {
 
 func (r DatastoreUpdateRequest) validate() error {
 	if r.Name == "" {
-		return errors.New("datastore.name is required") //nolint:goerr113 // Dynamic error
+		return errors.New("name is required") //nolint:goerr113 // Dynamic error
+	}
+	return nil
+}
+
+// DatastoreUpdatePasswordRequest represents options for the datastore Update password request.
+type DatastoreUpdatePasswordRequest struct {
+	NewPassword string `json:"new_password"`
+}
+
+func (r DatastoreUpdatePasswordRequest) validate() error {
+	if r.NewPassword == "" {
+		return errors.New("new_password is required") //nolint:goerr113 // Dynamic error
 	}
 	return nil
 }
@@ -161,6 +173,28 @@ func (s *DatastoreService) UpdateDatastore(
 	}
 
 	err := s.Patch(ctx, "/"+datastoreID, body, &response)
+	if err != nil {
+		return response, err //nolint:wrapcheck
+	}
+
+	return response, nil
+}
+
+// UpdateDatastorePassword updates a password of the existing datastore.
+func (s *DatastoreService) UpdateDatastorePassword(
+	ctx context.Context, datastoreID string, body DatastoreUpdatePasswordRequest,
+) (DatastoreResponse, error) {
+	response := DatastoreResponse{}
+
+	if err := uuid.Validate(datastoreID); err != nil {
+		return response, fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	if err := body.validate(); err != nil {
+		return response, fmt.Errorf("validate body: %w", err)
+	}
+
+	err := s.Patch(ctx, "/"+datastoreID+"/password", body, &response)
 	if err != nil {
 		return response, err //nolint:wrapcheck
 	}
