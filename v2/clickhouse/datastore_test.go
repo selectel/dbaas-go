@@ -598,3 +598,18 @@ func TestDatastoreService_UpdateDatasoreConfig_Success(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, dsID, result.ID)
 }
+
+func TestDatastoreService_DeleteDatastore_Success(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodDelete, r.Method)
+		require.Equal(t, datastoreEndpoint, r.URL.Path)
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	srv := newDatastoreService(t, server.URL)
+
+	err := srv.DeleteDatastore(context.Background(), dsID)
+
+	require.NoError(t, err)
+}
