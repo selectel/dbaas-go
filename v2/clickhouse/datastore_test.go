@@ -35,6 +35,25 @@ func newDatastoreService(t *testing.T, serverURL string) *DatastoreService {
 	}
 }
 
+type mockClient struct{}
+
+func (m mockClient) Do(ctx context.Context, method, path string, body, result any) error {
+	return nil
+}
+
+func newDastastoreServiceWithMockClient() *DatastoreService {
+	mockClient := mockClient{}
+
+	engine := internal.NewEngineService(
+		mockClient,
+		common.EngineClickHouse,
+	)
+
+	return &DatastoreService{
+		EngineService: engine,
+	}
+}
+
 const testDatastoresResponse = `{
 	"datastores": [
 		{
@@ -342,6 +361,31 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 	require.Equal(t, "Test_cluster", result.Name)
 }
 
+func TestDatastoreService_CreateDatastore_InvalidRequest(t *testing.T) {
+	srv := newDastastoreServiceWithMockClient()
+	req := DatastoreCreateRequest{
+		Name:     "Test_cluster",
+		Password: "pass123",
+		TypeID:   "000e0000-e29b-41d4-a716-446655000000",
+		SubnetID: "00000000-e29b-41d4-a716-446655000000",
+		NodeGroups: []NodeGroupCreateRequest{
+			{
+				Name: "shard1",
+				Role: "DATA",
+				Flavor: FlavorForNodeGroupCreate{
+					Type: "FIXED",
+					ID:   "550e8400-e29b-41d4-a716-446655440000",
+				},
+			},
+		},
+	}
+
+	result, err := srv.CreateDatastore(context.Background(), req)
+	require.Error(t, err)
+	require.Equal(t, "validate datastore: node_groups[0]: node_group.node_count must be greater than 0", err.Error())
+	require.Equal(t, DatastoreResponse{}, result)
+}
+
 func TestDatastoreCreateRequest_validate(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -370,7 +414,7 @@ func TestDatastoreCreateRequest_validate(t *testing.T) {
 				Password: "1234",
 			},
 			wantErr: true,
-			errMsg:  "atastore.type_id must be a valid UUID",
+			errMsg:  "datastore.type_id must be a valid UUID",
 		},
 		{
 			name: "datastore without subnet_id",

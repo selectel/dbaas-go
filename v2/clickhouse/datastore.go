@@ -85,48 +85,6 @@ func (r DatastoreCreateRequest) validate() error {
 	return nil
 }
 
-// {
-// 	"config": {
-// 	  "simple_parameter": 1
-// 	},
-// 	"log_platform": {
-// 	  "log_group": "s/dbaas/Logs"
-// 	},
-// 	"name": "Johnny_Cage",
-// 	"node_groups": [
-// 	  {
-// 		"flavor": {
-// 		  "disk": 256,
-// 		  "disk_type": "LOCAL",
-// 		  "ram": 4096,
-// 		  "type": "FLEXIBLE",
-// 		  "vcpus": 4
-// 		},
-// 		"name": "My pretty keeper group",
-// 		"role": "KEEPER"
-// 	  },
-// 	  {
-// 		"flavor": {
-// 		  "disk_type": "LOCAL",
-// 		  "id": "e62d8ce9-58ec-4330-912a-7aa4b62b7b35",
-// 		  "type": "FIXED"
-// 		},
-// 		"has_public_ips": false,
-// 		"name": "My pretty data group",
-// 		"node_count": 1,
-// 		"role": "DATA",
-// 		"weight": 100
-// 	  }
-// 	],
-// 	"password": "Adm!n123",
-// 	"security_groups": [
-// 	  "cdb6331d-1967-4434-9263-7be18941c698",
-// 	  "dd1dce88-8662-4685-99b7-8c9b4fe14a7e"
-// 	],
-// 	"subnet_id": "4e5588d8-53aa-4057-8a3f-e6c25b06bfba",
-// 	"type_id": "275293b2-7b82-49cc-8e56-0278562b08ac"
-//   }
-
 // GetDatastoreList returns datastore list from api.
 func (s *DatastoreService) GetDatastoreList(ctx context.Context) (DatastoreListResponse, error) {
 	response := DatastoreListResponse{}
