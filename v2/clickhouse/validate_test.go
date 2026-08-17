@@ -167,3 +167,24 @@ func TestDatastoreLogPlatformRequest_validate(t *testing.T) {
 
 	checkValidationTests(t, tests)
 }
+
+func TestDatastoreConfigRequest_validate(t *testing.T) {
+	tests := []validationTest{
+		{
+			name:   "body without config",
+			body:   DatastoreConfigRequest{},
+			errMsg: "config is required",
+		},
+		{
+			name: "body with config",
+			body: DatastoreConfigRequest{
+				Config: map[string]any{
+					"param_first":  1,
+					"param_second": "test",
+				},
+			},
+		},
+	}
+
+	checkValidationTests(t, tests)
+}

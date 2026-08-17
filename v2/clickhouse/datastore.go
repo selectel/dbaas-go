@@ -125,7 +125,7 @@ func (r DatastoreSecurityGroupsRequest) validate() error {
 	return nil
 }
 
-// LogPlatformOpts represents enable options to update a datastore log platform.
+// DatastoreLogPlatformRequest represents enable options to update a datastore log platform.
 type DatastoreLogPlatformRequest struct {
 	LogPlatform DatastoreLogGroup `json:"log_platform"`
 }
@@ -133,6 +133,18 @@ type DatastoreLogPlatformRequest struct {
 func (r DatastoreLogPlatformRequest) validate() error {
 	if r.LogPlatform.LogGroup == "" {
 		return errors.New("log_platform.log_group is required") //nolint:goerr113 // Dynamic error
+	}
+	return nil
+}
+
+// DatastoreConfigRequest represents options for the datastore's configuration parameters Update request.
+type DatastoreConfigRequest struct {
+	Config map[string]any `json:"config"`
+}
+
+func (r DatastoreConfigRequest) validate() error {
+	if r.Config == nil {
+		return errors.New("config is required") //nolint:goerr113 // Dynamic error
 	}
 	return nil
 }
@@ -286,4 +298,26 @@ func (s *DatastoreService) DisableLogPlatform(ctx context.Context, datastoreID s
 	}
 
 	return nil
+}
+
+// UpdateDatastoreConfig updates a config of the existing datastore.
+func (s *DatastoreService) UpdateDatastoreConfig(
+	ctx context.Context, datastoreID string, body DatastoreConfigRequest,
+) (DatastoreResponse, error) {
+	response := DatastoreResponse{}
+
+	if err := uuid.Validate(datastoreID); err != nil {
+		return response, fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	if err := body.validate(); err != nil {
+		return response, fmt.Errorf("validate body: %w", err)
+	}
+
+	err := s.Put(ctx, "/"+datastoreID+"/config", body, &response)
+	if err != nil {
+		return response, err //nolint:wrapcheck
+	}
+
+	return response, nil
 }
