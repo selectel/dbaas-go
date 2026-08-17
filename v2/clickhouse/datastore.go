@@ -321,3 +321,17 @@ func (s *DatastoreService) UpdateDatastoreConfig(
 
 	return response, nil
 }
+
+// DeleteDatastore deletes a datastore by ID.
+func (s *DatastoreService) DeleteDatastore(ctx context.Context, datastoreID string) error {
+	if err := uuid.Validate(datastoreID); err != nil {
+		return fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	err := s.Delete(ctx, "/"+datastoreID)
+	if err != nil {
+		return err //nolint:wrapcheck
+	}
+
+	return nil
+}
