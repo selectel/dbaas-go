@@ -382,7 +382,7 @@ func TestDatastoreService_CreateDatastore_InvalidRequest(t *testing.T) {
 
 	result, err := srv.CreateDatastore(context.Background(), req)
 	require.Error(t, err)
-	require.Equal(t, "validate datastore: node_groups[0]: node_group.node_count must be greater than 0", err.Error())
+	require.Equal(t, "validate body: node_groups[0]: node_group.node_count must be greater than 0", err.Error())
 	require.Equal(t, DatastoreResponse{}, result)
 }
 
@@ -450,6 +450,81 @@ func TestDatastoreCreateRequest_validate(t *testing.T) {
 			},
 			wantErr: true,
 			errMsg:  "node_groups[0]: node_group.name is required",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.datastore.validate()
+
+			if tt.wantErr {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tt.errMsg)
+				return
+			}
+
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestDatastoreService_UpdateDatastore_Success(t *testing.T) {
+	dsID := "550e8400-e29b-41d4-a716-446655440000"
+	url := "/v2/datastores/clickhouse/" + dsID
+	newName := "NewNameDS"
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPatch, r.Method)
+		require.Equal(t, url, r.URL.Path)
+
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		var req DatastoreUpdateRequest
+		require.NoError(t, json.Unmarshal(body, &req))
+
+		require.Equal(t, newName, req.Name)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Mock response from API
+		_, err = w.Write([]byte(`{
+			"id": "550e8400-e29b-41d4-a716-446655440000",
+			"name": "NewNameDS"
+		}`))
+		require.NoError(t, err)
+	}))
+	defer server.Close()
+
+	srv := newDatastoreService(t, server.URL)
+
+	req := DatastoreUpdateRequest{
+		Name: newName,
+	}
+
+	result, err := srv.UpdateDatastore(context.Background(), dsID, req)
+
+	require.NoError(t, err)
+	require.Equal(t, dsID, result.ID)
+	require.Equal(t, newName, result.Name)
+}
+
+func TestDatastoreUpdateRequest_validate(t *testing.T) {
+	tests := []struct {
+		name      string
+		errMsg    string
+		datastore DatastoreUpdateRequest
+		wantErr   bool
+	}{
+		{
+			name:      "datastore without name",
+			datastore: DatastoreUpdateRequest{},
+			wantErr:   true,
+			errMsg:    "datastore.name is required",
+		},
+		{
+			name:      "datastore with name",
+			datastore: DatastoreUpdateRequest{Name: "Test"},
 		},
 	}
 	for _, tt := range tests {
