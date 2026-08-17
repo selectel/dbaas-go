@@ -147,3 +147,23 @@ func TestDatastoreSecurityGroupsRequest_validate(t *testing.T) {
 
 	checkValidationTests(t, tests)
 }
+
+func TestDatastoreLogPlatformRequest_validate(t *testing.T) {
+	tests := []validationTest{
+		{
+			name:   "body without log_group",
+			body:   DatastoreLogPlatformRequest{},
+			errMsg: "log_platform.log_group is required",
+		},
+		{
+			name: "body with log_group",
+			body: DatastoreLogPlatformRequest{
+				LogPlatform: DatastoreLogGroup{
+					LogGroup: "TestGroup",
+				},
+			},
+		},
+	}
+
+	checkValidationTests(t, tests)
+}

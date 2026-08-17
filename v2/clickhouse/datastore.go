@@ -125,6 +125,18 @@ func (r DatastoreSecurityGroupsRequest) validate() error {
 	return nil
 }
 
+// LogPlatformOpts represents enable options to update a datastore log platform.
+type DatastoreLogPlatformRequest struct {
+	LogPlatform DatastoreLogGroup `json:"log_platform"`
+}
+
+func (r DatastoreLogPlatformRequest) validate() error {
+	if r.LogPlatform.LogGroup == "" {
+		return errors.New("log_platform.log_group is required") //nolint:goerr113 // Dynamic error
+	}
+	return nil
+}
+
 // GetDatastoreList returns datastore list from api.
 func (s *DatastoreService) GetDatastoreList(ctx context.Context) (DatastoreListResponse, error) {
 	response := DatastoreListResponse{}
@@ -238,4 +250,40 @@ func (s *DatastoreService) UpdateDatastoreSecurityGroups(
 	}
 
 	return response, nil
+}
+
+// EnableLogPlatform updates a log platform params of the existing datastore.
+func (s *DatastoreService) EnableLogPlatform(
+	ctx context.Context, datastoreID string, body DatastoreLogPlatformRequest,
+) (DatastoreResponse, error) {
+	response := DatastoreResponse{}
+
+	if err := uuid.Validate(datastoreID); err != nil {
+		return response, fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	if err := body.validate(); err != nil {
+		return response, fmt.Errorf("validate body: %w", err)
+	}
+
+	err := s.Put(ctx, "/"+datastoreID+"/log-platform", body, &response) //nolint:goconst
+	if err != nil {
+		return response, err //nolint:wrapcheck
+	}
+
+	return response, nil
+}
+
+// DisableLogPlatform updates a log platform params of the existing datastore.
+func (s *DatastoreService) DisableLogPlatform(ctx context.Context, datastoreID string) error {
+	if err := uuid.Validate(datastoreID); err != nil {
+		return fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	err := s.Delete(ctx, "/"+datastoreID+"/log-platform")
+	if err != nil {
+		return err //nolint:wrapcheck
+	}
+
+	return nil
 }
