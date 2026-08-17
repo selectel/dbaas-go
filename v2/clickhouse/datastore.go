@@ -109,6 +109,22 @@ func (r DatastoreUpdatePasswordRequest) validate() error {
 	return nil
 }
 
+// DatastoreSecurityGroupRequest represents update options for the Datastore security groups.
+type DatastoreSecurityGroupsRequest struct {
+	SecurityGroups []string `json:"security_groups"`
+}
+
+func (r DatastoreSecurityGroupsRequest) validate() error {
+	// add check min length 1 ?
+
+	for i, sgID := range r.SecurityGroups {
+		if err := uuid.Validate(sgID); err != nil {
+			return fmt.Errorf("security_groups[%d]: %w", i, err)
+		}
+	}
+	return nil
+}
+
 // GetDatastoreList returns datastore list from api.
 func (s *DatastoreService) GetDatastoreList(ctx context.Context) (DatastoreListResponse, error) {
 	response := DatastoreListResponse{}
@@ -195,6 +211,28 @@ func (s *DatastoreService) UpdateDatastorePassword(
 	}
 
 	err := s.Patch(ctx, "/"+datastoreID+"/password", body, &response)
+	if err != nil {
+		return response, err //nolint:wrapcheck
+	}
+
+	return response, nil
+}
+
+// UpdateDatastoreSecurityGroups updates a security groups of the existing datastore.
+func (s *DatastoreService) UpdateDatastoreSecurityGroups(
+	ctx context.Context, datastoreID string, body DatastoreSecurityGroupsRequest,
+) (DatastoreResponse, error) {
+	response := DatastoreResponse{}
+
+	if err := uuid.Validate(datastoreID); err != nil {
+		return response, fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	if err := body.validate(); err != nil {
+		return response, fmt.Errorf("validate body: %w", err)
+	}
+
+	err := s.Put(ctx, "/"+datastoreID+"/security-groups", body, &response)
 	if err != nil {
 		return response, err //nolint:wrapcheck
 	}

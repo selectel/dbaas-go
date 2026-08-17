@@ -15,6 +15,10 @@ import (
 	"github.com/selectel/dbaas-go/v2/internal"
 )
 
+const dsID = "550e8400-e29b-41d4-a716-446655440000"
+
+var datastoreEndpoint = "/v2/datastores/clickhouse/" + dsID //nolint:gochecknoglobals
+
 func newDatastoreService(t *testing.T, serverURL string) *DatastoreService {
 	t.Helper()
 
@@ -387,13 +391,11 @@ func TestDatastoreService_CreateDatastore_InvalidRequest(t *testing.T) {
 }
 
 func TestDatastoreService_UpdateDatastore_Success(t *testing.T) {
-	dsID := "550e8400-e29b-41d4-a716-446655440000"
-	url := "/v2/datastores/clickhouse/" + dsID
 	newName := "NewNameDS"
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodPatch, r.Method)
-		require.Equal(t, url, r.URL.Path)
+		require.Equal(t, datastoreEndpoint, r.URL.Path)
 
 		body, err := io.ReadAll(r.Body)
 		require.NoError(t, err)
@@ -429,8 +431,7 @@ func TestDatastoreService_UpdateDatastore_Success(t *testing.T) {
 }
 
 func TestDatastoreService_UpdateDatastorePassword_Success(t *testing.T) {
-	dsID := "550e8400-e29b-41d4-a716-446655440000"
-	url := "/v2/datastores/clickhouse/" + dsID + "/password"
+	url := datastoreEndpoint + "/password"
 	newPassword := "secret"
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -464,6 +465,48 @@ func TestDatastoreService_UpdateDatastorePassword_Success(t *testing.T) {
 	}
 
 	result, err := srv.UpdateDatastorePassword(context.Background(), dsID, req)
+
+	require.NoError(t, err)
+	require.Equal(t, dsID, result.ID)
+}
+
+func TestDatastoreService_UpdateDatastoreSecurityGroups_Success(t *testing.T) {
+	url := datastoreEndpoint + "/security-groups"
+	sGroups := []string{
+		"550e8400-e29b-41d4-a716-446655440002",
+		"550e8400-e29b-41d4-a716-446655440001",
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPut, r.Method)
+		require.Equal(t, url, r.URL.Path)
+
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		var req DatastoreSecurityGroupsRequest
+		require.NoError(t, json.Unmarshal(body, &req))
+
+		require.Equal(t, sGroups, req.SecurityGroups)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Mock response from API
+		_, err = w.Write([]byte(`{
+			"id": "550e8400-e29b-41d4-a716-446655440000",
+			"name": "NewNameDS"
+		}`))
+		require.NoError(t, err)
+	}))
+	defer server.Close()
+
+	srv := newDatastoreService(t, server.URL)
+
+	req := DatastoreSecurityGroupsRequest{
+		SecurityGroups: sGroups,
+	}
+
+	result, err := srv.UpdateDatastoreSecurityGroups(context.Background(), dsID, req)
 
 	require.NoError(t, err)
 	require.Equal(t, dsID, result.ID)

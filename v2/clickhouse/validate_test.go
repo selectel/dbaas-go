@@ -95,12 +95,12 @@ func TestDatastoreCreateRequest_validate(t *testing.T) {
 func TestDatastoreUpdateRequest_validate(t *testing.T) {
 	tests := []validationTest{
 		{
-			name:   "datastore without name",
+			name:   "body without name",
 			body:   DatastoreUpdateRequest{},
 			errMsg: "name is required",
 		},
 		{
-			name: "datastore with name",
+			name: "body with name",
 			body: DatastoreUpdateRequest{Name: "Test"},
 		},
 	}
@@ -111,13 +111,37 @@ func TestDatastoreUpdateRequest_validate(t *testing.T) {
 func TestDatastoreUpdatePasswordRequest_validate(t *testing.T) {
 	tests := []validationTest{
 		{
-			name:   "datastore without new password",
+			name:   "body without new password",
 			body:   DatastoreUpdatePasswordRequest{},
 			errMsg: "password is required",
 		},
 		{
-			name: "datastore with name",
+			name: "body with name",
 			body: DatastoreUpdatePasswordRequest{NewPassword: "Test"},
+		},
+	}
+
+	checkValidationTests(t, tests)
+}
+
+func TestDatastoreSecurityGroupsRequest_validate(t *testing.T) {
+	tests := []validationTest{
+		{
+			name: "body without security groups",
+			body: DatastoreSecurityGroupsRequest{},
+		},
+		{
+			name: "body with security groups",
+			body: DatastoreSecurityGroupsRequest{
+				SecurityGroups: []string{
+					"550e8400-e29b-41d4-a716-446655440000",
+				},
+			},
+		},
+		{
+			name:   "body with invalid ids",
+			body:   DatastoreSecurityGroupsRequest{SecurityGroups: []string{"Test"}},
+			errMsg: "security_groups[0]: invalid UUID length",
 		},
 	}
 
