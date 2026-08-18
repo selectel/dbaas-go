@@ -8,16 +8,16 @@ import (
 	"github.com/selectel/dbaas-go/v2/common"
 )
 
-func TestFlavorForNodeGroupCreate_validate(t *testing.T) {
+func TestFlavorForNodeGroupRequest_validate(t *testing.T) {
 	tests := []struct {
 		name    string
 		errMsg  string
-		flavor  FlavorForNodeGroupCreate
+		flavor  FlavorForNodeGroupRequest
 		wantErr bool
 	}{
 		{
 			name: "fixed with valid id",
-			flavor: FlavorForNodeGroupCreate{
+			flavor: FlavorForNodeGroupRequest{
 				Type: "FIXED",
 				ID:   "550e8400-e29b-41d4-a716-446655440000",
 			},
@@ -25,7 +25,7 @@ func TestFlavorForNodeGroupCreate_validate(t *testing.T) {
 		},
 		{
 			name: "fixed without id",
-			flavor: FlavorForNodeGroupCreate{
+			flavor: FlavorForNodeGroupRequest{
 				Type: "FIXED",
 			},
 			wantErr: true,
@@ -33,7 +33,7 @@ func TestFlavorForNodeGroupCreate_validate(t *testing.T) {
 		},
 		{
 			name: "fixed with invalid id",
-			flavor: FlavorForNodeGroupCreate{
+			flavor: FlavorForNodeGroupRequest{
 				Type: "FIXED",
 				ID:   "invalid",
 			},
@@ -42,7 +42,7 @@ func TestFlavorForNodeGroupCreate_validate(t *testing.T) {
 		},
 		{
 			name: "flexible without id",
-			flavor: FlavorForNodeGroupCreate{
+			flavor: FlavorForNodeGroupRequest{
 				Type:     "FLEXIBLE",
 				DiskType: common.FlavorDiskNetworkUltra,
 				Disk:     10,
@@ -53,7 +53,7 @@ func TestFlavorForNodeGroupCreate_validate(t *testing.T) {
 		},
 		{
 			name: "flexible without disk",
-			flavor: FlavorForNodeGroupCreate{
+			flavor: FlavorForNodeGroupRequest{
 				Type:     "FLEXIBLE",
 				DiskType: common.FlavorDiskNetworkUltra,
 				RAM:      5,
@@ -64,7 +64,7 @@ func TestFlavorForNodeGroupCreate_validate(t *testing.T) {
 		},
 		{
 			name: "flexible without ram",
-			flavor: FlavorForNodeGroupCreate{
+			flavor: FlavorForNodeGroupRequest{
 				Type:     "FLEXIBLE",
 				DiskType: common.FlavorDiskNetworkUltra,
 				Disk:     5,
@@ -75,7 +75,7 @@ func TestFlavorForNodeGroupCreate_validate(t *testing.T) {
 		},
 		{
 			name: "flexible without vcpus",
-			flavor: FlavorForNodeGroupCreate{
+			flavor: FlavorForNodeGroupRequest{
 				Type:     "FLEXIBLE",
 				DiskType: common.FlavorDiskNetworkUltra,
 				Disk:     5,
@@ -86,7 +86,7 @@ func TestFlavorForNodeGroupCreate_validate(t *testing.T) {
 		},
 		{
 			name: "flexible with id",
-			flavor: FlavorForNodeGroupCreate{
+			flavor: FlavorForNodeGroupRequest{
 				Type: "FLEXIBLE",
 				ID:   "550e8400-e29b-41d4-a716-446655440000",
 			},

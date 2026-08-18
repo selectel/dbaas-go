@@ -21,8 +21,8 @@ type FlavorResponse struct {
 	// "subtype": "STANDARD"
 }
 
-// FlavorForNodeGroupCreate is body to create NodeGroup.
-type FlavorForNodeGroupCreate struct {
+// FlavorForNodeGroupRequest is body to create, resize NodeGroup.
+type FlavorForNodeGroupRequest struct {
 	ID       string                `json:"id,omitempty"`
 	DiskType common.FlavorDiskType `json:"disk_type"`
 	Type     common.FlavorType     `json:"type"`
@@ -31,7 +31,7 @@ type FlavorForNodeGroupCreate struct {
 	VCPUs    int                   `json:"vcpus,omitempty"`
 }
 
-func (f FlavorForNodeGroupCreate) validate() error {
+func (f FlavorForNodeGroupRequest) validate() error {
 	switch f.Type {
 	case common.FlavorTypeFIXED:
 		if err := uuid.Validate(f.ID); err != nil {

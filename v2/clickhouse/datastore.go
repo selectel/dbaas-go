@@ -278,7 +278,7 @@ func (s *DatastoreService) EnableLogPlatform(
 		return response, fmt.Errorf("validate body: %w", err)
 	}
 
-	err := s.Put(ctx, s.DatastorePath(datastoreID, "log-platform"), body, &response) 
+	err := s.Put(ctx, s.DatastorePath(datastoreID, "log-platform"), body, &response)
 	if err != nil {
 		return response, err //nolint:wrapcheck
 	}

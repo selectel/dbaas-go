@@ -340,7 +340,7 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 				Name:      "shard1",
 				Role:      "DATA",
 				NodeCount: 1,
-				Flavor: FlavorForNodeGroupCreate{
+				Flavor: FlavorForNodeGroupRequest{
 					Type: "FIXED",
 					ID:   "550e8400-e29b-41d4-a716-446655440000",
 					// API requires DiskType filed.
@@ -350,7 +350,7 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 				Name:      "Keepers",
 				Role:      "KEEPER",
 				NodeCount: 3,
-				Flavor: FlavorForNodeGroupCreate{
+				Flavor: FlavorForNodeGroupRequest{
 					Type:     "FLEXIBLE",
 					DiskType: "NETWORK-ULTRA",
 					RAM:      4096,
@@ -379,7 +379,7 @@ func TestDatastoreService_CreateDatastore_InvalidRequest(t *testing.T) {
 			{
 				Name: "shard1",
 				Role: "DATA",
-				Flavor: FlavorForNodeGroupCreate{
+				Flavor: FlavorForNodeGroupRequest{
 					Type: "FIXED",
 					ID:   "550e8400-e29b-41d4-a716-446655440000",
 				},
