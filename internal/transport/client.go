@@ -171,8 +171,7 @@ func wait(ctx context.Context, delay time.Duration) error {
 
 	select {
 	case <-ctx.Done():
-		//nolint:wrapcheck
-		return ctx.Err()
+		return ctx.Err() //nolint:wrapcheck
 
 	case <-timer.C:
 		return nil

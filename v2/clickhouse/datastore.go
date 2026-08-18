@@ -154,8 +154,7 @@ func (s *DatastoreService) GetDatastoreList(ctx context.Context) (DatastoreListR
 
 	err := s.Get(ctx, "", &response)
 	if err != nil {
-		//nolint:wrapcheck
-		return response, err
+		return response, err //nolint:wrapcheck
 	}
 
 	return response, nil
@@ -171,8 +170,7 @@ func (s *DatastoreService) GetDatastore(ctx context.Context, datastoreID string)
 
 	err := s.Get(ctx, s.DatastorePath(datastoreID), &response)
 	if err != nil {
-		//nolint:wrapcheck
-		return response, err
+		return response, err //nolint:wrapcheck
 	}
 
 	return response, nil
@@ -190,8 +188,7 @@ func (s *DatastoreService) CreateDatastore(
 
 	err := s.Post(ctx, "", body, &response)
 	if err != nil {
-		//nolint:wrapcheck
-		return response, err
+		return response, err //nolint:wrapcheck
 	}
 
 	return response, nil
