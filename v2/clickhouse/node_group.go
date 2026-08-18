@@ -124,7 +124,7 @@ func (r NodeGroupUpdateWeightRequest) validate() error {
 	return nil
 }
 
-// NodeGroupUpdateShardGroupRequest is the request body to update a node group by shard goups.
+// NodeGroupUpdateShardGroupRequest is the request body to update shard goups for a node group.
 type NodeGroupUpdateShardGroupsRequest struct {
 	ShardGroups []string `json:"shard_groups"`
 }
@@ -139,6 +139,11 @@ func (r NodeGroupUpdateShardGroupsRequest) validate() error {
 		}
 	}
 	return nil
+}
+
+// NodeGroupUpdateFloatingIPs is the request body to update public ips for a node group.
+type NodeGroupUpdateFloatingIPsRequest struct {
+	HasPublicIPs bool `json:"has_public_ips"`
 }
 
 // DatastoreService is service to interact with clickhouse datastore resource.
@@ -283,6 +288,27 @@ func (s *NodeGroupService) UpdateNodeGroupShardGroups(
 	}
 
 	err := s.Patch(ctx, s.nodeGroupsPath(datastoreID, nodeGroupID, "shard-groups"), body, &response)
+	if err != nil {
+		return response, err //nolint:wrapcheck
+	}
+
+	return response, nil
+}
+
+func (s *NodeGroupService) UpdateNodeGroupFloatingIPs(
+	ctx context.Context, datastoreID, nodeGroupID string, body NodeGroupUpdateFloatingIPsRequest,
+) (NodeGroupResponse, error) {
+	response := NodeGroupResponse{}
+
+	if err := uuid.Validate(datastoreID); err != nil {
+		return response, fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	if err := uuid.Validate(nodeGroupID); err != nil {
+		return response, fmt.Errorf("validate node group id: %w", err)
+	}
+
+	err := s.Patch(ctx, s.nodeGroupsPath(datastoreID, nodeGroupID, "floating_ips"), body, &response)
 	if err != nil {
 		return response, err //nolint:wrapcheck
 	}
