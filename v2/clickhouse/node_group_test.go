@@ -55,7 +55,7 @@ func newNodeGroupServiceWithMockClient() *NodegroupService {
 func TestNodeGroupService_CreateNodeGroup_Success(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodPost, r.Method)
-		require.Equal(t, "/v2/datastores/clickhouse/"+dsID+"/node_groups", r.URL.Path)
+		require.Equal(t, datastoreEndpoint+"/node_groups", r.URL.Path)
 
 		body, err := io.ReadAll(r.Body)
 		require.NoError(t, err)
@@ -81,7 +81,7 @@ func TestNodeGroupService_CreateNodeGroup_Success(t *testing.T) {
 		Name:      "shard1",
 		Role:      "DATA",
 		NodeCount: 1,
-		Flavor: FlavorForNodeGroupCreate{
+		Flavor: FlavorForNodeGroupRequest{
 			Type: "FIXED",
 			ID:   "550e8400-e29b-41d4-a716-446655440000",
 			// API requires DiskType filed.
@@ -93,6 +93,25 @@ func TestNodeGroupService_CreateNodeGroup_Success(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, ngID, result.ID)
 	require.Equal(t, "NewNameNG", result.Name)
+}
+
+func TestNodeGroupService_CreateNodeGroup_InvalidRequest(t *testing.T) {
+	srv := newNodeGroupServiceWithMockClient()
+	body := NodeGroupCreateRequest{
+		Name:      "shard1",
+		Role:      "DATA",
+		NodeCount: 1,
+		Flavor: FlavorForNodeGroupRequest{
+			Type: "FLEXIBLE",
+			ID:   "550e8400-e29b-41d4-a716-446655440000",
+			// API requires DiskType filed.
+		},
+	}
+	_, err := srv.CreateNodeGroup(context.Background(), dsID, body)
+	require.Error(t, err)
+	require.Equal(
+		t, "validate body: node_group.flavor: flavor.id must not be specified for FLEXIBLE flavor", err.Error(),
+	)
 }
 
 func TestNodeGroupService_DeleteNodeGroup_Success(t *testing.T) {
@@ -121,4 +140,53 @@ func TestNodeGroupService_DeleteNodeGroup_InvalidRequest(t *testing.T) {
 	err := srv.DeleteNodeGroup(context.Background(), dsID, "ngid")
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "validate node group id:")
+}
+
+func TestNodeGroupService_ResizeNodeGroup_Success(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPatch, r.Method)
+		require.Equal(t, datastoreEndpoint+"/node_groups/"+ngID+"/resize", r.URL.Path)
+
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		var req NodeGroupResizeRequest
+		require.NoError(t, json.Unmarshal(body, &req))
+
+		require.Equal(t, 1, req.NodeCount)
+		require.Equal(t, "550e8400-e29b-41d4-a716-446655440000", req.Flavor.ID)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Mock response from API
+		_, err = w.Write([]byte(simpleNodeGroupResponse))
+		require.NoError(t, err)
+	}))
+	defer server.Close()
+
+	srv := newNodeGroupService(t, server.URL)
+
+	req := NodeGroupResizeRequest{
+		NodeCount: 1,
+		Flavor: FlavorForNodeGroupRequest{
+			Type: "FIXED",
+			ID:   "550e8400-e29b-41d4-a716-446655440000",
+			// API requires DiskType filed.
+		},
+	}
+
+	result, err := srv.ResizeNodeGroup(context.Background(), dsID, ngID, req)
+
+	require.NoError(t, err)
+	require.Equal(t, ngID, result.ID)
+	require.Equal(t, "NewNameNG", result.Name)
+}
+
+func TestNodeGroupService_ResizeNodeGroup_InvalidRequest(t *testing.T) {
+	srv := newNodeGroupServiceWithMockClient()
+	body := NodeGroupResizeRequest{NodeCount: 2}
+	_, err := srv.ResizeNodeGroup(context.Background(), dsID, ngID, body)
+	require.Error(t, err)
+	require.Equal(t, "validate body: validate flavor: unsupported flavor type: \"\"", err.Error())
 }

@@ -197,7 +197,7 @@ func TestNodeGroupCreateRequest_validate(t *testing.T) {
 			name: "node group without name",
 			body: NodeGroupCreateRequest{
 				Role:   NodeGroupRoleData,
-				Flavor: FlavorForNodeGroupCreate{},
+				Flavor: FlavorForNodeGroupRequest{},
 			},
 			errMsg: "node_group.name is required",
 		},
@@ -205,7 +205,7 @@ func TestNodeGroupCreateRequest_validate(t *testing.T) {
 			name: "node group without role",
 			body: NodeGroupCreateRequest{
 				Name:   "TestNg",
-				Flavor: FlavorForNodeGroupCreate{},
+				Flavor: FlavorForNodeGroupRequest{},
 			},
 			errMsg: "node_group.role must be DATA or KEEPER",
 		},
@@ -222,7 +222,7 @@ func TestNodeGroupCreateRequest_validate(t *testing.T) {
 			body: NodeGroupCreateRequest{
 				Name:   "TestNg",
 				Role:   NodeGroupRoleData,
-				Flavor: FlavorForNodeGroupCreate{Type: "X"},
+				Flavor: FlavorForNodeGroupRequest{Type: "X"},
 			},
 			errMsg: "node_group.flavor: unsupported flavor type: \"X\"",
 		},
@@ -231,7 +231,7 @@ func TestNodeGroupCreateRequest_validate(t *testing.T) {
 			body: NodeGroupCreateRequest{
 				Name: "TestNg",
 				Role: NodeGroupRoleData,
-				Flavor: FlavorForNodeGroupCreate{
+				Flavor: FlavorForNodeGroupRequest{
 					ID:   "550e8400-e29b-41d4-a716-446655440000",
 					Type: "FIXED",
 				},
@@ -243,7 +243,7 @@ func TestNodeGroupCreateRequest_validate(t *testing.T) {
 			body: NodeGroupCreateRequest{
 				Name: "TestNg",
 				Role: NodeGroupRoleData,
-				Flavor: FlavorForNodeGroupCreate{
+				Flavor: FlavorForNodeGroupRequest{
 					ID:   "550e8400-e29b-41d4-a716-446655440000",
 					Type: "FIXED",
 				},
@@ -256,7 +256,7 @@ func TestNodeGroupCreateRequest_validate(t *testing.T) {
 			body: NodeGroupCreateRequest{
 				Name: "TestNg",
 				Role: NodeGroupRoleKeeper,
-				Flavor: FlavorForNodeGroupCreate{
+				Flavor: FlavorForNodeGroupRequest{
 					ID:   "550e8400-e29b-41d4-a716-446655440000",
 					Type: "FIXED",
 				},
@@ -264,6 +264,40 @@ func TestNodeGroupCreateRequest_validate(t *testing.T) {
 				Weight:    &weight,
 			},
 			errMsg: "node_group.role KEEPER could not have weight",
+		},
+	}
+
+	checkValidationTests(t, tests)
+}
+
+func TestNodeGroupResizeRequest_validate(t *testing.T) {
+	tests := []validationTest{
+		{
+			name: "body without flavor",
+			body: NodeGroupResizeRequest{
+				NodeCount: 1,
+			},
+			errMsg: "validate flavor: unsupported flavor type",
+		},
+		{
+			name: "body without node_count",
+			body: NodeGroupResizeRequest{
+				Flavor: FlavorForNodeGroupRequest{
+					ID:   "550e8400-e29b-41d4-a716-446655440000",
+					Type: "FIXED",
+				},
+			},
+			errMsg: "node_count must be greater than 0",
+		},
+		{
+			name: "good body",
+			body: NodeGroupResizeRequest{
+				Flavor: FlavorForNodeGroupRequest{
+					ID:   "550e8400-e29b-41d4-a716-446655440000",
+					Type: "FIXED",
+				},
+				NodeCount: 2,
+			},
 		},
 	}
 

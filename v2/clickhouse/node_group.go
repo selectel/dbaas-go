@@ -47,12 +47,12 @@ type NodeGroupResponse struct {
 
 // NodeGroupResponse is the API response for the clickhouse node group.
 type NodeGroupCreateRequest struct {
-	Weight       *int                     `json:"weight,omitempty"`
-	HasPublicIPs *bool                    `json:"has_public_ips,omitempty"`
-	Name         string                   `json:"name"`
-	Role         NodeGroupRole            `json:"role"`
-	Flavor       FlavorForNodeGroupCreate `json:"flavor"`
-	NodeCount    int                      `json:"node_count"`
+	Weight       *int                      `json:"weight,omitempty"`
+	HasPublicIPs *bool                     `json:"has_public_ips,omitempty"`
+	Name         string                    `json:"name"`
+	Role         NodeGroupRole             `json:"role"`
+	Flavor       FlavorForNodeGroupRequest `json:"flavor"`
+	NodeCount    int                       `json:"node_count"`
 }
 
 func (n NodeGroupCreateRequest) validate() error {
@@ -74,6 +74,22 @@ func (n NodeGroupCreateRequest) validate() error {
 
 	if n.Weight != nil && n.Role == NodeGroupRoleKeeper {
 		return errors.New("node_group.role KEEPER could not have weight") //nolint:goerr113 // Dynamic error
+	}
+	return nil
+}
+
+type NodeGroupResizeRequest struct {
+	Flavor    FlavorForNodeGroupRequest `json:"flavor"`
+	NodeCount int                       `json:"node_count"`
+}
+
+func (r NodeGroupResizeRequest) validate() error {
+	if err := r.Flavor.validate(); err != nil {
+		return fmt.Errorf("validate flavor: %w", err)
+	}
+
+	if r.NodeCount <= 0 {
+		return errors.New("node_count must be greater than 0") //nolint:goerr113 // Dynamic error
 	}
 	return nil
 }
@@ -125,4 +141,29 @@ func (s *NodegroupService) DeleteNodeGroup(ctx context.Context, datastoreID, nod
 	}
 
 	return nil
+}
+
+func (s *NodegroupService) ResizeNodeGroup(
+	ctx context.Context, datastoreID, nodeGroupID string, body NodeGroupResizeRequest,
+) (NodeGroupResponse, error) {
+	response := NodeGroupResponse{}
+
+	if err := uuid.Validate(datastoreID); err != nil {
+		return response, fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	if err := uuid.Validate(nodeGroupID); err != nil {
+		return response, fmt.Errorf("validate node group id: %w", err)
+	}
+
+	if err := body.validate(); err != nil {
+		return response, fmt.Errorf("validate body: %w", err)
+	}
+
+	err := s.Patch(ctx, s.nodeGroupsPath(datastoreID, nodeGroupID, "resize"), body, &response)
+	if err != nil {
+		return response, err //nolint:wrapcheck
+	}
+
+	return response, nil
 }
