@@ -78,7 +78,7 @@ func (n NodeGroupCreateRequest) validate() error {
 	return nil
 }
 
-// NodeGroupResizeRequest is body for node group resize request.
+// NodeGroupResizeRequest is the request body to resize a node group.
 type NodeGroupResizeRequest struct {
 	Flavor    FlavorForNodeGroupRequest `json:"flavor"`
 	NodeCount int                       `json:"node_count"`
@@ -95,7 +95,7 @@ func (r NodeGroupResizeRequest) validate() error {
 	return nil
 }
 
-// NodeGroupDeleteInstancesRequest is body to resize a node group by reducing instances.
+// NodeGroupDeleteInstancesRequest is the request body to resize a node group by reducing instances.
 type NodeGroupDeleteInstancesRequest struct {
 	Instances []string `json:"instances"`
 }
@@ -108,6 +108,18 @@ func (r NodeGroupDeleteInstancesRequest) validate() error {
 		if err := uuid.Validate(ID); err != nil {
 			return fmt.Errorf("instances[%d]: %w", i, err)
 		}
+	}
+	return nil
+}
+
+// NodeGroupUpdateWeightRequest is request body to update node group weight.
+type NodeGroupUpdateWeightRequest struct {
+	Weight int `json:"weight"`
+}
+
+func (r NodeGroupUpdateWeightRequest) validate() error {
+	if r.Weight < 0 {
+		return errors.New("node group weight must be greater than or equal to zero") //nolint:goerr113 // Dynamic error
 	}
 	return nil
 }
@@ -204,6 +216,31 @@ func (s *NodegroupService) DeleteNodeGroupInstances(
 	}
 
 	err := s.Patch(ctx, s.nodeGroupsPath(datastoreID, nodeGroupID, "instances"), body, &response)
+	if err != nil {
+		return response, err //nolint:wrapcheck
+	}
+
+	return response, nil
+}
+
+func (s *NodegroupService) UpdateNodeGroupWeight(
+	ctx context.Context, datastoreID, nodeGroupID string, body NodeGroupUpdateWeightRequest,
+) (NodeGroupResponse, error) {
+	response := NodeGroupResponse{}
+
+	if err := uuid.Validate(datastoreID); err != nil {
+		return response, fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	if err := uuid.Validate(nodeGroupID); err != nil {
+		return response, fmt.Errorf("validate node group id: %w", err)
+	}
+
+	if err := body.validate(); err != nil {
+		return response, fmt.Errorf("validate body: %w", err)
+	}
+
+	err := s.Patch(ctx, s.nodeGroupsPath(datastoreID, nodeGroupID, "weight"), body, &response)
 	if err != nil {
 		return response, err //nolint:wrapcheck
 	}

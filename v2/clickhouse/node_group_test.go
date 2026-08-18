@@ -230,3 +230,36 @@ func TestNodeGroupService_DeleteNodeGroupInstances_Success(t *testing.T) {
 	require.Equal(t, ngID, result.ID)
 	require.Equal(t, "NewNameNG", result.Name)
 }
+
+func TestNodeGroupService_UpdateNodeGroupWeight_Success(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPatch, r.Method)
+		require.Equal(t, nodeGroupEndpoint+"/weight", r.URL.Path)
+
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		var req NodeGroupUpdateWeightRequest
+		require.NoError(t, json.Unmarshal(body, &req))
+
+		require.Equal(t, 100, req.Weight)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Mock response from API
+		_, err = w.Write([]byte(simpleNodeGroupResponse))
+		require.NoError(t, err)
+	}))
+	defer server.Close()
+
+	srv := newNodeGroupService(t, server.URL)
+
+	req := NodeGroupUpdateWeightRequest{Weight: 100}
+
+	result, err := srv.UpdateNodeGroupWeight(context.Background(), dsID, ngID, req)
+
+	require.NoError(t, err)
+	require.Equal(t, ngID, result.ID)
+	require.Equal(t, "NewNameNG", result.Name)
+}
