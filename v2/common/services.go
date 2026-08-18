@@ -1,4 +1,4 @@
-package internal
+package common
 
 import (
 	"context"
@@ -7,16 +7,15 @@ import (
 	"strings"
 
 	"github.com/selectel/dbaas-go/internal/transport"
-	"github.com/selectel/dbaas-go/v2/common"
 )
 
-// BaseService presents base service logic with helpers.
-type BaseService struct {
+// baseService presents base service logic with helpers.
+type baseService struct {
 	client   transport.Client
 	rootPath string
 }
 
-func (s *BaseService) Get(ctx context.Context, path string, resp any) error {
+func (s *baseService) Get(ctx context.Context, path string, resp any) error {
 	err := s.client.Do(ctx, http.MethodGet, s.rootPath+path, nil, resp)
 	if err != nil {
 		return fmt.Errorf("failed to execute GET request to %s: %w", path, err)
@@ -24,7 +23,7 @@ func (s *BaseService) Get(ctx context.Context, path string, resp any) error {
 	return nil
 }
 
-func (s *BaseService) Post(ctx context.Context, path string, body any, resp any) error {
+func (s *baseService) Post(ctx context.Context, path string, body any, resp any) error {
 	err := s.client.Do(ctx, http.MethodPost, s.rootPath+path, body, resp)
 	if err != nil {
 		return fmt.Errorf("failed to execute POST request to %s: %w", path, err)
@@ -32,7 +31,7 @@ func (s *BaseService) Post(ctx context.Context, path string, body any, resp any)
 	return nil
 }
 
-func (s *BaseService) Put(ctx context.Context, path string, body any, resp any) error {
+func (s *baseService) Put(ctx context.Context, path string, body any, resp any) error {
 	err := s.client.Do(ctx, http.MethodPut, s.rootPath+path, body, resp)
 	if err != nil {
 		return fmt.Errorf("failed to execute PUT request to %s: %w", path, err)
@@ -40,7 +39,7 @@ func (s *BaseService) Put(ctx context.Context, path string, body any, resp any) 
 	return nil
 }
 
-func (s *BaseService) Patch(ctx context.Context, path string, body any, resp any) error {
+func (s *baseService) Patch(ctx context.Context, path string, body any, resp any) error {
 	err := s.client.Do(ctx, http.MethodPatch, s.rootPath+path, body, resp)
 	if err != nil {
 		return fmt.Errorf("failed to execute PATCH request to %s: %w", path, err)
@@ -48,7 +47,7 @@ func (s *BaseService) Patch(ctx context.Context, path string, body any, resp any
 	return nil
 }
 
-func (s *BaseService) Delete(ctx context.Context, path string) error {
+func (s *baseService) Delete(ctx context.Context, path string) error {
 	err := s.client.Do(ctx, http.MethodDelete, s.rootPath+path, nil, nil)
 	if err != nil {
 		return fmt.Errorf("failed to execute DELETE request to %s: %w", path, err)
@@ -58,8 +57,8 @@ func (s *BaseService) Delete(ctx context.Context, path string) error {
 
 // EngineService presents engine service for specific engine (datastore type).
 type EngineService struct {
-	*BaseService
-	engine common.Engine
+	*baseService
+	engine Engine
 }
 
 func (s *EngineService) DatastorePath(datastoreID string, parts ...string) string {
@@ -70,11 +69,11 @@ func (s *EngineService) DatastorePath(datastoreID string, parts ...string) strin
 	return "/" + strings.Join(path, "/")
 }
 
-func NewEngineService(client transport.Client, engine common.Engine) *EngineService {
+func NewEngineService(client transport.Client, engine Engine) *EngineService {
 	root := "/datastores/" + string(engine)
 
 	return &EngineService{
-		BaseService: &BaseService{
+		baseService: &baseService{
 			client:   client,
 			rootPath: root,
 		},

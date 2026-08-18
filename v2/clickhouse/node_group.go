@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/selectel/dbaas-go/v2/internal"
+	"github.com/selectel/dbaas-go/v2/common"
 )
 
 // NodeGroupStatus represents custom type for DBaaS v2 clickhouse node group statuses.
@@ -148,7 +148,7 @@ type NodeGroupUpdateFloatingIPsRequest struct {
 
 // DatastoreService is service to interact with clickhouse datastore resource.
 type NodeGroupService struct {
-	*internal.EngineService
+	*common.EngineService
 }
 
 func (s *NodeGroupService) nodeGroupsPath(datastoreID string, parts ...string) string {

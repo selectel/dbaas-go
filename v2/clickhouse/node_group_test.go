@@ -12,7 +12,6 @@ import (
 
 	"github.com/selectel/dbaas-go/internal/transport"
 	"github.com/selectel/dbaas-go/v2/common"
-	"github.com/selectel/dbaas-go/v2/internal"
 )
 
 const ngID = "000e8400-e29b-41d4-a716-446655440001"
@@ -31,7 +30,7 @@ func newNodeGroupService(t *testing.T, serverURL string) *NodeGroupService {
 	client, err := transport.NewHTTPClient(http.DefaultClient, "token", serverURL+"/v2")
 	require.NoError(t, err)
 
-	engine := internal.NewEngineService(
+	engine := common.NewEngineService(
 		client,
 		common.EngineClickHouse,
 	)
@@ -44,7 +43,7 @@ func newNodeGroupService(t *testing.T, serverURL string) *NodeGroupService {
 func newNodeGroupServiceWithMockClient() *NodeGroupService {
 	mockClient := mockClient{}
 
-	engine := internal.NewEngineService(
+	engine := common.NewEngineService(
 		mockClient,
 		common.EngineClickHouse,
 	)
