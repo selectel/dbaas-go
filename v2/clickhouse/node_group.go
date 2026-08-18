@@ -1,8 +1,13 @@
 package clickhouse
 
 import (
+	"context"
 	"errors"
 	"fmt"
+
+	"github.com/google/uuid"
+
+	"github.com/selectel/dbaas-go/v2/internal"
 )
 
 // NodeGroupStatus represents custom type for DBaaS v2 clickhouse node group statuses.
@@ -70,5 +75,54 @@ func (n NodeGroupCreateRequest) validate() error {
 	if n.Weight != nil && n.Role == NodeGroupRoleKeeper {
 		return errors.New("node_group.role KEEPER could not have weight") //nolint:goerr113 // Dynamic error
 	}
+	return nil
+}
+
+// DatastoreService is service to interact with clickhouse datastore resource.
+type NodegroupService struct {
+	*internal.EngineService
+}
+
+func (s *NodegroupService) nodeGroupsPath(datastoreID string, parts ...string) string {
+	path := []string{"node_groups"}
+	path = append(path, parts...)
+
+	return s.DatastorePath(datastoreID, path...)
+}
+
+func (s *NodegroupService) CreateNodeGroup(
+	ctx context.Context, datastoreID string, body NodeGroupCreateRequest,
+) (NodeGroupResponse, error) {
+	response := NodeGroupResponse{}
+
+	if err := uuid.Validate(datastoreID); err != nil {
+		return response, fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	if err := body.validate(); err != nil {
+		return response, fmt.Errorf("validate body: %w", err)
+	}
+	err := s.Post(ctx, s.nodeGroupsPath(datastoreID), body, &response)
+	if err != nil {
+		return response, err //nolint:wrapcheck
+	}
+
+	return response, nil
+}
+
+func (s *NodegroupService) DeleteNodeGroup(ctx context.Context, datastoreID, nodeGroupID string) error {
+	if err := uuid.Validate(datastoreID); err != nil {
+		return fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	if err := uuid.Validate(nodeGroupID); err != nil {
+		return fmt.Errorf("validate node group id: %w", err)
+	}
+
+	err := s.Delete(ctx, s.nodeGroupsPath(datastoreID, nodeGroupID))
+	if err != nil {
+		return err //nolint:wrapcheck
+	}
+
 	return nil
 }

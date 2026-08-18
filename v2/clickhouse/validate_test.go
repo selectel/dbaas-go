@@ -188,3 +188,84 @@ func TestDatastoreConfigRequest_validate(t *testing.T) {
 
 	checkValidationTests(t, tests)
 }
+
+func TestNodeGroupCreateRequest_validate(t *testing.T) {
+	weight := 100
+
+	tests := []validationTest{
+		{
+			name: "node group without name",
+			body: NodeGroupCreateRequest{
+				Role:   NodeGroupRoleData,
+				Flavor: FlavorForNodeGroupCreate{},
+			},
+			errMsg: "node_group.name is required",
+		},
+		{
+			name: "node group without role",
+			body: NodeGroupCreateRequest{
+				Name:   "TestNg",
+				Flavor: FlavorForNodeGroupCreate{},
+			},
+			errMsg: "node_group.role must be DATA or KEEPER",
+		},
+		{
+			name: "node group without flavor",
+			body: NodeGroupCreateRequest{
+				Name: "TestNg",
+				Role: NodeGroupRoleData,
+			},
+			errMsg: "node_group.flavor: unsupported flavor type: \"\"",
+		},
+		{
+			name: "node group with invalid flavor",
+			body: NodeGroupCreateRequest{
+				Name:   "TestNg",
+				Role:   NodeGroupRoleData,
+				Flavor: FlavorForNodeGroupCreate{Type: "X"},
+			},
+			errMsg: "node_group.flavor: unsupported flavor type: \"X\"",
+		},
+		{
+			name: "node group without node_count",
+			body: NodeGroupCreateRequest{
+				Name: "TestNg",
+				Role: NodeGroupRoleData,
+				Flavor: FlavorForNodeGroupCreate{
+					ID:   "550e8400-e29b-41d4-a716-446655440000",
+					Type: "FIXED",
+				},
+			},
+			errMsg: "node_group.node_count must be greater than 0",
+		},
+		{
+			name: "node group data with weight",
+			body: NodeGroupCreateRequest{
+				Name: "TestNg",
+				Role: NodeGroupRoleData,
+				Flavor: FlavorForNodeGroupCreate{
+					ID:   "550e8400-e29b-41d4-a716-446655440000",
+					Type: "FIXED",
+				},
+				NodeCount: 1,
+				Weight:    &weight,
+			},
+		},
+		{
+			name: "node group keeper with weight",
+			body: NodeGroupCreateRequest{
+				Name: "TestNg",
+				Role: NodeGroupRoleKeeper,
+				Flavor: FlavorForNodeGroupCreate{
+					ID:   "550e8400-e29b-41d4-a716-446655440000",
+					Type: "FIXED",
+				},
+				NodeCount: 1,
+				Weight:    &weight,
+			},
+			errMsg: "node_group.role KEEPER could not have weight",
+		},
+	}
+
+	checkValidationTests(t, tests)
+}
