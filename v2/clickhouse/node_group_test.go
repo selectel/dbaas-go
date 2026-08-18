@@ -25,7 +25,7 @@ var simpleNodeGroupResponse = `{
 
 var nodeGroupEndpoint = datastoreEndpoint + "/node_groups/" + ngID //nolint:gochecknoglobals
 
-func newNodeGroupService(t *testing.T, serverURL string) *NodegroupService {
+func newNodeGroupService(t *testing.T, serverURL string) *NodeGroupService {
 	t.Helper()
 
 	client, err := transport.NewHTTPClient(http.DefaultClient, "token", serverURL+"/v2")
@@ -36,12 +36,12 @@ func newNodeGroupService(t *testing.T, serverURL string) *NodegroupService {
 		common.EngineClickHouse,
 	)
 
-	return &NodegroupService{
+	return &NodeGroupService{
 		EngineService: engine,
 	}
 }
 
-func newNodeGroupServiceWithMockClient() *NodegroupService {
+func newNodeGroupServiceWithMockClient() *NodeGroupService {
 	mockClient := mockClient{}
 
 	engine := internal.NewEngineService(
@@ -49,7 +49,7 @@ func newNodeGroupServiceWithMockClient() *NodegroupService {
 		common.EngineClickHouse,
 	)
 
-	return &NodegroupService{
+	return &NodeGroupService{
 		EngineService: engine,
 	}
 }
@@ -258,6 +258,44 @@ func TestNodeGroupService_UpdateNodeGroupWeight_Success(t *testing.T) {
 	req := NodeGroupUpdateWeightRequest{Weight: 100}
 
 	result, err := srv.UpdateNodeGroupWeight(context.Background(), dsID, ngID, req)
+
+	require.NoError(t, err)
+	require.Equal(t, ngID, result.ID)
+	require.Equal(t, "NewNameNG", result.Name)
+}
+
+func TestNodeGroupService_UpdateNodeGroupShardGroups_Success(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPatch, r.Method)
+		require.Equal(t, nodeGroupEndpoint+"/shard-groups", r.URL.Path)
+
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		var req NodeGroupUpdateShardGroupsRequest
+		require.NoError(t, json.Unmarshal(body, &req))
+
+		require.Len(t, req.ShardGroups, 2)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Mock response from API
+		_, err = w.Write([]byte(simpleNodeGroupResponse))
+		require.NoError(t, err)
+	}))
+	defer server.Close()
+
+	srv := newNodeGroupService(t, server.URL)
+
+	req := NodeGroupUpdateShardGroupsRequest{
+		ShardGroups: []string{
+			"550e8400-e29b-41d4-a716-446655440000",
+			"550e8400-e29b-41d4-a716-446655440001",
+		},
+	}
+
+	result, err := srv.UpdateNodeGroupShardGroups(context.Background(), dsID, ngID, req)
 
 	require.NoError(t, err)
 	require.Equal(t, ngID, result.ID)

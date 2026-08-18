@@ -344,3 +344,28 @@ func TestNodeGroupNodeGroupUpdateWeightRequest_validate(t *testing.T) {
 
 	checkValidationTests(t, tests)
 }
+
+func TestNodeGroupUpdateShardGroupsRequest_validate(t *testing.T) {
+	tests := []validationTest{
+		{
+			name:   "body without shard_groups",
+			body:   NodeGroupUpdateShardGroupsRequest{},
+			errMsg: "shard_groups must be at least one",
+		},
+		{
+			name: "body with invalid shard_groups",
+			body: NodeGroupUpdateShardGroupsRequest{
+				ShardGroups: []string{"550e8400-e29b-41d4-a716-446655440000", "invalidID"},
+			},
+			errMsg: "shard_groups[1]: invalid UUID",
+		},
+		{
+			name: "good body",
+			body: NodeGroupUpdateShardGroupsRequest{
+				ShardGroups: []string{"550e8400-e29b-41d4-a716-446655440000"},
+			},
+		},
+	}
+
+	checkValidationTests(t, tests)
+}
