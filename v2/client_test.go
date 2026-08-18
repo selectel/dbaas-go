@@ -21,5 +21,6 @@ func TestNewAPI(t *testing.T) {
 	require.NotNil(t, api.ClickHouse.Datastore)
 	require.NotNil(t, api.ClickHouse.NodeGroup)
 
-	require.NotNil(t, api.DatastoreTypes)
+	require.NotNil(t, api.DatastoreType)
+	require.NotNil(t, api.Flavor)
 }
