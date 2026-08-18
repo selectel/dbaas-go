@@ -23,6 +23,8 @@ var simpleNodeGroupResponse = `{
 	"name": "NewNameNG"
 }`
 
+var nodeGroupEndpoint = datastoreEndpoint + "/node_groups/" + ngID //nolint:gochecknoglobals
+
 func newNodeGroupService(t *testing.T, serverURL string) *NodegroupService {
 	t.Helper()
 
@@ -117,7 +119,7 @@ func TestNodeGroupService_CreateNodeGroup_InvalidRequest(t *testing.T) {
 func TestNodeGroupService_DeleteNodeGroup_Success(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodDelete, r.Method)
-		require.Equal(t, datastoreEndpoint+"/node_groups/"+ngID, r.URL.Path)
+		require.Equal(t, nodeGroupEndpoint, r.URL.Path)
 
 		body, err := io.ReadAll(r.Body)
 		require.NoError(t, err)
@@ -145,7 +147,7 @@ func TestNodeGroupService_DeleteNodeGroup_InvalidRequest(t *testing.T) {
 func TestNodeGroupService_ResizeNodeGroup_Success(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodPatch, r.Method)
-		require.Equal(t, datastoreEndpoint+"/node_groups/"+ngID+"/resize", r.URL.Path)
+		require.Equal(t, nodeGroupEndpoint+"/resize", r.URL.Path)
 
 		body, err := io.ReadAll(r.Body)
 		require.NoError(t, err)
@@ -189,4 +191,42 @@ func TestNodeGroupService_ResizeNodeGroup_InvalidRequest(t *testing.T) {
 	_, err := srv.ResizeNodeGroup(context.Background(), dsID, ngID, body)
 	require.Error(t, err)
 	require.Equal(t, "validate body: validate flavor: unsupported flavor type: \"\"", err.Error())
+}
+
+func TestNodeGroupService_DeleteNodeGroupInstances_Success(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPatch, r.Method)
+		require.Equal(t, nodeGroupEndpoint+"/instances", r.URL.Path)
+
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		var req NodeGroupDeleteInstancesRequest
+		require.NoError(t, json.Unmarshal(body, &req))
+
+		require.Len(t, req.Instances, 2)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Mock response from API
+		_, err = w.Write([]byte(simpleNodeGroupResponse))
+		require.NoError(t, err)
+	}))
+	defer server.Close()
+
+	srv := newNodeGroupService(t, server.URL)
+
+	req := NodeGroupDeleteInstancesRequest{
+		Instances: []string{
+			"550e8400-e29b-41d4-a716-446655440000",
+			"550e8400-e29b-41d4-a716-446655440001",
+		},
+	}
+
+	result, err := srv.DeleteNodeGroupInstances(context.Background(), dsID, ngID, req)
+
+	require.NoError(t, err)
+	require.Equal(t, ngID, result.ID)
+	require.Equal(t, "NewNameNG", result.Name)
 }
