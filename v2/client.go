@@ -12,8 +12,8 @@ import (
 
 // API is the main manager for DBAAS v2 resources.
 type API struct {
-	// Flavors
-	DatastoreTypes *common.DatastoreTypeService
+	Flavor        *common.FlavorService
+	DatastoreType *common.DatastoreTypeService
 
 	ClickHouse *clickhouse.API
 	// Opensearch
@@ -28,8 +28,9 @@ type RetryConfig struct {
 
 func newAPIWithClient(client transport.Client) *API {
 	return &API{
-		DatastoreTypes: common.NewDatastoreTypeService(client),
-		ClickHouse:     clickhouse.NewAPI(client),
+		Flavor:        common.NewFlavorService(client),
+		DatastoreType: common.NewDatastoreTypeService(client),
+		ClickHouse:    clickhouse.NewAPI(client),
 	}
 }
 
