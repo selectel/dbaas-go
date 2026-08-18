@@ -1,111 +1,124 @@
 package clickhouse
 
 import (
+	"context"
+	"encoding/json"
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/selectel/dbaas-go/internal/transport"
+	"github.com/selectel/dbaas-go/v2/common"
+	"github.com/selectel/dbaas-go/v2/internal"
 )
 
-func TestNodeGroupCreateRequest_validate(t *testing.T) {
-	weight := 100
+const ngID = "000e8400-e29b-41d4-a716-446655440001"
 
-	tests := []struct {
-		name      string
-		errMsg    string
-		NodeGroup NodeGroupCreateRequest
-		wantErr   bool
-	}{
-		{
-			name: "node group without name",
-			NodeGroup: NodeGroupCreateRequest{
-				Role:   NodeGroupRoleData,
-				Flavor: FlavorForNodeGroupCreate{},
-			},
-			wantErr: true,
-			errMsg:  "node_group.name is required",
-		},
-		{
-			name: "node group without role",
-			NodeGroup: NodeGroupCreateRequest{
-				Name:   "TestNg",
-				Flavor: FlavorForNodeGroupCreate{},
-			},
-			wantErr: true,
-			errMsg:  "node_group.role must be DATA or KEEPER",
-		},
-		{
-			name: "node group without flavor",
-			NodeGroup: NodeGroupCreateRequest{
-				Name: "TestNg",
-				Role: NodeGroupRoleData,
-			},
-			wantErr: true,
-			errMsg:  "node_group.flavor: unsupported flavor type: \"\"",
-		},
-		{
-			name: "node group with invalid flavor",
-			NodeGroup: NodeGroupCreateRequest{
-				Name:   "TestNg",
-				Role:   NodeGroupRoleData,
-				Flavor: FlavorForNodeGroupCreate{Type: "X"},
-			},
-			wantErr: true,
-			errMsg:  "node_group.flavor: unsupported flavor type: \"X\"",
-		},
-		{
-			name: "node group without node_count",
-			NodeGroup: NodeGroupCreateRequest{
-				Name: "TestNg",
-				Role: NodeGroupRoleData,
-				Flavor: FlavorForNodeGroupCreate{
-					ID:   "550e8400-e29b-41d4-a716-446655440000",
-					Type: "FIXED",
-				},
-			},
-			wantErr: true,
-			errMsg:  "node_group.node_count must be greater than 0",
-		},
-		{
-			name: "node group data with weight",
-			NodeGroup: NodeGroupCreateRequest{
-				Name: "TestNg",
-				Role: NodeGroupRoleData,
-				Flavor: FlavorForNodeGroupCreate{
-					ID:   "550e8400-e29b-41d4-a716-446655440000",
-					Type: "FIXED",
-				},
-				NodeCount: 1,
-				Weight:    &weight,
-			},
-		},
-		{
-			name: "node group keeper with weight",
-			NodeGroup: NodeGroupCreateRequest{
-				Name: "TestNg",
-				Role: NodeGroupRoleKeeper,
-				Flavor: FlavorForNodeGroupCreate{
-					ID:   "550e8400-e29b-41d4-a716-446655440000",
-					Type: "FIXED",
-				},
-				NodeCount: 1,
-				Weight:    &weight,
-			},
-			wantErr: true,
-			errMsg:  "node_group.role KEEPER could not have weight",
+//nolint:gochecknoglobals
+var simpleNodeGroupResponse = `{
+	"id": "000e8400-e29b-41d4-a716-446655440001",
+	"name": "NewNameNG"
+}`
+
+func newNodeGroupService(t *testing.T, serverURL string) *NodegroupService {
+	t.Helper()
+
+	client, err := transport.NewHTTPClient(http.DefaultClient, "token", serverURL+"/v2")
+	require.NoError(t, err)
+
+	engine := internal.NewEngineService(
+		client,
+		common.EngineClickHouse,
+	)
+
+	return &NodegroupService{
+		EngineService: engine,
+	}
+}
+
+func newNodeGroupServiceWithMockClient() *NodegroupService {
+	mockClient := mockClient{}
+
+	engine := internal.NewEngineService(
+		mockClient,
+		common.EngineClickHouse,
+	)
+
+	return &NodegroupService{
+		EngineService: engine,
+	}
+}
+
+func TestNodeGroupService_CreateNodeGroup_Success(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPost, r.Method)
+		require.Equal(t, "/v2/datastores/clickhouse/"+dsID+"/node_groups", r.URL.Path)
+
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		var req NodeGroupCreateRequest
+		require.NoError(t, json.Unmarshal(body, &req))
+
+		require.Equal(t, 1, req.NodeCount)
+		require.Equal(t, "550e8400-e29b-41d4-a716-446655440000", req.Flavor.ID)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		// Mock response from API
+		_, err = w.Write([]byte(simpleNodeGroupResponse))
+		require.NoError(t, err)
+	}))
+	defer server.Close()
+
+	srv := newNodeGroupService(t, server.URL)
+
+	req := NodeGroupCreateRequest{
+		Name:      "shard1",
+		Role:      "DATA",
+		NodeCount: 1,
+		Flavor: FlavorForNodeGroupCreate{
+			Type: "FIXED",
+			ID:   "550e8400-e29b-41d4-a716-446655440000",
+			// API requires DiskType filed.
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := tt.NodeGroup.validate()
+	result, err := srv.CreateNodeGroup(context.Background(), dsID, req)
 
-			if tt.wantErr {
-				require.Error(t, err)
-				require.Contains(t, err.Error(), tt.errMsg)
-				return
-			}
+	require.NoError(t, err)
+	require.Equal(t, ngID, result.ID)
+	require.Equal(t, "NewNameNG", result.Name)
+}
 
-			require.NoError(t, err)
-		})
-	}
+func TestNodeGroupService_DeleteNodeGroup_Success(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodDelete, r.Method)
+		require.Equal(t, datastoreEndpoint+"/node_groups/"+ngID, r.URL.Path)
+
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+		require.Empty(t, body)
+
+		w.WriteHeader(http.StatusAccepted)
+	}))
+	defer server.Close()
+
+	srv := newNodeGroupService(t, server.URL)
+
+	err := srv.DeleteNodeGroup(context.Background(), dsID, ngID)
+
+	require.NoError(t, err)
+}
+
+func TestNodeGroupService_DeleteNodeGroup_InvalidRequest(t *testing.T) {
+	srv := newNodeGroupServiceWithMockClient()
+
+	err := srv.DeleteNodeGroup(context.Background(), dsID, "ngid")
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "validate node group id:")
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/selectel/dbaas-go/internal/transport"
 	"github.com/selectel/dbaas-go/v2/common"
@@ -59,6 +60,14 @@ func (s *BaseService) Delete(ctx context.Context, path string) error {
 type EngineService struct {
 	*BaseService
 	engine common.Engine
+}
+
+func (s *EngineService) DatastorePath(datastoreID string, parts ...string) string {
+	path := []string{datastoreID}
+
+	path = append(path, parts...)
+
+	return "/" + strings.Join(path, "/")
 }
 
 func NewEngineService(client transport.Client, engine common.Engine) *EngineService {

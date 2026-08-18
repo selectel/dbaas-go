@@ -38,11 +38,6 @@ type DatastoreListResponse struct {
 	Datastores []DatastoreResponse `json:"datastores"`
 }
 
-// DatastoreService is service to interact with clickhouse datastore resource.
-type DatastoreService struct {
-	*internal.EngineService
-}
-
 // DatastoreCreateRequest represents body for the datastore Create request.
 type DatastoreCreateRequest struct {
 	Config         map[string]any           `json:"config,omitempty"`
@@ -147,6 +142,11 @@ func (r DatastoreConfigRequest) validate() error {
 		return errors.New("config is required") //nolint:goerr113 // Dynamic error
 	}
 	return nil
+}
+
+// DatastoreService is service to interact with clickhouse datastore resource.
+type DatastoreService struct {
+	*internal.EngineService
 }
 
 // GetDatastoreList returns datastore list from api.

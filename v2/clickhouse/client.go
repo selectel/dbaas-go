@@ -9,7 +9,7 @@ import (
 // API is api client to manage clickhouse resources.
 type API struct {
 	Datastore *DatastoreService
-	// NodeGroup
+	NodeGroup *NodegroupService
 	// ShardGroup
 }
 
@@ -17,8 +17,10 @@ func NewAPI(c transport.Client) *API {
 	engine := internal.NewEngineService(c, common.EngineClickHouse)
 
 	datastoreSvc := &DatastoreService{engine}
+	nodeGroupSvc := &NodegroupService{engine}
 
 	return &API{
 		Datastore: datastoreSvc,
+		NodeGroup: nodeGroupSvc,
 	}
 }

@@ -603,6 +603,11 @@ func TestDatastoreService_DeleteDatastore_Success(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodDelete, r.Method)
 		require.Equal(t, datastoreEndpoint, r.URL.Path)
+
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+		require.Empty(t, body)
+
 		w.WriteHeader(http.StatusNoContent)
 	}))
 	defer server.Close()
