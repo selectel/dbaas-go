@@ -303,3 +303,28 @@ func TestNodeGroupResizeRequest_validate(t *testing.T) {
 
 	checkValidationTests(t, tests)
 }
+
+func TestNodeGroupDeleteInstancesRequest_validate(t *testing.T) {
+	tests := []validationTest{
+		{
+			name:   "body without instances",
+			body:   NodeGroupDeleteInstancesRequest{},
+			errMsg: "instances must be at least one",
+		},
+		{
+			name: "body with invalid instances",
+			body: NodeGroupDeleteInstancesRequest{
+				Instances: []string{"550e8400-e29b-41d4-a716-446655440000", "invalidID"},
+			},
+			errMsg: "instances[1]: invalid UUID",
+		},
+		{
+			name: "good body",
+			body: NodeGroupDeleteInstancesRequest{
+				Instances: []string{"550e8400-e29b-41d4-a716-446655440000"},
+			},
+		},
+	}
+
+	checkValidationTests(t, tests)
+}

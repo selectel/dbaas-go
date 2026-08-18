@@ -78,6 +78,7 @@ func (n NodeGroupCreateRequest) validate() error {
 	return nil
 }
 
+// NodeGroupResizeRequest is body for node group resize request.
 type NodeGroupResizeRequest struct {
 	Flavor    FlavorForNodeGroupRequest `json:"flavor"`
 	NodeCount int                       `json:"node_count"`
@@ -90,6 +91,23 @@ func (r NodeGroupResizeRequest) validate() error {
 
 	if r.NodeCount <= 0 {
 		return errors.New("node_count must be greater than 0") //nolint:goerr113 // Dynamic error
+	}
+	return nil
+}
+
+// NodeGroupDeleteInstancesRequest is body to resize a node group by reducing instances.
+type NodeGroupDeleteInstancesRequest struct {
+	Instances []string `json:"instances"`
+}
+
+func (r NodeGroupDeleteInstancesRequest) validate() error {
+	if len(r.Instances) == 0 {
+		return errors.New("instances must be at least one") //nolint:goerr113 // Dynamic error
+	}
+	for i, ID := range r.Instances {
+		if err := uuid.Validate(ID); err != nil {
+			return fmt.Errorf("instances[%d]: %w", i, err)
+		}
 	}
 	return nil
 }
@@ -161,6 +179,31 @@ func (s *NodegroupService) ResizeNodeGroup(
 	}
 
 	err := s.Patch(ctx, s.nodeGroupsPath(datastoreID, nodeGroupID, "resize"), body, &response)
+	if err != nil {
+		return response, err //nolint:wrapcheck
+	}
+
+	return response, nil
+}
+
+func (s *NodegroupService) DeleteNodeGroupInstances(
+	ctx context.Context, datastoreID, nodeGroupID string, body NodeGroupDeleteInstancesRequest,
+) (NodeGroupResponse, error) {
+	response := NodeGroupResponse{}
+
+	if err := uuid.Validate(datastoreID); err != nil {
+		return response, fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	if err := uuid.Validate(nodeGroupID); err != nil {
+		return response, fmt.Errorf("validate node group id: %w", err)
+	}
+
+	if err := body.validate(); err != nil {
+		return response, fmt.Errorf("validate body: %w", err)
+	}
+
+	err := s.Patch(ctx, s.nodeGroupsPath(datastoreID, nodeGroupID, "instances"), body, &response)
 	if err != nil {
 		return response, err //nolint:wrapcheck
 	}
