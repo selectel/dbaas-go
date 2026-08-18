@@ -170,7 +170,7 @@ func (s *DatastoreService) GetDatastore(ctx context.Context, datastoreID string)
 		return response, fmt.Errorf("validate datastore id: %w", err)
 	}
 
-	err := s.Get(ctx, "/"+datastoreID, &response)
+	err := s.Get(ctx, s.DatastorePath(datastoreID), &response)
 	if err != nil {
 		//nolint:wrapcheck
 		return response, err
@@ -212,7 +212,7 @@ func (s *DatastoreService) UpdateDatastore(
 		return response, fmt.Errorf("validate body: %w", err)
 	}
 
-	err := s.Patch(ctx, "/"+datastoreID, body, &response)
+	err := s.Patch(ctx, s.DatastorePath(datastoreID), body, &response)
 	if err != nil {
 		return response, err //nolint:wrapcheck
 	}
@@ -234,7 +234,7 @@ func (s *DatastoreService) UpdateDatastorePassword(
 		return response, fmt.Errorf("validate body: %w", err)
 	}
 
-	err := s.Patch(ctx, "/"+datastoreID+"/password", body, &response)
+	err := s.Patch(ctx, s.DatastorePath(datastoreID, "password"), body, &response)
 	if err != nil {
 		return response, err //nolint:wrapcheck
 	}
@@ -256,7 +256,7 @@ func (s *DatastoreService) UpdateDatastoreSecurityGroups(
 		return response, fmt.Errorf("validate body: %w", err)
 	}
 
-	err := s.Put(ctx, "/"+datastoreID+"/security-groups", body, &response)
+	err := s.Put(ctx, s.DatastorePath(datastoreID, "security-groups"), body, &response)
 	if err != nil {
 		return response, err //nolint:wrapcheck
 	}
@@ -278,7 +278,7 @@ func (s *DatastoreService) EnableLogPlatform(
 		return response, fmt.Errorf("validate body: %w", err)
 	}
 
-	err := s.Put(ctx, "/"+datastoreID+"/log-platform", body, &response) //nolint:goconst
+	err := s.Put(ctx, s.DatastorePath(datastoreID, "log-platform"), body, &response) 
 	if err != nil {
 		return response, err //nolint:wrapcheck
 	}
@@ -292,7 +292,7 @@ func (s *DatastoreService) DisableLogPlatform(ctx context.Context, datastoreID s
 		return fmt.Errorf("validate datastore id: %w", err)
 	}
 
-	err := s.Delete(ctx, "/"+datastoreID+"/log-platform")
+	err := s.Delete(ctx, s.DatastorePath(datastoreID, "log-platform"))
 	if err != nil {
 		return err //nolint:wrapcheck
 	}
@@ -314,7 +314,7 @@ func (s *DatastoreService) UpdateDatastoreConfig(
 		return response, fmt.Errorf("validate body: %w", err)
 	}
 
-	err := s.Put(ctx, "/"+datastoreID+"/config", body, &response)
+	err := s.Put(ctx, s.DatastorePath(datastoreID, "config"), body, &response)
 	if err != nil {
 		return response, err //nolint:wrapcheck
 	}
@@ -328,7 +328,7 @@ func (s *DatastoreService) DeleteDatastore(ctx context.Context, datastoreID stri
 		return fmt.Errorf("validate datastore id: %w", err)
 	}
 
-	err := s.Delete(ctx, "/"+datastoreID)
+	err := s.Delete(ctx, s.DatastorePath(datastoreID))
 	if err != nil {
 		return err //nolint:wrapcheck
 	}
