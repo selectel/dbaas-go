@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/selectel/dbaas-go/v2/common"
-	"github.com/selectel/dbaas-go/v2/internal"
 )
 
 // DatastoreLogGroup represents log platform schema.
@@ -146,7 +145,7 @@ func (r DatastoreConfigRequest) validate() error {
 
 // DatastoreService is service to interact with clickhouse datastore resource.
 type DatastoreService struct {
-	*internal.EngineService
+	*common.EngineService
 }
 
 // GetDatastoreList returns datastore list from api.
