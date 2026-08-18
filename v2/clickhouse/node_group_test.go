@@ -301,3 +301,36 @@ func TestNodeGroupService_UpdateNodeGroupShardGroups_Success(t *testing.T) {
 	require.Equal(t, ngID, result.ID)
 	require.Equal(t, "NewNameNG", result.Name)
 }
+
+func TestNodeGroupService_UpdateNodeGroupFloatingIPs_Success(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPatch, r.Method)
+		require.Equal(t, nodeGroupEndpoint+"/floating_ips", r.URL.Path)
+
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		var req NodeGroupUpdateFloatingIPsRequest
+		require.NoError(t, json.Unmarshal(body, &req))
+
+		require.True(t, req.HasPublicIPs)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Mock response from API
+		_, err = w.Write([]byte(simpleNodeGroupResponse))
+		require.NoError(t, err)
+	}))
+	defer server.Close()
+
+	srv := newNodeGroupService(t, server.URL)
+
+	req := NodeGroupUpdateFloatingIPsRequest{HasPublicIPs: true}
+
+	result, err := srv.UpdateNodeGroupFloatingIPs(context.Background(), dsID, ngID, req)
+
+	require.NoError(t, err)
+	require.Equal(t, ngID, result.ID)
+	require.Equal(t, "NewNameNG", result.Name)
+}
