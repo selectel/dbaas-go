@@ -328,3 +328,19 @@ func TestNodeGroupDeleteInstancesRequest_validate(t *testing.T) {
 
 	checkValidationTests(t, tests)
 }
+
+func TestNodeGroupNodeGroupUpdateWeightRequest_validate(t *testing.T) {
+	tests := []validationTest{
+		{
+			name: "good body",
+			body: NodeGroupUpdateWeightRequest{Weight: 100},
+		},
+		{
+			name:   "body with invalid weight",
+			body:   NodeGroupUpdateWeightRequest{Weight: -2},
+			errMsg: "node group weight must be greater than or equal to zero",
+		},
+	}
+
+	checkValidationTests(t, tests)
+}
