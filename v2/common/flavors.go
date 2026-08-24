@@ -30,7 +30,7 @@ type FlavorResponse struct {
 	// Subtype          string      `json:"subtype"`
 }
 
-// DatastoreTypeListResponse is the API response for datastore type list.
+// FlavorListResponse is the API response for flavor list.
 type FlavorListResponse struct {
 	Errors  string           `json:"errors"`
 	Flavors []FlavorResponse `json:"flavors"`
@@ -40,7 +40,7 @@ type FlavorService struct {
 	*baseService
 }
 
-// GetDatastoreTypeList returns datastore type list from api.
+// GetFlavorList returns the flavor list from the API.
 func (s *FlavorService) GetFlavorList(ctx context.Context) (FlavorListResponse, error) {
 	response := FlavorListResponse{}
 

@@ -44,22 +44,25 @@ func (f FlavorForNodeGroupRequest) validate() error {
 		}
 
 		if f.Disk <= 0 {
-			return errors.New("flavor.disk must be greater than 0") //nolint:goerr113 // Dynamic error
+			return fmt.Errorf("flavor.disk: %w", common.ErrPositiveIntegerRequired)
 		}
 
 		if f.RAM <= 0 {
-			return errors.New("flavor.ram must be greater than 0") //nolint:goerr113 // Dynamic error
+			return fmt.Errorf("flavor.ram: %w", common.ErrPositiveIntegerRequired)
 		}
 
 		if f.VCPUs <= 0 {
-			return errors.New("flavor.vcpus must be greater than 0") //nolint:goerr113 // Dynamic error
+			return fmt.Errorf("flavor.vcpus: %w", common.ErrPositiveIntegerRequired)
 		}
 
 	default:
 		return fmt.Errorf("%w: %q", common.ErrUnsupportedFlavorType, f.Type)
 	}
 
-	// API requires DiskType for bouth types.
+	// API requires DiskType for both types. It seems that the fixed flavor should not have this field as required.
+	// if f.DiskType == "" {
+	// 	return fmt.Errorf("flavor.disk_type %w", common.ErrFieldRequired)
+	// }
 
 	return nil
 }

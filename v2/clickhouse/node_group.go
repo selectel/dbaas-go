@@ -45,7 +45,7 @@ type NodeGroupResponse struct {
 	HasPublicIPs bool               `json:"has_public_ips"`
 }
 
-// NodeGroupResponse is the API response for the clickhouse node group.
+// NodeGroupCreateRequest is the request body for creating a clickhouse node group.
 type NodeGroupCreateRequest struct {
 	Weight       *int                      `json:"weight,omitempty"`
 	HasPublicIPs *bool                     `json:"has_public_ips,omitempty"`
@@ -57,7 +57,7 @@ type NodeGroupCreateRequest struct {
 
 func (n NodeGroupCreateRequest) validate() error {
 	if n.Name == "" {
-		return errors.New("node_group.name is required") //nolint:goerr113 // Dynamic error
+		return fmt.Errorf("node_group.name: %w", common.ErrFieldRequired)
 	}
 
 	if n.Role != NodeGroupRoleData && n.Role != NodeGroupRoleKeeper {
@@ -69,7 +69,7 @@ func (n NodeGroupCreateRequest) validate() error {
 	}
 
 	if n.NodeCount <= 0 {
-		return errors.New("node_group.node_count must be greater than 0") //nolint:goerr113 // Dynamic error
+		return fmt.Errorf("node_group.node_count: %w", common.ErrPositiveIntegerRequired)
 	}
 
 	if n.Weight != nil && n.Role == NodeGroupRoleKeeper {
@@ -90,7 +90,7 @@ func (r NodeGroupResizeRequest) validate() error {
 	}
 
 	if r.NodeCount <= 0 {
-		return errors.New("node_count must be greater than 0") //nolint:goerr113 // Dynamic error
+		return fmt.Errorf("node_count: %w", common.ErrPositiveIntegerRequired)
 	}
 	return nil
 }
@@ -102,7 +102,7 @@ type NodeGroupDeleteInstancesRequest struct {
 
 func (r NodeGroupDeleteInstancesRequest) validate() error {
 	if len(r.Instances) == 0 {
-		return errors.New("instances must be at least one") //nolint:goerr113 // Dynamic error
+		return fmt.Errorf("instances: %w", common.ErrFieldEmptySlice)
 	}
 	for i, ID := range r.Instances {
 		if err := uuid.Validate(ID); err != nil {
@@ -131,7 +131,7 @@ type NodeGroupUpdateShardGroupsRequest struct {
 
 func (r NodeGroupUpdateShardGroupsRequest) validate() error {
 	if len(r.ShardGroups) == 0 {
-		return errors.New("shard_groups must be at least one") //nolint:goerr113 // Dynamic error
+		return fmt.Errorf("shard_groups: %w", common.ErrFieldEmptySlice)
 	}
 	for i, ID := range r.ShardGroups {
 		if err := uuid.Validate(ID); err != nil {

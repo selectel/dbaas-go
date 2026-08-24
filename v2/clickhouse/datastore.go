@@ -2,7 +2,6 @@ package clickhouse
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -51,11 +50,11 @@ type DatastoreCreateRequest struct {
 
 func (r DatastoreCreateRequest) validate() error {
 	if r.Name == "" {
-		return errors.New("datastore.name is required") //nolint:goerr113 // Dynamic error
+		return fmt.Errorf("datastore.name: %w", common.ErrFieldRequired)
 	}
 
 	if r.Password == "" {
-		return errors.New("datastore.password is required") //nolint:goerr113 // Dynamic error
+		return fmt.Errorf("datastore.password: %w", common.ErrFieldRequired)
 	}
 
 	if err := uuid.Validate(r.TypeID); err != nil {
@@ -67,7 +66,7 @@ func (r DatastoreCreateRequest) validate() error {
 	}
 
 	if len(r.NodeGroups) == 0 {
-		return errors.New("datastore.node_groups must be at least one") //nolint:goerr113 // Dynamic error
+		return fmt.Errorf("datastore.node_groups: %w", common.ErrFieldEmptySlice)
 	}
 
 	for i, group := range r.NodeGroups {
@@ -86,7 +85,7 @@ type DatastoreUpdateRequest struct {
 
 func (r DatastoreUpdateRequest) validate() error {
 	if r.Name == "" {
-		return errors.New("name is required") //nolint:goerr113 // Dynamic error
+		return fmt.Errorf("name: %w", common.ErrFieldRequired)
 	}
 	return nil
 }
@@ -98,12 +97,12 @@ type DatastoreUpdatePasswordRequest struct {
 
 func (r DatastoreUpdatePasswordRequest) validate() error {
 	if r.NewPassword == "" {
-		return errors.New("new_password is required") //nolint:goerr113 // Dynamic error
+		return fmt.Errorf("new_password: %w", common.ErrFieldRequired)
 	}
 	return nil
 }
 
-// DatastoreSecurityGroupRequest represents update options for the Datastore security groups.
+// DatastoreSecurityGroupsRequest represents update options for the Datastore security groups.
 type DatastoreSecurityGroupsRequest struct {
 	SecurityGroups []string `json:"security_groups"`
 }
@@ -126,7 +125,7 @@ type DatastoreLogPlatformRequest struct {
 
 func (r DatastoreLogPlatformRequest) validate() error {
 	if r.LogPlatform.LogGroup == "" {
-		return errors.New("log_platform.log_group is required") //nolint:goerr113 // Dynamic error
+		return fmt.Errorf("log_platform.log_group: %w", common.ErrFieldRequired)
 	}
 	return nil
 }
@@ -138,7 +137,7 @@ type DatastoreConfigRequest struct {
 
 func (r DatastoreConfigRequest) validate() error {
 	if r.Config == nil {
-		return errors.New("config is required") //nolint:goerr113 // Dynamic error
+		return fmt.Errorf("config: %w", common.ErrFieldRequired)
 	}
 	return nil
 }
@@ -282,7 +281,7 @@ func (s *DatastoreService) EnableLogPlatform(
 	return response, nil
 }
 
-// DisableLogPlatform updates a log platform params of the existing datastore.
+// DisableLogPlatform disables the log platform for the existing datastore.
 func (s *DatastoreService) DisableLogPlatform(ctx context.Context, datastoreID string) error {
 	if err := uuid.Validate(datastoreID); err != nil {
 		return fmt.Errorf("validate datastore id: %w", err)

@@ -338,7 +338,7 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 				Flavor: FlavorForNodeGroupRequest{
 					Type: "FIXED",
 					ID:   "550e8400-e29b-41d4-a716-446655440000",
-					// API requires DiskType filed.
+					// API requires DiskType field.
 				},
 			},
 			{
@@ -384,7 +384,7 @@ func TestDatastoreService_CreateDatastore_InvalidRequest(t *testing.T) {
 
 	result, err := srv.CreateDatastore(context.Background(), req)
 	require.Error(t, err)
-	require.Equal(t, "validate body: node_groups[0]: node_group.node_count must be greater than 0", err.Error())
+	require.Equal(t, "validate body: node_groups[0]: node_group.node_count: value must be greater than 0", err.Error())
 	require.Equal(t, DatastoreResponse{}, result)
 }
 
