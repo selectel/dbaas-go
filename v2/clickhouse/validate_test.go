@@ -207,7 +207,7 @@ func TestNodeGroupCreateRequest_validate(t *testing.T) {
 				Name:   "TestNg",
 				Flavor: FlavorForNodeGroupRequest{},
 			},
-			errMsg: "node_group.role must be DATA or KEEPER",
+			errMsg: "node_group.role: unsupported node group role",
 		},
 		{
 			name: "node group without flavor",
