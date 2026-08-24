@@ -61,7 +61,7 @@ func (n NodeGroupCreateRequest) validate() error {
 	}
 
 	if n.Role != NodeGroupRoleData && n.Role != NodeGroupRoleKeeper {
-		return errors.New("node_group.role must be DATA or KEEPER") //nolint:goerr113 // Dynamic error
+		return fmt.Errorf("node_group.role: %w", common.ErrUnsupportedNodeGroupRole)
 	}
 
 	if err := n.Flavor.validate(); err != nil {
