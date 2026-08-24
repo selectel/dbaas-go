@@ -39,14 +39,14 @@ func TestDatastoreCreateRequest_validate(t *testing.T) {
 		{
 			name:   "datastore without name",
 			body:   DatastoreCreateRequest{},
-			errMsg: "datastore.name is required",
+			errMsg: "datastore.name: required field",
 		},
 		{
 			name: "datastore without password",
 			body: DatastoreCreateRequest{
 				Name: "Test",
 			},
-			errMsg: "datastore.password is required",
+			errMsg: "datastore.password: required field",
 		},
 		{
 			name: "datastore without type_id",
@@ -73,7 +73,7 @@ func TestDatastoreCreateRequest_validate(t *testing.T) {
 				TypeID:   "550e8400-e29b-41d4-a716-446655440000",
 				SubnetID: "550e8400-e29b-41d4-a716-446655440001",
 			},
-			errMsg: "datastore.node_groups must be at least one",
+			errMsg: "datastore.node_groups: must be at least one value",
 		},
 		{
 			name: "datastore with invalid node_group",
@@ -86,7 +86,7 @@ func TestDatastoreCreateRequest_validate(t *testing.T) {
 					{Name: ""},
 				},
 			},
-			errMsg: "node_groups[0]: node_group.name is required",
+			errMsg: "node_groups[0]: node_group.name: required field",
 		},
 	}
 	checkValidationTests(t, tests)
@@ -97,7 +97,7 @@ func TestDatastoreUpdateRequest_validate(t *testing.T) {
 		{
 			name:   "body without name",
 			body:   DatastoreUpdateRequest{},
-			errMsg: "name is required",
+			errMsg: "name: required field",
 		},
 		{
 			name: "body with name",
@@ -113,7 +113,7 @@ func TestDatastoreUpdatePasswordRequest_validate(t *testing.T) {
 		{
 			name:   "body without new password",
 			body:   DatastoreUpdatePasswordRequest{},
-			errMsg: "password is required",
+			errMsg: "password: required field",
 		},
 		{
 			name: "body with name",
@@ -153,7 +153,7 @@ func TestDatastoreLogPlatformRequest_validate(t *testing.T) {
 		{
 			name:   "body without log_group",
 			body:   DatastoreLogPlatformRequest{},
-			errMsg: "log_platform.log_group is required",
+			errMsg: "log_platform.log_group: required field",
 		},
 		{
 			name: "body with log_group",
@@ -173,7 +173,7 @@ func TestDatastoreConfigRequest_validate(t *testing.T) {
 		{
 			name:   "body without config",
 			body:   DatastoreConfigRequest{},
-			errMsg: "config is required",
+			errMsg: "config: required field",
 		},
 		{
 			name: "body with config",
@@ -199,7 +199,7 @@ func TestNodeGroupCreateRequest_validate(t *testing.T) {
 				Role:   NodeGroupRoleData,
 				Flavor: FlavorForNodeGroupRequest{},
 			},
-			errMsg: "node_group.name is required",
+			errMsg: "node_group.name: required field",
 		},
 		{
 			name: "node group without role",
@@ -236,7 +236,7 @@ func TestNodeGroupCreateRequest_validate(t *testing.T) {
 					Type: "FIXED",
 				},
 			},
-			errMsg: "node_group.node_count must be greater than 0",
+			errMsg: "node_group.node_count: value must be greater than 0",
 		},
 		{
 			name: "node group data with weight",
@@ -287,7 +287,7 @@ func TestNodeGroupResizeRequest_validate(t *testing.T) {
 					Type: "FIXED",
 				},
 			},
-			errMsg: "node_count must be greater than 0",
+			errMsg: "node_count: value must be greater than 0",
 		},
 		{
 			name: "good body",
@@ -309,7 +309,7 @@ func TestNodeGroupDeleteInstancesRequest_validate(t *testing.T) {
 		{
 			name:   "body without instances",
 			body:   NodeGroupDeleteInstancesRequest{},
-			errMsg: "instances must be at least one",
+			errMsg: "instances: must be at least one value",
 		},
 		{
 			name: "body with invalid instances",
@@ -350,7 +350,7 @@ func TestNodeGroupUpdateShardGroupsRequest_validate(t *testing.T) {
 		{
 			name:   "body without shard_groups",
 			body:   NodeGroupUpdateShardGroupsRequest{},
-			errMsg: "shard_groups must be at least one",
+			errMsg: "shard_groups: must be at least one value",
 		},
 		{
 			name: "body with invalid shard_groups",

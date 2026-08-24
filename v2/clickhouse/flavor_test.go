@@ -60,7 +60,7 @@ func TestFlavorForNodeGroupRequest_validate(t *testing.T) {
 				VCPUs:    2,
 			},
 			wantErr: true,
-			errMsg:  "flavor.disk must be greater than 0",
+			errMsg:  "flavor.disk: value must be greater than 0",
 		},
 		{
 			name: "flexible without ram",
@@ -71,7 +71,7 @@ func TestFlavorForNodeGroupRequest_validate(t *testing.T) {
 				VCPUs:    2,
 			},
 			wantErr: true,
-			errMsg:  "flavor.ram must be greater than 0",
+			errMsg:  "flavor.ram: value must be greater than 0",
 		},
 		{
 			name: "flexible without vcpus",
@@ -82,7 +82,7 @@ func TestFlavorForNodeGroupRequest_validate(t *testing.T) {
 				RAM:      2,
 			},
 			wantErr: true,
-			errMsg:  "flavor.vcpus must be greater than 0",
+			errMsg:  "flavor.vcpus: value must be greater than 0",
 		},
 		{
 			name: "flexible with id",

@@ -85,7 +85,7 @@ func TestNodeGroupService_CreateNodeGroup_Success(t *testing.T) {
 		Flavor: FlavorForNodeGroupRequest{
 			Type: "FIXED",
 			ID:   "550e8400-e29b-41d4-a716-446655440000",
-			// API requires DiskType filed.
+			// API requires DiskType field.
 		},
 	}
 
@@ -105,7 +105,7 @@ func TestNodeGroupService_CreateNodeGroup_InvalidRequest(t *testing.T) {
 		Flavor: FlavorForNodeGroupRequest{
 			Type: "FLEXIBLE",
 			ID:   "550e8400-e29b-41d4-a716-446655440000",
-			// API requires DiskType filed.
+			// API requires DiskType field.
 		},
 	}
 	_, err := srv.CreateNodeGroup(context.Background(), dsID, body)
@@ -173,7 +173,7 @@ func TestNodeGroupService_ResizeNodeGroup_Success(t *testing.T) {
 		Flavor: FlavorForNodeGroupRequest{
 			Type: "FIXED",
 			ID:   "550e8400-e29b-41d4-a716-446655440000",
-			// API requires DiskType filed.
+			// API requires DiskType field.
 		},
 	}
 
