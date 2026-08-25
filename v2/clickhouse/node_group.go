@@ -124,7 +124,7 @@ func (r NodeGroupUpdateWeightRequest) validate() error {
 	return nil
 }
 
-// NodeGroupUpdateShardGroupRequest is the request body to update shard goups for a node group.
+// NodeGroupUpdateShardGroupsRequest is the request body to update shard goups for a node group.
 type NodeGroupUpdateShardGroupsRequest struct {
 	ShardGroups []string `json:"shard_groups"`
 }
