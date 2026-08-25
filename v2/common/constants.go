@@ -32,8 +32,16 @@ const (
 type FlavorDiskType string
 
 const (
-	FlavorDiskLocal        FlavorDiskType = "local"
-	FlavorDiskNetworkUltra FlavorDiskType = "network-ultra"
+	FlavorDiskLocal        FlavorDiskType = "LOCAL"
+	FlavorDiskNetworkUltra FlavorDiskType = "NETWORK-ULTRA"
+)
+
+// FlavorType represents custom type for flavor types.
+type FlavorType string
+
+const (
+	FlavorTypeFIXED    FlavorType = "FIXED"
+	FlavorTypeFlexible FlavorType = "FLEXIBLE"
 )
 
 // Engine represents engine type (datastore type).
