@@ -46,7 +46,7 @@ func (m mockClient) Do(ctx context.Context, method, path string, body, result an
 	return nil
 }
 
-func newDastastoreServiceWithMockClient() *DatastoreService {
+func newDatastoreServiceWithMockClient() *DatastoreService {
 	mockClient := mockClient{}
 
 	engine := common.NewEngineService(
@@ -364,7 +364,7 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 }
 
 func TestDatastoreService_CreateDatastore_InvalidRequest(t *testing.T) {
-	srv := newDastastoreServiceWithMockClient()
+	srv := newDatastoreServiceWithMockClient()
 	req := DatastoreCreateRequest{
 		Name:     "Test_cluster",
 		Password: "pass123",
