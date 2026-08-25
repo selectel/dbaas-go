@@ -555,7 +555,7 @@ func TestDatastoreService_DisableLogPlatform_Success(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestDatastoreService_UpdateDatasoreConfig_Success(t *testing.T) {
+func TestDatastoreService_UpdateDatastoreConfig_Success(t *testing.T) {
 	url := datastoreEndpoint + "/config"
 	config := map[string]any{
 		"param_first":  1,
