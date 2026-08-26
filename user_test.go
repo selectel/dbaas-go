@@ -334,3 +334,132 @@ func TestUpdateUserRoles(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, expected, actual)
 }
+
+func TestCreateUserWithSettings(t *testing.T) {
+	httpmock.Activate()
+	testClient := SetupTestClient()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("POST", testClient.Endpoint+UsersURI,
+		func(req *http.Request) (*http.Response, error) {
+			var payload struct {
+				User UserCreateOpts `json:"user"`
+			}
+			if err := json.NewDecoder(req.Body).Decode(&payload); err != nil {
+				return httpmock.NewStringResponse(400, ""), err
+			}
+
+			users := make(map[string]User)
+			users["user"] = User{
+				ID:          "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				CreatedAt:   "1970-01-01T00:00:00",
+				UpdatedAt:   "1970-01-01T00:00:00",
+				ProjectID:   "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				DatastoreID: "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				Name:        "user",
+				Status:      StatusPendingCreate,
+				Settings: map[string]any{
+					"conn_limit":        20,
+					"statement_timeout": 5000,
+					"login":             true,
+				},
+			}
+
+			resp, err := httpmock.NewJsonResponse(200, users)
+			if err != nil {
+				return httpmock.NewStringResponse(500, ""), err
+			}
+
+			return resp, nil
+		})
+
+	createUserOpts := UserCreateOpts{
+		Name:        "user",
+		DatastoreID: "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		Password:    "secret",
+		Settings: map[string]any{
+			"conn_limit":        20,
+			"statement_timeout": 5000,
+			"login":             true,
+		},
+	}
+
+	expected := User{
+		ID:          "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		CreatedAt:   "1970-01-01T00:00:00",
+		UpdatedAt:   "1970-01-01T00:00:00",
+		ProjectID:   "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		DatastoreID: "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		Name:        "user",
+		Status:      StatusPendingCreate,
+		Settings: map[string]any{
+			"conn_limit":        float64(20),
+			"statement_timeout": float64(5000),
+			"login":             true,
+		},
+	}
+
+	actual, err := testClient.CreateUser(context.Background(), createUserOpts)
+
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
+}
+
+func TestUpdateUserSettings(t *testing.T) {
+	httpmock.Activate()
+	testClient := SetupTestClient()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("PUT", testClient.Endpoint+UsersURI+"/"+userID+"/"+UserSettingsURISuffix,
+		func(req *http.Request) (*http.Response, error) {
+			if err := json.NewDecoder(req.Body).Decode(&UserSettingsUpdateOpts{}); err != nil {
+				return httpmock.NewStringResponse(400, ""), err
+			}
+
+			users := make(map[string]User)
+			users["user"] = User{
+				ID:          "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				CreatedAt:   "1970-01-01T00:00:00",
+				UpdatedAt:   "1970-01-01T00:00:00",
+				ProjectID:   "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				DatastoreID: "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+				Name:        "user",
+				Status:      StatusPendingUpdate,
+				Settings: map[string]any{
+					"statement_timeout": 1000,
+				},
+			}
+
+			resp, err := httpmock.NewJsonResponse(200, users)
+			if err != nil {
+				return httpmock.NewStringResponse(500, ""), err
+			}
+
+			return resp, nil
+		})
+
+	updateOpts := UserSettingsUpdateOpts{
+		Settings: map[string]any{
+			"statement_timeout": 1000,
+			"conn_limit":        nil,
+		},
+	}
+
+	expected := User{
+		ID:          "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		CreatedAt:   "1970-01-01T00:00:00",
+		UpdatedAt:   "1970-01-01T00:00:00",
+		ProjectID:   "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		DatastoreID: "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		Name:        "user",
+		Status:      StatusPendingUpdate,
+		Settings: map[string]any{
+			"statement_timeout": float64(1000),
+		},
+	}
+
+	actual, err := testClient.UpdateUserSettings(context.Background(), userID, updateOpts)
+
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
+}
