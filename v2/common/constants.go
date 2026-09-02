@@ -33,7 +33,7 @@ type FlavorDiskType string
 
 const (
 	FlavorDiskLocal        FlavorDiskType = "LOCAL"
-	FlavorDiskNetworkUltra FlavorDiskType = "NETWORK-ULTRA"
+	FlavorDiskNetworkUltra FlavorDiskType = "NETWORK_ULTRA"
 )
 
 // FlavorType represents custom type for flavor types.

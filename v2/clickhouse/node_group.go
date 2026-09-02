@@ -75,6 +75,10 @@ func (n NodeGroupCreateRequest) validate() error {
 	if n.Weight != nil && n.Role == NodeGroupRoleKeeper {
 		return errors.New("node_group.role KEEPER could not have weight") //nolint:goerr113 // Dynamic error
 	}
+
+	if n.Role == NodeGroupRoleData && n.Weight == nil {
+		return errors.New("weight is required for node_group.role DATA") //nolint:goerr113 // Dynamic error
+	}
 	return nil
 }
 

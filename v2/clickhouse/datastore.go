@@ -31,6 +31,14 @@ type DatastoreResponse struct {
 	NodeGroups     []NodeGroupResponse    `json:"node_groups"`
 }
 
+func (r DatastoreResponse) GetState() string {
+	return string(r.State)
+}
+
+func (r DatastoreResponse) GetStatus() string {
+	return string(r.Status)
+}
+
 // DatastoreListResponse is the API response for the clickhouse datastore list.
 type DatastoreListResponse struct {
 	Datastores []DatastoreResponse `json:"datastores"`
