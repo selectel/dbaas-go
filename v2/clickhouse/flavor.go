@@ -14,11 +14,10 @@ type FlavorResponse struct {
 	ID       string                `json:"id"`
 	DiskType common.FlavorDiskType `json:"disk_type"`
 	FlSize   string                `json:"fl_size"`
+	Type     common.FlavorType     `json:"type"`
 	Disk     int                   `json:"disk"`
 	RAM      int                   `json:"ram"`
 	VCPUs    int                   `json:"vcpus"`
-	// "type": "FIXED",
-	// "subtype": "STANDARD"
 }
 
 // FlavorForNodeGroupRequest is body to create, resize NodeGroup.
