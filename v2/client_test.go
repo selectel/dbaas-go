@@ -21,10 +21,19 @@ func TestNewAPI(t *testing.T) {
 	require.NotNil(t, api.ClickHouse)
 	require.NotNil(t, api.ClickHouse.DatastoreService)
 	require.NotNil(t, api.ClickHouse.NodeGroupService)
+	require.NotNil(t, api.ClickHouse.ShardGroupService)
 
-	ptrDirect := reflect.ValueOf(api.ClickHouse.GetDatastore).Pointer()
-	ptrViaInner := reflect.ValueOf(api.ClickHouse.DatastoreService.GetDatastore).Pointer()
-	require.Equal(t, ptrDirect, ptrViaInner, "Methods must refer to the same function")
+	ptrDirectD := reflect.ValueOf(api.ClickHouse.GetDatastore).Pointer()
+	ptrViaInnerD := reflect.ValueOf(api.ClickHouse.DatastoreService.GetDatastore).Pointer()
+	require.Equal(t, ptrDirectD, ptrViaInnerD, "Methods must refer to the same function")
+
+	ptrDirectN := reflect.ValueOf(api.ClickHouse.ResizeNodeGroup).Pointer()
+	ptrViaInnerN := reflect.ValueOf(api.ClickHouse.NodeGroupService.ResizeNodeGroup).Pointer()
+	require.Equal(t, ptrDirectN, ptrViaInnerN, "Methods must refer to the same function")
+
+	ptrDirectS := reflect.ValueOf(api.ClickHouse.CreateShardGroup).Pointer()
+	ptrViaInnerS := reflect.ValueOf(api.ClickHouse.ShardGroupService.CreateShardGroup).Pointer()
+	require.Equal(t, ptrDirectS, ptrViaInnerS, "Methods must refer to the same function")
 
 	require.NotNil(t, api.DatastoreType)
 	require.NotNil(t, api.Flavor)

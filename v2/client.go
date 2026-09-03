@@ -28,6 +28,7 @@ type RetryConfig struct {
 
 func newAPIWithClient(client transport.Client) *API {
 	return &API{
+		// maybe add Datastore to get datastores (aggregated)
 		Flavor:        common.NewFlavorService(client),
 		DatastoreType: common.NewDatastoreTypeService(client),
 		ClickHouse:    clickhouse.NewAPI(client),

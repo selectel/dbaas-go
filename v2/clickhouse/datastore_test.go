@@ -27,7 +27,7 @@ var simpleDatastoreResponse = `{
 func newDatastoreService(t *testing.T, serverURL string) *DatastoreService {
 	t.Helper()
 
-	client, err := transport.NewHTTPClient(http.DefaultClient, "token", serverURL+"/v2")
+	client, err := transport.NewHTTPClient(http.DefaultClient, "token", serverURL+"/v2") //nolint:goconst
 	require.NoError(t, err)
 
 	engine := common.NewEngineService(
@@ -256,62 +256,60 @@ const testDatastoresResponse = `{
 	]
 }`
 
-var datastoreListExpected DatastoreListResponse = DatastoreListResponse{ //nolint:gochecknoglobals
-	Datastores: []DatastoreResponse{
-		{
-			ID:        "04c5bf32-bb4b-40b4-b0c7-3cb4eb1d99d1",
-			Name:      "Sinead",
-			CreatedAt: "2026-08-07T13:12:45.295388",
-			UpdatedAt: "2026-08-12T13:34:13.142778",
-			State:     common.DatastoreStateRunning,
-			Status:    common.DatastoreStatusActive,
-			ProjectID: "295b45d99b6f4afea59ad504ac73e5f6",
-			SubnetID:  "7160539b-3cf6-4a65-a75b-24071390d80f",
-			TypeID:    "00000000-0000-0000-0000-000000000002",
-			SecurityGroups: []string{
-				"9c922408-51de-4598-9894-e69ca00e51c8",
-			},
-			LogPlatform: DatastoreLogGroup{},
-			Config:      map[string]any{},
-			NodeGroups: []NodeGroupResponse{
-				{
-					ID:           "08c2341d-7af7-4914-aee6-7b54156064eb",
-					Name:         "shard1",
-					HasPublicIPs: false,
-					Role:         NodeGroupRoleData,
-					NodeCount:    1,
-					Status:       NodeGroupStatusActive,
-					Weight:       100,
-					ShardGroups: []string{
-						"c377547d-68e9-42ab-942f-a4e3305dea0f",
-					},
-					Flavor: FlavorResponse{
-						ID:       "4882f722-5d20-406a-a119-ca5cedaa4426",
-						DiskType: common.FlavorDiskLocal,
-						Disk:     35,
-						FlSize:   "STANDARD",
-						RAM:      4096,
-						VCPUs:    2,
-						Type:     common.FlavorTypeFIXED,
-					},
-					Instances: []InstanceResponse{
-						{
-							ID:               "f812b882-74ae-4b0b-9901-14f603d8221a",
-							IP:               "192.168.2.78",
-							FlavorID:         "4882f722-5d20-406a-a119-ca5cedaa4426",
-							FloatingIP:       "",
-							Status:           InstanceStatusActive,
-							AvailabilityZone: "ru-2a",
-							Hostname:         "f812b882-74ae-4b0b-9901-14f603d8221a.ru-2.c.dbaas.selcloud.org",
-						},
+var datastoreListExpected []DatastoreResponse = []DatastoreResponse{ //nolint:gochecknoglobals
+	{
+		ID:        "04c5bf32-bb4b-40b4-b0c7-3cb4eb1d99d1",
+		Name:      "Sinead",
+		CreatedAt: "2026-08-07T13:12:45.295388",
+		UpdatedAt: "2026-08-12T13:34:13.142778",
+		State:     common.DatastoreStateRunning,
+		Status:    common.DatastoreStatusActive,
+		ProjectID: "295b45d99b6f4afea59ad504ac73e5f6",
+		SubnetID:  "7160539b-3cf6-4a65-a75b-24071390d80f",
+		TypeID:    "00000000-0000-0000-0000-000000000002",
+		SecurityGroups: []string{
+			"9c922408-51de-4598-9894-e69ca00e51c8",
+		},
+		LogPlatform: DatastoreLogGroup{},
+		Config:      map[string]any{},
+		NodeGroups: []NodeGroupResponse{
+			{
+				ID:           "08c2341d-7af7-4914-aee6-7b54156064eb",
+				Name:         "shard1",
+				HasPublicIPs: false,
+				Role:         NodeGroupRoleData,
+				NodeCount:    1,
+				Status:       NodeGroupStatusActive,
+				Weight:       100,
+				ShardGroups: []string{
+					"c377547d-68e9-42ab-942f-a4e3305dea0f",
+				},
+				Flavor: FlavorResponse{
+					ID:       "4882f722-5d20-406a-a119-ca5cedaa4426",
+					DiskType: common.FlavorDiskLocal,
+					Disk:     35,
+					FlSize:   "STANDARD",
+					RAM:      4096,
+					VCPUs:    2,
+					Type:     common.FlavorTypeFIXED,
+				},
+				Instances: []InstanceResponse{
+					{
+						ID:               "f812b882-74ae-4b0b-9901-14f603d8221a",
+						IP:               "192.168.2.78",
+						FlavorID:         "4882f722-5d20-406a-a119-ca5cedaa4426",
+						FloatingIP:       "",
+						Status:           InstanceStatusActive,
+						AvailabilityZone: "ru-2a",
+						Hostname:         "f812b882-74ae-4b0b-9901-14f603d8221a.ru-2.c.dbaas.selcloud.org",
 					},
 				},
 			},
 		},
-		{
-			ID:   "ds-2",
-			Name: "clickhouse-2",
-		},
+	},
+	{
+		ID:   "ds-2",
+		Name: "clickhouse-2",
 	},
 }
 
@@ -438,7 +436,7 @@ func TestDatastoreService_GetDatastore_Success(t *testing.T) {
 
 	require.NoError(t, err)
 
-	require.Equal(t, datastoreListExpected.Datastores[0], resp)
+	require.Equal(t, datastoreListExpected[0], resp)
 }
 
 func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
