@@ -75,6 +75,20 @@ func NewDBAASClientV2(token, endpoint string) (*v2.API, error) {
 	return client, nil
 }
 
+// NewDBAASClientV2WithRetry initializes a new DBaaS client for the V2 API.
+func NewDBAASClientV2WithRetry(token, endpoint string, retryCfg v2.RetryConfig) (*v2.API, error) {
+	if !strings.HasSuffix(endpoint, "/v2") {
+		return nil, ErrorEndpointVersionMismatch
+	}
+
+	client, err := v2.NewAPIWithRetry(token, endpoint, retryCfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize v2 api client: %w", err)
+	}
+
+	return client, nil
+}
+
 // NewDBAASClientV1WithCustomHTTP initializes a new DBaaS client for the V1 API using custom HTTP client.
 // If custom HTTP client is nil - default HTTP client will be used.
 func NewDBAASClientV1WithCustomHTTP(customHTTPClient *http.Client, token, endpoint string) (*API, error) {
