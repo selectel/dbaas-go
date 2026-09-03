@@ -59,6 +59,141 @@ func newDatastoreServiceWithMockClient() *DatastoreService {
 	}
 }
 
+const testDatastoreConfigurationParameters = `{
+	"configuration-parameters": [
+		{
+			"id": "0fa4bb95-6f55-4249-94d0-a70cb85dc09b",
+			"datastore_type_id": "00000000-0000-0000-0000-000000000001",
+			"name": "server_settings.async_insert_threads",
+			"type": "int",
+			"choices": null,
+			"min": "0",
+			"max": "18446744073709551615",
+			"default_value": 16,
+			"invalid_values": null,
+			"is_restart_required": true,
+			"can_be_empty": false,
+			"is_multiple_choice_available": false,
+			"is_changeable": true
+		},
+		{
+			"id": "084d0355-2d1a-47cb-83de-54bebd42e100",
+			"datastore_type_id": "00000000-0000-0000-0000-000000000001",
+			"name": "server_settings.background_merges_mutations_concurrency_ratio",
+			"type": "float",
+			"choices": null,
+			"min": "0",
+			"max": "3.4028235e+38F",
+			"default_value": 2.0,
+			"invalid_values": null,
+			"is_restart_required": true,
+			"can_be_empty": false,
+			"is_multiple_choice_available": false,
+			"is_changeable": true
+		},
+		{
+			"id": "eee271c7-0afe-44d3-aa84-a4f56d9cf7f4",
+			"datastore_type_id": "00000000-0000-0000-0000-000000000001",
+			"name": "merge_tree_settings.deduplicate_merge_projection_mode",
+			"type": "str",
+			"choices": [
+				"ignore",
+				"throw",
+				"drop",
+				"rebuild"
+			],
+			"min": null,
+			"max": null,
+			"default_value": "throw",
+			"invalid_values": null,
+			"is_restart_required": true,
+			"can_be_empty": false,
+			"is_multiple_choice_available": false,
+			"is_changeable": true
+		},
+		{
+			"id": "11cc979c-b912-4efa-8eee-ee63bbc10283",
+			"datastore_type_id": "00000000-0000-0000-0000-000000000001",
+			"name": "server_settings.dictionaries_lazy_load",
+			"type": "bool",
+			"choices": null,
+			"min": null,
+			"max": null,
+			"default_value": true,
+			"invalid_values": null,
+			"is_restart_required": true,
+			"can_be_empty": false,
+			"is_multiple_choice_available": false,
+			"is_changeable": true
+		}
+	]
+}`
+
+func ptr[T any](v T) *T { return &v }
+
+var DatastoreConfigurationParametersExpected = []DatastoreConfigurationParameterResponse{ //nolint:gochecknoglobals
+	{
+		ID:                        "0fa4bb95-6f55-4249-94d0-a70cb85dc09b",
+		DatastoreTypeID:           "00000000-0000-0000-0000-000000000001",
+		Name:                      "server_settings.async_insert_threads",
+		Type:                      "int",
+		Choices:                   nil,
+		MinValue:                  ptr("0"),
+		MaxValue:                  ptr("18446744073709551615"),
+		DefaultValue:              float64(16),
+		InvalidValues:             nil,
+		IsRestartRequired:         true,
+		CanBeEmpty:                false,
+		IsMultipleChoiceAvailable: false,
+		IsChangeable:              true,
+	},
+	{
+		ID:                        "084d0355-2d1a-47cb-83de-54bebd42e100",
+		DatastoreTypeID:           "00000000-0000-0000-0000-000000000001",
+		Name:                      "server_settings.background_merges_mutations_concurrency_ratio",
+		Type:                      "float",
+		Choices:                   nil,
+		MinValue:                  ptr("0"),
+		MaxValue:                  ptr("3.4028235e+38F"),
+		DefaultValue:              float64(2),
+		InvalidValues:             nil,
+		IsRestartRequired:         true,
+		CanBeEmpty:                false,
+		IsMultipleChoiceAvailable: false,
+		IsChangeable:              true,
+	},
+	{
+		ID:                        "eee271c7-0afe-44d3-aa84-a4f56d9cf7f4",
+		DatastoreTypeID:           "00000000-0000-0000-0000-000000000001",
+		Name:                      "merge_tree_settings.deduplicate_merge_projection_mode",
+		Type:                      "str",
+		Choices:                   []string{"ignore", "throw", "drop", "rebuild"},
+		MinValue:                  nil,
+		MaxValue:                  nil,
+		DefaultValue:              "throw",
+		InvalidValues:             nil,
+		IsRestartRequired:         true,
+		CanBeEmpty:                false,
+		IsMultipleChoiceAvailable: false,
+		IsChangeable:              true,
+	},
+	{
+		ID:                        "11cc979c-b912-4efa-8eee-ee63bbc10283",
+		DatastoreTypeID:           "00000000-0000-0000-0000-000000000001",
+		Name:                      "server_settings.dictionaries_lazy_load",
+		Type:                      "bool",
+		Choices:                   nil,
+		MinValue:                  nil,
+		MaxValue:                  nil,
+		DefaultValue:              true,
+		InvalidValues:             nil,
+		IsRestartRequired:         true,
+		CanBeEmpty:                false,
+		IsMultipleChoiceAvailable: false,
+		IsChangeable:              true,
+	},
+}
+
 const testDatastoresResponse = `{
 	"datastores": [
 		{
@@ -157,6 +292,7 @@ var datastoreListExpected DatastoreListResponse = DatastoreListResponse{ //nolin
 						FlSize:   "STANDARD",
 						RAM:      4096,
 						VCPUs:    2,
+						Type:     common.FlavorTypeFIXED,
 					},
 					Instances: []InstanceResponse{
 						{
@@ -257,6 +393,30 @@ func TestDatastoreService_GetDatastoreList_Success(t *testing.T) {
 	require.Equal(t, datastoreListExpected, resp)
 }
 
+func TestDatastoreService_GetDatastoreConfigurationParameters_Success(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodGet, r.Method)
+		require.Equal(t, "/v2/datastores/clickhouse/configuration-parameters", r.URL.Path)
+
+		w.Header().Set("Content-Type", "application/json")
+
+		_, err := w.Write([]byte(testDatastoreConfigurationParameters))
+
+		require.NoError(t, err)
+	}))
+	defer server.Close()
+
+	srv := newDatastoreService(t, server.URL)
+
+	resp, err := srv.GetDatastoreConfigurationParameters(context.Background())
+
+	require.NoError(t, err)
+
+	require.Equal(t, DatastoreConfigurationParametersExpected, resp)
+}
+
 func TestDatastoreService_GetDatastore_Success(t *testing.T) {
 	t.Parallel()
 
@@ -304,15 +464,15 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 		require.Empty(t, dataNG.Flavor.Disk)
 		require.Empty(t, dataNG.Flavor.RAM)
 		require.Empty(t, dataNG.Flavor.VCPUs)
-		require.Empty(t, dataNG.Weight)
+		require.Equal(t, 100, *dataNG.Weight)
 		require.Empty(t, dataNG.HasPublicIPs)
 
 		keeperNG := req.NodeGroups[1]
 		require.Equal(t, NodeGroupRoleKeeper, keeperNG.Role)
 		require.Equal(t, common.FlavorTypeFlexible, keeperNG.Flavor.Type)
 		require.Equal(t, 25, keeperNG.Flavor.Disk)
-		require.Empty(t, dataNG.Weight)
-		require.Empty(t, dataNG.HasPublicIPs)
+		require.Empty(t, keeperNG.Weight)
+		require.Empty(t, keeperNG.HasPublicIPs)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
@@ -324,6 +484,7 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 	defer server.Close()
 
 	srv := newDatastoreService(t, server.URL)
+	weight := 100
 
 	req := DatastoreCreateRequest{
 		Name:     "Test_cluster",
@@ -340,6 +501,7 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 					ID:   "550e8400-e29b-41d4-a716-446655440000",
 					// API requires DiskType field.
 				},
+				Weight: &weight,
 			},
 			{
 				Name:      "Keepers",

@@ -150,6 +150,23 @@ func (r DatastoreConfigRequest) validate() error {
 	return nil
 }
 
+// DatastoreConfigurationParameterResponse is the API response for the clickhouse datastore configure parameter.
+type DatastoreConfigurationParameterResponse struct {
+	DefaultValue              any       `json:"default_value"`
+	MinValue                  *string   `json:"min"`
+	InvalidValues             *[]string `json:"invalid_values"`
+	MaxValue                  *string   `json:"max"`
+	Type                      string    `json:"type"`
+	ID                        string    `json:"id"`
+	Name                      string    `json:"name"`
+	DatastoreTypeID           string    `json:"datastore_type_id"`
+	Choices                   []string  `json:"choices"`
+	IsRestartRequired         bool      `json:"is_restart_required"`
+	CanBeEmpty                bool      `json:"can_be_empty"`
+	IsMultipleChoiceAvailable bool      `json:"is_multiple_choice_available"`
+	IsChangeable              bool      `json:"is_changeable"`
+}
+
 // DatastoreService is service to interact with clickhouse datastore resource.
 type DatastoreService struct {
 	*common.EngineService
@@ -337,4 +354,20 @@ func (s *DatastoreService) DeleteDatastore(ctx context.Context, datastoreID stri
 	}
 
 	return nil
+}
+
+// GetDatastoreConfigurationParameters returns a list of available datastore configuration parameters from api.
+func (s *DatastoreService) GetDatastoreConfigurationParameters(
+	ctx context.Context,
+) ([]DatastoreConfigurationParameterResponse, error) {
+	var response struct {
+		ConfigurationParameters []DatastoreConfigurationParameterResponse `json:"configuration-parameters"`
+	}
+
+	err := s.Get(ctx, "/configuration-parameters", &response)
+	if err != nil {
+		return response.ConfigurationParameters, err //nolint:wrapcheck
+	}
+
+	return response.ConfigurationParameters, nil
 }
