@@ -9,7 +9,7 @@ import (
 type API struct {
 	*DatastoreService
 	*NodeGroupService
-	// ShardGroup
+	*ShardGroupService
 }
 
 func NewAPI(c transport.Client) *API {
@@ -17,9 +17,11 @@ func NewAPI(c transport.Client) *API {
 
 	datastoreSvc := &DatastoreService{engine}
 	nodeGroupSvc := &NodeGroupService{engine}
+	shardGroupSvc := &ShardGroupService{engine}
 
 	return &API{
 		datastoreSvc,
 		nodeGroupSvc,
+		shardGroupSvc,
 	}
 }

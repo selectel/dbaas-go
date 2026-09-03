@@ -150,7 +150,7 @@ type NodeGroupUpdateFloatingIPsRequest struct {
 	HasPublicIPs bool `json:"has_public_ips"`
 }
 
-// DatastoreService is service to interact with clickhouse datastore resource.
+// NodeGroupService is service to interact with clickhouse node group resource.
 type NodeGroupService struct {
 	*common.EngineService
 }

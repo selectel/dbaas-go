@@ -39,11 +39,6 @@ func (r DatastoreResponse) GetStatus() string {
 	return string(r.Status)
 }
 
-// DatastoreListResponse is the API response for the clickhouse datastore list.
-type DatastoreListResponse struct {
-	Datastores []DatastoreResponse `json:"datastores"`
-}
-
 // DatastoreCreateRequest represents body for the datastore Create request.
 type DatastoreCreateRequest struct {
 	Config         map[string]any           `json:"config,omitempty"`
@@ -173,15 +168,17 @@ type DatastoreService struct {
 }
 
 // GetDatastoreList returns datastore list from api.
-func (s *DatastoreService) GetDatastoreList(ctx context.Context) (DatastoreListResponse, error) {
-	response := DatastoreListResponse{}
+func (s *DatastoreService) GetDatastoreList(ctx context.Context) ([]DatastoreResponse, error) {
+	var response struct {
+		Datastores []DatastoreResponse `json:"datastores"`
+	}
 
 	err := s.Get(ctx, "", &response)
 	if err != nil {
-		return response, err //nolint:wrapcheck
+		return response.Datastores, err //nolint:wrapcheck
 	}
 
-	return response, nil
+	return response.Datastores, nil
 }
 
 // GetDatastore returns a datastore based on the ID.
