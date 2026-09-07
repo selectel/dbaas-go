@@ -80,6 +80,10 @@ func (s *ShardGroupService) GetShardGroups(ctx context.Context, datastoreID stri
 		ShardGroups []ShardGroupResponse `json:"shard_groups"`
 	}
 
+	if err := uuid.Validate(datastoreID); err != nil {
+		return response.ShardGroups, fmt.Errorf("validate datastore id: %w", err)
+	}
+
 	err := s.Get(ctx, s.shardGroupsPath(datastoreID), &response)
 	if err != nil {
 		return response.ShardGroups, err //nolint:wrapcheck

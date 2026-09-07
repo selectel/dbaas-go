@@ -507,7 +507,7 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 				NodeCount: 3,
 				Flavor: FlavorForNodeGroupRequest{
 					Type:     "FLEXIBLE",
-					DiskType: "NETWORK-ULTRA",
+					DiskType: "NETWORK_ULTRA",
 					RAM:      4096,
 					VCPUs:    2,
 					Disk:     25,
