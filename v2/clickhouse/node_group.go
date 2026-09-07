@@ -77,7 +77,8 @@ func (n NodeGroupCreateRequest) validate() error {
 	}
 
 	if n.Role == NodeGroupRoleData && n.Weight == nil {
-		return errors.New("weight is required for node_group.role DATA") //nolint:goerr113 // Dynamic error
+		return errors.New( //nolint:goerr113 // Dynamic error
+			"node_group.role.weight: required for node_group.role DATA")
 	}
 	return nil
 }

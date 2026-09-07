@@ -407,7 +407,7 @@ func TestShardGroupCreateRequest_validate(t *testing.T) {
 			errMsg: "shard_group.shard_ids[1]: invalid UUID",
 		},
 		{
-			name: "good shard group ",
+			name: "good shard group",
 			body: ShardGroupCreateRequest{
 				Name:        "TestSg",
 				Description: &description,
