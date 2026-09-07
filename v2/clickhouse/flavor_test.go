@@ -93,6 +93,17 @@ func TestFlavorForNodeGroupRequest_validate(t *testing.T) {
 			wantErr: true,
 			errMsg:  "flavor.id must not be specified for FLEXIBLE flavor",
 		},
+		{
+			name: "flexible without disk_type",
+			flavor: FlavorForNodeGroupRequest{
+				Type:  "FLEXIBLE",
+				Disk:  10,
+				RAM:   5,
+				VCPUs: 2,
+			},
+			wantErr: true,
+			errMsg:  "flavor.disk_type unsupported flavor disk type",
+		},
 	}
 
 	for _, tt := range tests {

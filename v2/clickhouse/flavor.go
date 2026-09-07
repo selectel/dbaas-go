@@ -14,11 +14,10 @@ type FlavorResponse struct {
 	ID       string                `json:"id"`
 	DiskType common.FlavorDiskType `json:"disk_type"`
 	FlSize   string                `json:"fl_size"`
+	Type     common.FlavorType     `json:"type"`
 	Disk     int                   `json:"disk"`
 	RAM      int                   `json:"ram"`
 	VCPUs    int                   `json:"vcpus"`
-	// "type": "FIXED",
-	// "subtype": "STANDARD"
 }
 
 // FlavorForNodeGroupRequest is body to create, resize NodeGroup.
@@ -31,7 +30,7 @@ type FlavorForNodeGroupRequest struct {
 	VCPUs    int                   `json:"vcpus,omitempty"`
 }
 
-func (f FlavorForNodeGroupRequest) validate() error {
+func (f FlavorForNodeGroupRequest) validate() error { //nolint:cyclop // complexity func, max is 10
 	switch f.Type {
 	case common.FlavorTypeFIXED:
 		if err := uuid.Validate(f.ID); err != nil {
@@ -55,14 +54,15 @@ func (f FlavorForNodeGroupRequest) validate() error {
 			return fmt.Errorf("flavor.vcpus: %w", common.ErrPositiveIntegerRequired)
 		}
 
+		if f.DiskType != common.FlavorDiskLocal && f.DiskType != common.FlavorDiskNetworkUltra {
+			return fmt.Errorf("flavor.disk_type %w", common.ErrUnsupportedFlavorDiskType)
+		}
+
 	default:
 		return fmt.Errorf("%w: %q", common.ErrUnsupportedFlavorType, f.Type)
 	}
 
 	// API requires DiskType for both types. It seems that the fixed flavor should not have this field as required.
-	// if f.DiskType == "" {
-	// 	return fmt.Errorf("flavor.disk_type %w", common.ErrFieldRequired)
-	// }
 
 	return nil
 }

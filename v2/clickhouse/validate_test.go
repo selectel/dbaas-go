@@ -252,6 +252,19 @@ func TestNodeGroupCreateRequest_validate(t *testing.T) {
 			},
 		},
 		{
+			name: "node group data without weight",
+			body: NodeGroupCreateRequest{
+				Name: "TestNg",
+				Role: NodeGroupRoleData,
+				Flavor: FlavorForNodeGroupRequest{
+					ID:   "550e8400-e29b-41d4-a716-446655440000",
+					Type: "FIXED",
+				},
+				NodeCount: 1,
+			},
+			errMsg: "node_group.weight: required for node_group.role DATA",
+		},
+		{
 			name: "node group keeper with weight",
 			body: NodeGroupCreateRequest{
 				Name: "TestNg",
@@ -364,6 +377,101 @@ func TestNodeGroupUpdateShardGroupsRequest_validate(t *testing.T) {
 			body: NodeGroupUpdateShardGroupsRequest{
 				ShardGroups: []string{"550e8400-e29b-41d4-a716-446655440000"},
 			},
+		},
+	}
+
+	checkValidationTests(t, tests)
+}
+
+func TestShardGroupCreateRequest_validate(t *testing.T) {
+	description := "Test"
+	tests := []validationTest{
+		{
+			name: "shard group without name",
+			body: ShardGroupCreateRequest{
+				ShardIDs: []string{"1"},
+			},
+			errMsg: "shard_group.name: required field",
+		},
+		{
+			name: "shard group without shard_ids",
+			body: ShardGroupCreateRequest{
+				Name:        "TestSg",
+				Description: &description,
+			},
+			errMsg: "shard_group.shard_ids: must be at least one value",
+		},
+		{
+			name: "shard group with empty shard_ids",
+			body: ShardGroupCreateRequest{
+				Name:        "TestSg",
+				Description: &description,
+				ShardIDs:    []string{},
+			},
+			errMsg: "shard_group.shard_ids: must be at least one value",
+		},
+		{
+			name: "shard group with invalid shard_ids",
+			body: ShardGroupCreateRequest{
+				Name:        "TestSg",
+				Description: &description,
+				ShardIDs:    []string{"550e8400-e29b-41d4-a716-446655440000", "1"},
+			},
+			errMsg: "shard_group.shard_ids[1]: invalid UUID",
+		},
+		{
+			name: "good shard group",
+			body: ShardGroupCreateRequest{
+				Name:        "TestSg",
+				Description: &description,
+				ShardIDs:    []string{"550e8400-e29b-41d4-a716-446655440000"},
+			},
+		},
+	}
+
+	checkValidationTests(t, tests)
+}
+
+func TestShardGroupUpdateRequest_validate(t *testing.T) {
+	description := "Test"
+	sGIDsInvalidOne := []string{"1"}
+	sGIDsInvalidTwo := []string{}
+	sGIDsValid := []string{"550e8400-e29b-41d4-a716-446655440000"}
+
+	tests := []validationTest{
+		{
+			name: "shard group with invalid ids only",
+			body: ShardGroupUpdateRequest{
+				ShardIDs: &sGIDsInvalidOne,
+			},
+			errMsg: "shard_group.shard_ids[0]: invalid UUID",
+		},
+		{
+			name: "shard group with valid ids only",
+			body: ShardGroupUpdateRequest{
+				ShardIDs: &sGIDsValid,
+			},
+		},
+		{
+			name: "shard group with valid ids and description",
+			body: ShardGroupUpdateRequest{
+				Description: &description,
+				ShardIDs:    &sGIDsValid,
+			},
+		},
+		{
+			name: "shard group with description only",
+			body: ShardGroupUpdateRequest{
+				Description: &description,
+			},
+		},
+		{
+			name: "shard group with invalid ids and description",
+			body: ShardGroupUpdateRequest{
+				Description: &description,
+				ShardIDs:    &sGIDsInvalidTwo,
+			},
+			errMsg: "shard_group.shard_ids: must be at least one value",
 		},
 	}
 
