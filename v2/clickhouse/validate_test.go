@@ -252,6 +252,19 @@ func TestNodeGroupCreateRequest_validate(t *testing.T) {
 			},
 		},
 		{
+			name: "node group data without weight",
+			body: NodeGroupCreateRequest{
+				Name: "TestNg",
+				Role: NodeGroupRoleData,
+				Flavor: FlavorForNodeGroupRequest{
+					ID:   "550e8400-e29b-41d4-a716-446655440000",
+					Type: "FIXED",
+				},
+				NodeCount: 1,
+			},
+			errMsg: "node_group.weight: required for node_group.role DATA",
+		},
+		{
 			name: "node group keeper with weight",
 			body: NodeGroupCreateRequest{
 				Name: "TestNg",
