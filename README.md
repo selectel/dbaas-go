@@ -40,6 +40,8 @@ The v2 client currently provides:
 * ClickHouse node groups
 * ClickHouse shard groups
 * ClickHouse datastore configuration parameters
+* Opensearch datastores
+* Opensearch node groups
 
 ## Getting started
 
