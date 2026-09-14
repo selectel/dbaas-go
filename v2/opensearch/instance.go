@@ -1,6 +1,6 @@
 package opensearch
 
-// InstanceStatus presents custom type for DBaaS v2 opensearch instance statuses.
+// InstanceStatus represents custom type for DBaaS v2 opensearch instance statuses.
 type InstanceStatus string
 
 const (
@@ -15,7 +15,7 @@ const (
 	InstanceStatusDown     InstanceStatus = "DOWN"
 )
 
-// InstanceResponse is the API response for the opensearch node group.
+// InstanceResponse is the API response for the opensearch instance.
 type InstanceResponse struct {
 	ID               string         `json:"id"`
 	IP               string         `json:"ip"`

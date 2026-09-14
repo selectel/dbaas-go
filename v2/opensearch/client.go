@@ -9,7 +9,6 @@ import (
 type API struct {
 	*DatastoreService
 	*NodeGroupService
-	// ShardGroup
 }
 
 func NewAPI(c transport.Client) *API {

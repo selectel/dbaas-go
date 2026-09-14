@@ -54,6 +54,7 @@ func newNodeGroupServiceWithMockClient() *NodeGroupService {
 }
 
 func TestNodeGroupService_CreateNodeGroup_Success(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodPost, r.Method)
 		require.Equal(t, datastoreEndpoint+"/node_groups", r.URL.Path)
@@ -116,6 +117,7 @@ func TestNodeGroupService_CreateNodeGroup_InvalidRequest(t *testing.T) {
 }
 
 func TestNodeGroupService_DeleteNodeGroup_Success(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodDelete, r.Method)
 		require.Equal(t, nodeGroupEndpoint, r.URL.Path)
@@ -144,6 +146,7 @@ func TestNodeGroupService_DeleteNodeGroup_InvalidRequest(t *testing.T) {
 }
 
 func TestNodeGroupService_ResizeNodeGroup_Success(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodPatch, r.Method)
 		require.Equal(t, nodeGroupEndpoint+"/resize", r.URL.Path)
@@ -192,7 +195,53 @@ func TestNodeGroupService_ResizeNodeGroup_InvalidRequest(t *testing.T) {
 	require.Equal(t, "validate body: validate flavor: unsupported flavor type: \"\"", err.Error())
 }
 
+func TestNodeGroupService_UpdateNodeGroup_Success(t *testing.T) {
+	t.Parallel()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPatch, r.Method)
+		require.Equal(t, nodeGroupEndpoint, r.URL.Path)
+
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		var req NodeGroupUpdateRequest
+		require.NoError(t, json.Unmarshal(body, &req))
+
+		require.Equal(t, "NewNameNG", req.Name)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Mock response from API
+		_, err = w.Write([]byte(simpleNodeGroupResponse))
+		require.NoError(t, err)
+	}))
+	defer server.Close()
+
+	srv := newNodeGroupService(t, server.URL)
+
+	req := NodeGroupUpdateRequest{
+		Name: "NewNameNG",
+	}
+
+	result, err := srv.UpdateNodeGroup(context.Background(), dsID, ngID, req)
+
+	require.NoError(t, err)
+	require.Equal(t, ngID, result.ID)
+	require.Equal(t, "NewNameNG", result.Name)
+}
+
+func TestNodeGroupService_UpdateNodeGroup_InvalidRequest(t *testing.T) {
+	srv := newNodeGroupServiceWithMockClient()
+	body := NodeGroupUpdateRequest{}
+
+	_, err := srv.UpdateNodeGroup(context.Background(), dsID, ngID, body)
+	require.Error(t, err)
+	require.Equal(t, "validate body: node_group.name: required field", err.Error())
+}
+
 func TestNodeGroupService_UpdateNodeGroupFloatingIPs_Success(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodPatch, r.Method)
 		require.Equal(t, nodeGroupEndpoint+"/floating_ips", r.URL.Path)

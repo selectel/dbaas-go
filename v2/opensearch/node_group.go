@@ -72,6 +72,18 @@ func (n NodeGroupCreateRequest) validate() error {
 	return nil
 }
 
+// NodeGroupUpdateRequest is the request body to update a node group.
+type NodeGroupUpdateRequest struct {
+	Name string `json:"name"`
+}
+
+func (n NodeGroupUpdateRequest) validate() error {
+	if n.Name == "" {
+		return fmt.Errorf("node_group.name: %w", common.ErrFieldRequired)
+	}
+	return nil
+}
+
 // NodeGroupResizeRequest is the request body to resize a node group.
 type NodeGroupResizeRequest struct {
 	Flavor    FlavorForNodeGroupRequest `json:"flavor"`
@@ -94,7 +106,7 @@ type NodeGroupUpdateFloatingIPsRequest struct {
 	HasPublicIPs bool `json:"has_public_ips"`
 }
 
-// DatastoreService is service to interact with opensearch datastore resource.
+// NodeGroupService is service to interact with opensearch node group resource.
 type NodeGroupService struct {
 	*common.EngineService
 }
@@ -161,6 +173,31 @@ func (s *NodeGroupService) ResizeNodeGroup(
 	}
 
 	err := s.Patch(ctx, s.nodeGroupsPath(datastoreID, nodeGroupID, "resize"), body, &response)
+	if err != nil {
+		return response, err //nolint:wrapcheck
+	}
+
+	return response, nil
+}
+
+func (s *NodeGroupService) UpdateNodeGroup(
+	ctx context.Context, datastoreID, nodeGroupID string, body NodeGroupUpdateRequest,
+) (NodeGroupResponse, error) {
+	response := NodeGroupResponse{}
+
+	if err := uuid.Validate(datastoreID); err != nil {
+		return response, fmt.Errorf("validate datastore id: %w", err)
+	}
+
+	if err := uuid.Validate(nodeGroupID); err != nil {
+		return response, fmt.Errorf("validate node group id: %w", err)
+	}
+
+	if err := body.validate(); err != nil {
+		return response, fmt.Errorf("validate body: %w", err)
+	}
+
+	err := s.Patch(ctx, s.nodeGroupsPath(datastoreID, nodeGroupID), body, &response)
 	if err != nil {
 		return response, err //nolint:wrapcheck
 	}

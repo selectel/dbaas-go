@@ -13,12 +13,11 @@ import (
 type FlavorResponse struct {
 	ID       string                `json:"id"`
 	DiskType common.FlavorDiskType `json:"disk_type"`
+	Type     common.FlavorType     `json:"type"`
 	FlSize   string                `json:"fl_size"`
 	Disk     int                   `json:"disk"`
 	RAM      int                   `json:"ram"`
 	VCPUs    int                   `json:"vcpus"`
-	// "type": "FIXED",
-	// "subtype": "STANDARD"
 }
 
 // FlavorForNodeGroupRequest is body to create, resize NodeGroup.
@@ -53,6 +52,9 @@ func (f FlavorForNodeGroupRequest) validate() error {
 
 		if f.VCPUs <= 0 {
 			return fmt.Errorf("flavor.vcpus: %w", common.ErrPositiveIntegerRequired)
+		}
+		if f.DiskType != common.FlavorDiskLocal && f.DiskType != common.FlavorDiskNetworkUltra {
+			return fmt.Errorf("flavor.disk_type %w", common.ErrUnsupportedFlavorDiskType)
 		}
 
 	default:

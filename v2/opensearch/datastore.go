@@ -16,7 +16,6 @@ type DatastoreLogGroup struct {
 
 // DatastoreResponse is the API response for the opensearch datastore.
 type DatastoreResponse struct {
-	Config         map[string]any         `json:"config"`
 	ID             string                 `json:"id"`
 	CreatedAt      string                 `json:"created_at"`
 	UpdatedAt      string                 `json:"updated_at"`
@@ -31,14 +30,8 @@ type DatastoreResponse struct {
 	NodeGroups     []NodeGroupResponse    `json:"node_groups"`
 }
 
-// DatastoreListResponse is the API response for the opensearch datastore list.
-type DatastoreListResponse struct {
-	Datastores []DatastoreResponse `json:"datastores"`
-}
-
 // DatastoreCreateRequest represents body for the datastore Create request.
 type DatastoreCreateRequest struct {
-	Config         map[string]any           `json:"config,omitempty"`
 	LogPlatform    *DatastoreLogGroup       `json:"log_platform,omitempty"`
 	Name           string                   `json:"name"`
 	TypeID         string                   `json:"type_id"`
@@ -108,7 +101,9 @@ type DatastoreSecurityGroupsRequest struct {
 }
 
 func (r DatastoreSecurityGroupsRequest) validate() error {
-	// add check min length 1 ?
+	if len(r.SecurityGroups) == 0 {
+		return fmt.Errorf("security_groups: %w", common.ErrFieldEmptySlice)
+	}
 
 	for i, sgID := range r.SecurityGroups {
 		if err := uuid.Validate(sgID); err != nil {
@@ -130,33 +125,23 @@ func (r DatastoreLogPlatformRequest) validate() error {
 	return nil
 }
 
-// DatastoreConfigRequest represents options for the datastore's configuration parameters Update request.
-type DatastoreConfigRequest struct {
-	Config map[string]any `json:"config"`
-}
-
-func (r DatastoreConfigRequest) validate() error {
-	if r.Config == nil {
-		return fmt.Errorf("config: %w", common.ErrFieldRequired)
-	}
-	return nil
-}
-
 // DatastoreService is service to interact with opensearch datastore resource.
 type DatastoreService struct {
 	*common.EngineService
 }
 
 // GetDatastoreList returns datastore list from api.
-func (s *DatastoreService) GetDatastoreList(ctx context.Context) (DatastoreListResponse, error) {
-	response := DatastoreListResponse{}
+func (s *DatastoreService) GetDatastoreList(ctx context.Context) ([]DatastoreResponse, error) {
+	var response struct {
+		Datastores []DatastoreResponse `json:"datastores"`
+	}
 
 	err := s.Get(ctx, "", &response)
 	if err != nil {
-		return response, err //nolint:wrapcheck
+		return response.Datastores, err //nolint:wrapcheck
 	}
 
-	return response, nil
+	return response.Datastores, nil
 }
 
 // GetDatastore returns a datastore based on the ID.
@@ -293,28 +278,6 @@ func (s *DatastoreService) DisableLogPlatform(ctx context.Context, datastoreID s
 	}
 
 	return nil
-}
-
-// UpdateDatastoreConfig updates a config of the existing datastore.
-func (s *DatastoreService) UpdateDatastoreConfig(
-	ctx context.Context, datastoreID string, body DatastoreConfigRequest,
-) (DatastoreResponse, error) {
-	response := DatastoreResponse{}
-
-	if err := uuid.Validate(datastoreID); err != nil {
-		return response, fmt.Errorf("validate datastore id: %w", err)
-	}
-
-	if err := body.validate(); err != nil {
-		return response, fmt.Errorf("validate body: %w", err)
-	}
-
-	err := s.Put(ctx, s.DatastorePath(datastoreID, "config"), body, &response)
-	if err != nil {
-		return response, err //nolint:wrapcheck
-	}
-
-	return response, nil
 }
 
 // DeleteDatastore deletes a datastore by ID.

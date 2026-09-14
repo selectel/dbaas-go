@@ -69,7 +69,7 @@ const testDatastoresResponse = `{
 			"node_groups": [
 				{
 					"id": "08c2341d-7af7-4914-aee6-7b54156064eb",
-					"name": "shard1",
+					"name": "ng1",
 					"has_public_ips": false,
 					"role": "DATA",
 					"node_count": 1,
@@ -107,8 +107,7 @@ const testDatastoresResponse = `{
 			],
 			"log_platform": {
 				"log_group": null
-			},
-			"config": {}
+			}
 		},
 		{
 			"id": "ds-2", 
@@ -117,57 +116,55 @@ const testDatastoresResponse = `{
 	]
 }`
 
-var datastoreListExpected DatastoreListResponse = DatastoreListResponse{ //nolint:gochecknoglobals
-	Datastores: []DatastoreResponse{
-		{
-			ID:        "04c5bf32-bb4b-40b4-b0c7-3cb4eb1d99d1",
-			Name:      "Sinead",
-			CreatedAt: "2026-08-07T13:12:45.295388",
-			UpdatedAt: "2026-08-12T13:34:13.142778",
-			State:     common.DatastoreStateRunning,
-			Status:    common.DatastoreStatusActive,
-			ProjectID: "295b45d99b6f4afea59ad504ac73e5f6",
-			SubnetID:  "7160539b-3cf6-4a65-a75b-24071390d80f",
-			TypeID:    "00000000-0000-0000-0000-000000000002",
-			SecurityGroups: []string{
-				"9c922408-51de-4598-9894-e69ca00e51c8",
-			},
-			LogPlatform: DatastoreLogGroup{},
-			Config:      map[string]any{},
-			NodeGroups: []NodeGroupResponse{
-				{
-					ID:           "08c2341d-7af7-4914-aee6-7b54156064eb",
-					Name:         "shard1",
-					HasPublicIPs: false,
-					Role:         NodeGroupRoleData,
-					NodeCount:    1,
-					Status:       NodeGroupStatusActive,
-					Flavor: FlavorResponse{
-						ID:       "4882f722-5d20-406a-a119-ca5cedaa4426",
-						DiskType: common.FlavorDiskLocal,
-						Disk:     35,
-						FlSize:   "STANDARD",
-						RAM:      4096,
-						VCPUs:    2,
-					},
-					Instances: []InstanceResponse{
-						{
-							ID:               "f812b882-74ae-4b0b-9901-14f603d8221a",
-							IP:               "192.168.2.78",
-							FlavorID:         "4882f722-5d20-406a-a119-ca5cedaa4426",
-							FloatingIP:       "",
-							Status:           InstanceStatusActive,
-							AvailabilityZone: "ru-2a",
-							Hostname:         "f812b882-74ae-4b0b-9901-14f603d8221a.ru-2.c.dbaas.selcloud.org",
-						},
+var datastoreListExpected []DatastoreResponse = []DatastoreResponse{ //nolint:gochecknoglobals
+	{
+		ID:        "04c5bf32-bb4b-40b4-b0c7-3cb4eb1d99d1",
+		Name:      "Sinead",
+		CreatedAt: "2026-08-07T13:12:45.295388",
+		UpdatedAt: "2026-08-12T13:34:13.142778",
+		State:     common.DatastoreStateRunning,
+		Status:    common.DatastoreStatusActive,
+		ProjectID: "295b45d99b6f4afea59ad504ac73e5f6",
+		SubnetID:  "7160539b-3cf6-4a65-a75b-24071390d80f",
+		TypeID:    "00000000-0000-0000-0000-000000000002",
+		SecurityGroups: []string{
+			"9c922408-51de-4598-9894-e69ca00e51c8",
+		},
+		LogPlatform: DatastoreLogGroup{},
+		NodeGroups: []NodeGroupResponse{
+			{
+				ID:           "08c2341d-7af7-4914-aee6-7b54156064eb",
+				Name:         "ng1",
+				HasPublicIPs: false,
+				Role:         NodeGroupRoleData,
+				NodeCount:    1,
+				Status:       NodeGroupStatusActive,
+				Flavor: FlavorResponse{
+					ID:       "4882f722-5d20-406a-a119-ca5cedaa4426",
+					DiskType: common.FlavorDiskLocal,
+					Disk:     35,
+					FlSize:   "STANDARD",
+					RAM:      4096,
+					VCPUs:    2,
+					Type:     common.FlavorTypeFIXED,
+				},
+				Instances: []InstanceResponse{
+					{
+						ID:               "f812b882-74ae-4b0b-9901-14f603d8221a",
+						IP:               "192.168.2.78",
+						FlavorID:         "4882f722-5d20-406a-a119-ca5cedaa4426",
+						FloatingIP:       "",
+						Status:           InstanceStatusActive,
+						AvailabilityZone: "ru-2a",
+						Hostname:         "f812b882-74ae-4b0b-9901-14f603d8221a.ru-2.c.dbaas.selcloud.org",
 					},
 				},
 			},
 		},
-		{
-			ID:   "ds-2",
-			Name: "opensearch-2",
-		},
+	},
+	{
+		ID:   "ds-2",
+		Name: "opensearch-2",
 	},
 }
 
@@ -179,7 +176,7 @@ const testDatastoreResponse = `{
 	"node_groups": [
 		{
 			"id": "08c2341d-7af7-4914-aee6-7b54156064eb",
-			"name": "shard1",
+			"name": "ng1",
 			"has_public_ips": false,
 			"role": "DATA",
 			"node_count": 1,
@@ -204,10 +201,7 @@ const testDatastoreResponse = `{
 					"hostname": "f812b882-74ae-4b0b-9901-14f603d8221a.ru-2.c.dbaas.selcloud.org"
 				}
 			],
-			"status": "ACTIVE",
-			"shard_groups": [
-				"c377547d-68e9-42ab-942f-a4e3305dea0f"
-			]
+			"status": "ACTIVE"
 		}
 	],
 	"state": "RUNNING",
@@ -220,8 +214,7 @@ const testDatastoreResponse = `{
 	],
 	"log_platform": {
 		"log_group": null
-	},
-	"config": {}
+	}
 }`
 
 func TestDatastoreService_GetDatastoreList_Success(t *testing.T) {
@@ -269,10 +262,11 @@ func TestDatastoreService_GetDatastore_Success(t *testing.T) {
 
 	require.NoError(t, err)
 
-	require.Equal(t, datastoreListExpected.Datastores[0], resp)
+	require.Equal(t, datastoreListExpected[0], resp)
 }
 
 func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodPost, r.Method)
 		require.Equal(t, "/v2/datastores/opensearch", r.URL.Path)
@@ -286,7 +280,6 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 		require.Len(t, req.NodeGroups, 3)
 		require.Empty(t, req.SecurityGroups)
 		require.Empty(t, req.LogPlatform)
-		require.Empty(t, req.Config)
 
 		dataNG := req.NodeGroups[0]
 		require.Equal(t, NodeGroupRoleData, dataNG.Role)
@@ -301,13 +294,13 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 		require.Equal(t, NodeGroupRoleManager, managerNG.Role)
 		require.Equal(t, common.FlavorTypeFlexible, managerNG.Flavor.Type)
 		require.Equal(t, 25, managerNG.Flavor.Disk)
-		require.Empty(t, dataNG.HasPublicIPs)
+		require.Empty(t, managerNG.HasPublicIPs)
 
 		dashboardNG := req.NodeGroups[2]
 		require.Equal(t, NodeGroupRoleDashboard, dashboardNG.Role)
 		require.Equal(t, common.FlavorTypeFlexible, dashboardNG.Flavor.Type)
 		require.Equal(t, 25, dashboardNG.Flavor.Disk)
-		require.Empty(t, dataNG.HasPublicIPs)
+		require.Empty(t, dashboardNG.HasPublicIPs)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
@@ -327,11 +320,11 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 		SubnetID: "00000000-e29b-41d4-a716-446655000000",
 		NodeGroups: []NodeGroupCreateRequest{
 			{
-				Name:      "shard1",
+				Name:      "ng1",
 				Role:      "DATA",
 				NodeCount: 1,
 				Flavor: FlavorForNodeGroupRequest{
-					Type: "FIXED",
+					Type: common.FlavorTypeFIXED,
 					ID:   "550e8400-e29b-41d4-a716-446655440000",
 					// API requires DiskType field.
 				},
@@ -341,8 +334,8 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 				Role:      "MANAGER",
 				NodeCount: 1,
 				Flavor: FlavorForNodeGroupRequest{
-					Type:     "FLEXIBLE",
-					DiskType: "NETWORK-ULTRA",
+					Type:     common.FlavorTypeFlexible,
+					DiskType: common.FlavorDiskNetworkUltra,
 					RAM:      4096,
 					VCPUs:    2,
 					Disk:     25,
@@ -353,8 +346,8 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 				Role:      "DASHBOARD",
 				NodeCount: 1,
 				Flavor: FlavorForNodeGroupRequest{
-					Type:     "FLEXIBLE",
-					DiskType: "NETWORK-ULTRA",
+					Type:     common.FlavorTypeFlexible,
+					DiskType: common.FlavorDiskNetworkUltra,
 					RAM:      4096,
 					VCPUs:    2,
 					Disk:     25,
@@ -371,6 +364,7 @@ func TestDatastoreService_CreateDatastore_Success(t *testing.T) {
 }
 
 func TestDatastoreService_CreateDatastore_InvalidRequest(t *testing.T) {
+	t.Parallel()
 	srv := newDatastoreServiceWithMockClient()
 	req := DatastoreCreateRequest{
 		Name:     "Test_cluster",
@@ -379,7 +373,7 @@ func TestDatastoreService_CreateDatastore_InvalidRequest(t *testing.T) {
 		SubnetID: "00000000-e29b-41d4-a716-446655000000",
 		NodeGroups: []NodeGroupCreateRequest{
 			{
-				Name: "shard1",
+				Name: "ng1",
 				Role: "DATA",
 				Flavor: FlavorForNodeGroupRequest{
 					Type: "FIXED",
@@ -396,6 +390,7 @@ func TestDatastoreService_CreateDatastore_InvalidRequest(t *testing.T) {
 }
 
 func TestDatastoreService_UpdateDatastore_Success(t *testing.T) {
+	t.Parallel()
 	newName := "NewNameDS"
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -433,6 +428,7 @@ func TestDatastoreService_UpdateDatastore_Success(t *testing.T) {
 }
 
 func TestDatastoreService_UpdateDatastorePassword_Success(t *testing.T) {
+	t.Parallel()
 	url := datastoreEndpoint + "/password"
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -469,6 +465,7 @@ func TestDatastoreService_UpdateDatastorePassword_Success(t *testing.T) {
 }
 
 func TestDatastoreService_UpdateDatastoreSecurityGroups_Success(t *testing.T) {
+	t.Parallel()
 	url := datastoreEndpoint + "/security-groups"
 	sGroups := []string{
 		"550e8400-e29b-41d4-a716-446655440002",
@@ -508,6 +505,7 @@ func TestDatastoreService_UpdateDatastoreSecurityGroups_Success(t *testing.T) {
 }
 
 func TestDatastoreService_EnableLogPlatform_Success(t *testing.T) {
+	t.Parallel()
 	url := datastoreEndpoint + "/log-platform"
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -546,6 +544,7 @@ func TestDatastoreService_EnableLogPlatform_Success(t *testing.T) {
 }
 
 func TestDatastoreService_DisableLogPlatform_Success(t *testing.T) {
+	t.Parallel()
 	url := datastoreEndpoint + "/log-platform"
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -562,46 +561,8 @@ func TestDatastoreService_DisableLogPlatform_Success(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestDatastoreService_UpdateDatastoreConfig_Success(t *testing.T) {
-	url := datastoreEndpoint + "/config"
-	config := map[string]any{
-		"param_first":  1,
-		"param_second": "test",
-	}
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, http.MethodPut, r.Method)
-		require.Equal(t, url, r.URL.Path)
-
-		body, err := io.ReadAll(r.Body)
-		require.NoError(t, err)
-
-		var req DatastoreConfigRequest
-		require.NoError(t, json.Unmarshal(body, &req))
-		require.Equal(t, float64(1), req.Config["param_first"])
-		require.Equal(t, "test", req.Config["param_second"])
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-
-		// Mock response from API
-		_, err = w.Write([]byte(simpleDatastoreResponse))
-		require.NoError(t, err)
-	}))
-	defer server.Close()
-
-	srv := newDatastoreService(t, server.URL)
-
-	req := DatastoreConfigRequest{
-		Config: config,
-	}
-
-	result, err := srv.UpdateDatastoreConfig(context.Background(), dsID, req)
-
-	require.NoError(t, err)
-	require.Equal(t, dsID, result.ID)
-}
-
 func TestDatastoreService_DeleteDatastore_Success(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodDelete, r.Method)
 		require.Equal(t, datastoreEndpoint, r.URL.Path)
