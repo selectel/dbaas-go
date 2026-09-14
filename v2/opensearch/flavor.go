@@ -38,33 +38,37 @@ func (f FlavorForNodeGroupRequest) validate() error {
 		}
 
 	case common.FlavorTypeFlexible:
-		if f.ID != "" {
-			return errors.New("flavor.id must not be specified for FLEXIBLE flavor") //nolint:goerr113 // Dynamic error
-		}
-
-		if f.Disk <= 0 {
-			return fmt.Errorf("flavor.disk: %w", common.ErrPositiveIntegerRequired)
-		}
-
-		if f.RAM <= 0 {
-			return fmt.Errorf("flavor.ram: %w", common.ErrPositiveIntegerRequired)
-		}
-
-		if f.VCPUs <= 0 {
-			return fmt.Errorf("flavor.vcpus: %w", common.ErrPositiveIntegerRequired)
-		}
-		if f.DiskType != common.FlavorDiskLocal && f.DiskType != common.FlavorDiskNetworkUltra {
-			return fmt.Errorf("flavor.disk_type %w", common.ErrUnsupportedFlavorDiskType)
+		if err := f.validateFlexible(); err != nil {
+			return err
 		}
 
 	default:
 		return fmt.Errorf("%w: %q", common.ErrUnsupportedFlavorType, f.Type)
 	}
 
-	// API requires DiskType for both types. It seems that the fixed flavor should not have this field as required.
-	// if f.DiskType == "" {
-	// 	return fmt.Errorf("flavor.disk_type %w", common.ErrFieldRequired)
-	// }
+	return nil
+}
+
+func (f FlavorForNodeGroupRequest) validateFlexible() error {
+	if f.ID != "" {
+		return errors.New("flavor.id must not be specified for FLEXIBLE flavor") //nolint:goerr113 // Dynamic error
+	}
+
+	if f.Disk <= 0 {
+		return fmt.Errorf("flavor.disk: %w", common.ErrPositiveIntegerRequired)
+	}
+
+	if f.RAM <= 0 {
+		return fmt.Errorf("flavor.ram: %w", common.ErrPositiveIntegerRequired)
+	}
+
+	if f.VCPUs <= 0 {
+		return fmt.Errorf("flavor.vcpus: %w", common.ErrPositiveIntegerRequired)
+	}
+
+	if f.DiskType != common.FlavorDiskLocal && f.DiskType != common.FlavorDiskNetworkUltra {
+		return fmt.Errorf("flavor.disk_type %w", common.ErrUnsupportedFlavorDiskType)
+	}
 
 	return nil
 }
