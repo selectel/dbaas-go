@@ -80,7 +80,7 @@ func TestNodeGroupService_CreateNodeGroup_Success(t *testing.T) {
 	srv := newNodeGroupService(t, server.URL)
 
 	req := NodeGroupCreateRequest{
-		Name:      "shard1",
+		Name:      "ng1",
 		Role:      "DATA",
 		NodeCount: 1,
 		Flavor: FlavorForNodeGroupRequest{
@@ -100,7 +100,7 @@ func TestNodeGroupService_CreateNodeGroup_Success(t *testing.T) {
 func TestNodeGroupService_CreateNodeGroup_InvalidRequest(t *testing.T) {
 	srv := newNodeGroupServiceWithMockClient()
 	body := NodeGroupCreateRequest{
-		Name:      "shard1",
+		Name:      "ng1",
 		Role:      "DATA",
 		NodeCount: 1,
 		Flavor: FlavorForNodeGroupRequest{
