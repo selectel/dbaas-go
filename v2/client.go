@@ -7,12 +7,13 @@ import (
 
 	"github.com/selectel/dbaas-go/internal/transport"
 	"github.com/selectel/dbaas-go/v2/clickhouse"
+	"github.com/selectel/dbaas-go/v2/common"
 )
 
 // API is the main manager for DBAAS v2 resources.
 type API struct {
-	// Flavors
-	// DatastoreTypes
+	Flavor        *common.FlavorService
+	DatastoreType *common.DatastoreTypeService
 
 	ClickHouse *clickhouse.API
 	// Opensearch
@@ -27,7 +28,9 @@ type RetryConfig struct {
 
 func newAPIWithClient(client transport.Client) *API {
 	return &API{
-		ClickHouse: clickhouse.NewAPI(client),
+		Flavor:        common.NewFlavorService(client),
+		DatastoreType: common.NewDatastoreTypeService(client),
+		ClickHouse:    clickhouse.NewAPI(client),
 	}
 }
 
