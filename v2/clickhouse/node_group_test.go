@@ -77,7 +77,7 @@ func TestNodeGroupService_CreateNodeGroup_Success(t *testing.T) {
 	defer server.Close()
 
 	srv := newNodeGroupService(t, server.URL)
-
+	weight := 50
 	req := NodeGroupCreateRequest{
 		Name:      "shard1",
 		Role:      "DATA",
@@ -87,6 +87,7 @@ func TestNodeGroupService_CreateNodeGroup_Success(t *testing.T) {
 			ID:   "550e8400-e29b-41d4-a716-446655440000",
 			// API requires DiskType field.
 		},
+		Weight: &weight,
 	}
 
 	result, err := srv.CreateNodeGroup(context.Background(), dsID, req)
