@@ -10,20 +10,13 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
-)
 
-const (
-	// appName specifies an application name.
-	appName = "dbaas-go"
-
-	// appVersion specifies an application version.
-	appVersion = "0.1.0"
-
-	// userAgent contains a basic user agent that will be used in queries.
-	userAgent = appName + "/" + appVersion
+	"github.com/selectel/dbaas-go/internal/version"
+	v2 "github.com/selectel/dbaas-go/v2"
 )
 
 // Status represents custom type for various DBaaS objects statuses.
@@ -64,8 +57,22 @@ func NewDBAASClient(token, endpoint string) (*API, error) {
 		HTTPClient: http.DefaultClient,
 		Token:      token,
 		Endpoint:   endpoint,
-		UserAgent:  userAgent,
+		UserAgent:  version.UserAgent,
 	}, nil
+}
+
+// NewDBAASClient initializes a new DBaaS client for the V2 API.
+func NewDBAASClientV2(token, endpoint string) (*v2.API, error) {
+	if !strings.HasSuffix(endpoint, "/v2") {
+		return nil, ErrorEndpointVersionMismatch
+	}
+
+	client, err := v2.NewAPI(token, endpoint)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize v2 api client: %w", err)
+	}
+
+	return client, nil
 }
 
 // NewDBAASClientV1WithCustomHTTP initializes a new DBaaS client for the V1 API using custom HTTP client.
@@ -78,7 +85,7 @@ func NewDBAASClientV1WithCustomHTTP(customHTTPClient *http.Client, token, endpoi
 		HTTPClient: customHTTPClient,
 		Token:      token,
 		Endpoint:   endpoint,
-		UserAgent:  userAgent,
+		UserAgent:  version.UserAgent,
 	}, nil
 }
 
@@ -105,7 +112,7 @@ func NewDBAASClientV1WithOpenstackCredentials(token, identityEndpoint, region, s
 		HTTPClient: http.DefaultClient,
 		Token:      token,
 		Endpoint:   endpoint,
-		UserAgent:  userAgent,
+		UserAgent:  version.UserAgent,
 	}, nil
 }
 
