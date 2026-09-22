@@ -37,6 +37,8 @@ func (f FlavorForNodeGroupRequest) validate() error { //nolint:cyclop // complex
 			return fmt.Errorf("flavor.id must be a valid UUID for FIXED flavor: %w", err)
 		}
 
+		// API requires DiskType for both types. It seems that the fixed flavor should not have this field as required.
+
 	case common.FlavorTypeFlexible:
 		if f.ID != "" {
 			return errors.New("flavor.id must not be specified for FLEXIBLE flavor") //nolint:goerr113 // Dynamic error
@@ -61,8 +63,6 @@ func (f FlavorForNodeGroupRequest) validate() error { //nolint:cyclop // complex
 	default:
 		return fmt.Errorf("%w: %q", common.ErrUnsupportedFlavorType, f.Type)
 	}
-
-	// API requires DiskType for both types. It seems that the fixed flavor should not have this field as required.
 
 	return nil
 }
