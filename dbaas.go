@@ -61,13 +61,34 @@ func NewDBAASClient(token, endpoint string) (*API, error) {
 	}, nil
 }
 
+func validateV2Endpoint(endpoint string) error {
+	if !strings.HasSuffix(endpoint, "/v2") {
+		return ErrorEndpointVersionMismatch
+	}
+	return nil
+}
+
 // NewDBAASClient initializes a new DBaaS client for the V2 API.
 func NewDBAASClientV2(token, endpoint string) (*v2.API, error) {
-	if !strings.HasSuffix(endpoint, "/v2") {
-		return nil, ErrorEndpointVersionMismatch
+	if err := validateV2Endpoint(endpoint); err != nil {
+		return nil, err
 	}
 
 	client, err := v2.NewAPI(token, endpoint)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize v2 api client: %w", err)
+	}
+
+	return client, nil
+}
+
+// NewDBAASClientV2WithRetry initializes a new DBaaS client for the V2 API.
+func NewDBAASClientV2WithRetry(token, endpoint string, retryCfg v2.RetryConfig) (*v2.API, error) {
+	if err := validateV2Endpoint(endpoint); err != nil {
+		return nil, err
+	}
+
+	client, err := v2.NewAPIWithRetry(token, endpoint, retryCfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize v2 api client: %w", err)
 	}

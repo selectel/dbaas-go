@@ -75,6 +75,11 @@ func (n NodeGroupCreateRequest) validate() error {
 	if n.Weight != nil && n.Role == NodeGroupRoleKeeper {
 		return errors.New("node_group.role KEEPER could not have weight") //nolint:goerr113 // Dynamic error
 	}
+
+	if n.Role == NodeGroupRoleData && n.Weight == nil {
+		return errors.New( //nolint:goerr113 // Dynamic error
+			"node_group.weight: required for node_group.role DATA")
+	}
 	return nil
 }
 
@@ -146,7 +151,7 @@ type NodeGroupUpdateFloatingIPsRequest struct {
 	HasPublicIPs bool `json:"has_public_ips"`
 }
 
-// DatastoreService is service to interact with clickhouse datastore resource.
+// NodeGroupService is service to interact with clickhouse node group resource.
 type NodeGroupService struct {
 	*common.EngineService
 }
