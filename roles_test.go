@@ -9,8 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const rolesID = "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4"
-
 const testRolesResponse = `{
 	"roles": [
 		{
