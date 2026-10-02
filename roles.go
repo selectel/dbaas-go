@@ -9,9 +9,9 @@ import (
 
 // User is the API response for the users.
 type Roles struct {
-	ID              string   `json:"id"`
-	DatastoreTypeID string   `json:"datastore_type_id"`
-	Name            string   `json:"name"`
+	ID              string `json:"id"`
+	DatastoreTypeID string `json:"datastore_type_id"`
+	Name            string `json:"name"`
 }
 
 const RolesURI = "/roles"

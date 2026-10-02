@@ -34,14 +34,14 @@ func TestRoles(t *testing.T) {
 
 	expected := []Roles{
 		{
-			ID:                "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-			DatastoreTypeID:   "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-			Name:              "pg_read_all_data",
+			ID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+			DatastoreTypeID: "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+			Name:            "pg_read_all_data",
 		},
 		{
-			ID:                "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-			DatastoreTypeID:   "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-			Name:              "pg_write_all_data",
+			ID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+			DatastoreTypeID: "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+			Name:            "pg_write_all_data",
 		},
 	}
 
