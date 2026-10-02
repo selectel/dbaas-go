@@ -151,7 +151,7 @@ func (api *API) UpdateUser(ctx context.Context, userID string, opts UserUpdateOp
 // UpdateUserRoles updates roles for an existing user.
 func (api *API) UpdateUserRoles(ctx context.Context, userID string, opts UserRolesUpdateOpts) (User, error) {
 	if err := uuid.Validate(userID); err != nil {
-		return User{}, fmt.Errorf("validate datastore id: %w", err)
+		return User{}, fmt.Errorf("validate user id: %w", err)
 	}
 
 	uri := fmt.Sprintf("%s/%s/roles", UsersURI, userID)
