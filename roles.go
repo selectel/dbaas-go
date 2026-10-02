@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// User is the API response for the users.
+// Role is the API response for the roles.
 type Role struct {
 	ID              string `json:"id"`
 	DatastoreTypeID string `json:"datastore_type_id"`
