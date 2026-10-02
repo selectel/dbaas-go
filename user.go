@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 // UserCreateOpts represents options for the user Create request.
@@ -148,6 +150,10 @@ func (api *API) UpdateUser(ctx context.Context, userID string, opts UserUpdateOp
 
 // UpdateUserRoles updates roles for an existing user.
 func (api *API) UpdateUserRoles(ctx context.Context, userID string, opts UserRolesUpdateOpts) (User, error) {
+	if err := uuid.Validate(userID); err != nil {
+		return User{}, fmt.Errorf("validate user id: %w", err)
+	}
+
 	uri := fmt.Sprintf("%s/%s/roles", UsersURI, userID)
 
 	requestBody, err := json.Marshal(opts)

@@ -32,7 +32,7 @@ func TestRoles(t *testing.T) {
 	httpmock.RegisterResponder("GET", testClient.Endpoint+RolesURI,
 		httpmock.NewStringResponder(200, testRolesResponse))
 
-	expected := []Roles{
+	expected := []Role{
 		{
 			ID:              "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 			DatastoreTypeID: "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
