@@ -9,9 +9,10 @@ import (
 
 // UserCreateOpts represents options for the user Create request.
 type UserCreateOpts struct {
-	Name        string `json:"name"`
-	Password    string `json:"password"`
-	DatastoreID string `json:"datastore_id"`
+	Name        string   `json:"name,omitempty"`
+	Password    string   `json:"password,omitempty"`
+	DatastoreID string   `json:"datastore_id,omitempty"`
+	Roles       []string `json:"roles"`
 }
 
 // UserUpdateOpts represents options for the user Update request.
@@ -19,15 +20,21 @@ type UserUpdateOpts struct {
 	Password string `json:"password"`
 }
 
+// UserRolesUpdateOpts represents options for the user roles Update request.
+type UserRolesUpdateOpts struct {
+	Roles []string `json:"roles"`
+}
+
 // User is the API response for the users.
 type User struct {
-	ID          string `json:"id"`
-	CreatedAt   string `json:"created_at"`
-	UpdatedAt   string `json:"updated_at"`
-	ProjectID   string `json:"project_id"`
-	DatastoreID string `json:"datastore_id"`
-	Name        string `json:"name"`
-	Status      Status `json:"status"`
+	ID          string   `json:"id"`
+	CreatedAt   string   `json:"created_at"`
+	UpdatedAt   string   `json:"updated_at"`
+	ProjectID   string   `json:"project_id"`
+	DatastoreID string   `json:"datastore_id"`
+	Name        string   `json:"name"`
+	Status      Status   `json:"status"`
+	Roles       []string `json:"roles"`
 }
 
 const UsersURI = "/users"
@@ -119,6 +126,31 @@ func (api *API) UpdateUser(ctx context.Context, userID string, opts UserUpdateOp
 		User: opts,
 	}
 	requestBody, err := json.Marshal(updateUserOpts)
+	if err != nil {
+		return User{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
+	}
+
+	resp, err := api.makeRequest(ctx, http.MethodPut, uri, requestBody)
+	if err != nil {
+		return User{}, err
+	}
+
+	var result struct {
+		User User `json:"user"`
+	}
+	err = json.Unmarshal(resp, &result)
+	if err != nil {
+		return User{}, fmt.Errorf("Error during Unmarshal, %w", err)
+	}
+
+	return result.User, nil
+}
+
+// UpdateUserRoles updates roles for an existing user.
+func (api *API) UpdateUserRoles(ctx context.Context, userID string, opts UserRolesUpdateOpts) (User, error) {
+	uri := fmt.Sprintf("%s/%s/roles", UsersURI, userID)
+
+	requestBody, err := json.Marshal(opts)
 	if err != nil {
 		return User{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
 	}
