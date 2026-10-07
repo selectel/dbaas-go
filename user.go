@@ -14,7 +14,7 @@ type UserCreateOpts struct {
 	Name        string   `json:"name,omitempty"`
 	Password    string   `json:"password,omitempty"`
 	DatastoreID string   `json:"datastore_id,omitempty"`
-	Roles       []string `json:"roles"`
+	Roles       []string `json:"roles,omitempty"`
 }
 
 // UserUpdateOpts represents options for the user Update request.
