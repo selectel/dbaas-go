@@ -189,7 +189,10 @@ func (api *API) UpdateUserRoles(ctx context.Context, userID string, opts UserRol
 }
 
 // UpdateUserSettings updates PostgreSQL role settings of an existing user.
-// Only provided keys are changed; omitted keys are kept. Send nil as a value to unset a setting.
+// Only provided keys are changed; omitted keys are kept.
+// A nil value resets the setting to its default value defined in the
+// parameter catalog; the API returns an error if the parameter has no
+// default value.
 func (api *API) UpdateUserSettings(ctx context.Context, userID string, opts UserSettingsUpdateOpts) (User, error) {
 	uri := fmt.Sprintf("%s/%s/%s", UsersURI, userID, UserSettingsURISuffix)
 	opts.Settings = convertSettingsValues(opts.Settings)
