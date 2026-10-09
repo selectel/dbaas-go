@@ -340,12 +340,11 @@ func TestCreateUserWithSettings(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
+	var requestBody map[string]any
+
 	httpmock.RegisterResponder("POST", testClient.Endpoint+UsersURI,
 		func(req *http.Request) (*http.Response, error) {
-			var payload struct {
-				User UserCreateOpts `json:"user"`
-			}
-			if err := json.NewDecoder(req.Body).Decode(&payload); err != nil {
+			if err := json.NewDecoder(req.Body).Decode(&requestBody); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
 			}
 
@@ -378,9 +377,9 @@ func TestCreateUserWithSettings(t *testing.T) {
 		DatastoreID: "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
 		Password:    "secret",
 		Settings: map[string]any{
-			"conn_limit":        20,
-			"statement_timeout": 5000,
-			"login":             true,
+			"conn_limit":        "20",
+			"statement_timeout": "5000",
+			"login":             "true",
 		},
 	}
 
@@ -403,6 +402,18 @@ func TestCreateUserWithSettings(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, expected, actual)
+	assert.Equal(t, map[string]any{
+		"user": map[string]any{
+			"name":         "user",
+			"password":     "secret",
+			"datastore_id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+			"settings": map[string]any{
+				"conn_limit":        float64(20),
+				"statement_timeout": float64(5000),
+				"login":             true,
+			},
+		},
+	}, requestBody)
 }
 
 func TestUpdateUserSettings(t *testing.T) {
@@ -410,9 +421,11 @@ func TestUpdateUserSettings(t *testing.T) {
 	testClient := SetupTestClient()
 	defer httpmock.DeactivateAndReset()
 
+	var requestBody map[string]any
+
 	httpmock.RegisterResponder("PUT", testClient.Endpoint+UsersURI+"/"+userID+"/"+UserSettingsURISuffix,
 		func(req *http.Request) (*http.Response, error) {
-			if err := json.NewDecoder(req.Body).Decode(&UserSettingsUpdateOpts{}); err != nil {
+			if err := json.NewDecoder(req.Body).Decode(&requestBody); err != nil {
 				return httpmock.NewStringResponse(400, ""), err
 			}
 
@@ -440,8 +453,10 @@ func TestUpdateUserSettings(t *testing.T) {
 
 	updateOpts := UserSettingsUpdateOpts{
 		Settings: map[string]any{
-			"statement_timeout": 1000,
-			"conn_limit":        nil,
+			"statement_timeout":  "1000",
+			"synchronous_commit": "on",
+			"login":              "true",
+			"conn_limit":         nil,
 		},
 	}
 
@@ -462,4 +477,12 @@ func TestUpdateUserSettings(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, expected, actual)
+	assert.Equal(t, map[string]any{
+		"settings": map[string]any{
+			"statement_timeout":  float64(1000),
+			"synchronous_commit": "on",
+			"login":              true,
+			"conn_limit":         nil,
+		},
+	}, requestBody)
 }

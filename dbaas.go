@@ -287,11 +287,19 @@ func convertFieldFromStringToType(fieldValue string) any {
 	return fieldValue
 }
 
-// convertConfigValues convert config map values to the corresponding types.
-func convertConfigValues(configMap map[string]any) map[string]any {
-	config := make(map[string]any)
-	for paramName, paramValue := range configMap {
-		config[paramName] = convertFieldToType(paramValue)
+// convertMapValues converts map values to the corresponding types.
+// String representations of integers, floats, and booleans are converted
+// to int, float64, and bool accordingly; nil values are passed through
+// unchanged (nil means "unset a parameter" in update requests).
+func convertMapValues(values map[string]any) map[string]any {
+	if values == nil {
+		return nil
 	}
-	return config
+
+	converted := make(map[string]any)
+	for key, value := range values {
+		converted[key] = convertFieldToType(value)
+	}
+
+	return converted
 }

@@ -25,20 +25,20 @@ const testUserSettingParametersResponse = `{
 	"user-setting-parameters": [
 		{
 			"id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-			"datastore_group_name": "postgresql",
 			"name": "statement_timeout",
 			"type": "int",
 			"choices": null,
 			"min": 0,
 			"max": 2147483647,
+			"default_value": "0",
 			"unit": "ms",
 			"apply_mechanism": "guc",
 			"is_available_for_customer": true,
-			"is_changeable": true
+			"is_changeable": true,
+			"can_be_empty": true
 		},
 		{
 			"id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
-			"datastore_group_name": "postgresql",
 			"name": "default_transaction_isolation",
 			"type": "str",
 			"choices": [
@@ -49,10 +49,12 @@ const testUserSettingParametersResponse = `{
 			],
 			"min": null,
 			"max": null,
+			"default_value": "read committed",
 			"unit": "",
 			"apply_mechanism": "guc",
 			"is_available_for_customer": true,
-			"is_changeable": true
+			"is_changeable": true,
+			"can_be_empty": true
 		}
 	]
 }`
@@ -60,16 +62,17 @@ const testUserSettingParametersResponse = `{
 const testUserSettingParameterResponse = `{
 	"user-setting-parameter": {
 		"id": "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		"datastore_group_name": "postgresql",
 		"name": "login",
 		"type": "bool",
 		"choices": null,
 		"min": null,
 		"max": null,
+		"default_value": "true",
 		"unit": "",
 		"apply_mechanism": "role_attr",
 		"is_available_for_customer": true,
-		"is_changeable": true
+		"is_changeable": true,
+		"can_be_empty": true
 	}
 }`
 
@@ -85,29 +88,31 @@ func TestUserSettingParameters(t *testing.T) {
 	expected := []UserSettingParameter{
 		{
 			ID:                     "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-			DatastoreGroupName:     "postgresql",
 			Name:                   "statement_timeout",
 			Type:                   "int",
 			Unit:                   "ms",
 			ApplyMechanism:         "guc",
 			Min:                    0.0,
 			Max:                    2147483647.0,
+			DefaultValue:           "0",
 			Choices:                nil,
 			IsAvailableForCustomer: true,
 			IsChangeable:           true,
+			CanBeEmpty:             true,
 		},
 		{
 			ID:                     "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f5",
-			DatastoreGroupName:     "postgresql",
 			Name:                   "default_transaction_isolation",
 			Type:                   "str",
 			Unit:                   "",
 			ApplyMechanism:         "guc",
 			Min:                    nil,
 			Max:                    nil,
+			DefaultValue:           "read committed",
 			Choices:                choices,
 			IsAvailableForCustomer: true,
 			IsChangeable:           true,
+			CanBeEmpty:             true,
 		},
 	}
 
@@ -124,14 +129,14 @@ func TestUserSettingParametersWithQuery(t *testing.T) {
 
 	httpmock.RegisterResponder("GET", "=~/user-setting-parameters",
 		func(req *http.Request) (*http.Response, error) {
-			assert.Equal(t, "postgresql", req.URL.Query().Get("datastore_group_name"))
+			assert.Equal(t, "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4", req.URL.Query().Get("datastore_type_id"))
 			assert.Equal(t, "statement_timeout", req.URL.Query().Get("name"))
 			return httpmock.NewStringResponse(200, testUserSettingParametersResponse), nil
 		})
 
 	params := &UserSettingParameterQueryParams{
-		DatastoreGroupName: "postgresql",
-		Name:               "statement_timeout",
+		DatastoreTypeID: "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
+		Name:            "statement_timeout",
 	}
 	actual, err := testClient.UserSettingParameters(context.Background(), params)
 
@@ -149,16 +154,17 @@ func TestUserSettingParameter(t *testing.T) {
 
 	expected := UserSettingParameter{
 		ID:                     "20d7bcf4-f8d6-4bf6-b8f6-46cb440a87f4",
-		DatastoreGroupName:     "postgresql",
 		Name:                   "login",
 		Type:                   "bool",
 		Unit:                   "",
 		ApplyMechanism:         "role_attr",
 		Min:                    nil,
 		Max:                    nil,
+		DefaultValue:           "true",
 		Choices:                nil,
 		IsAvailableForCustomer: true,
 		IsChangeable:           true,
+		CanBeEmpty:             true,
 	}
 
 	actual, err := testClient.UserSettingParameter(context.Background(), userSettingParameterID)

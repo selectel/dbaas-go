@@ -91,14 +91,12 @@ func (api *API) Users(ctx context.Context) ([]User, error) {
 
 // CreateUser creates a new user.
 func (api *API) CreateUser(ctx context.Context, opts UserCreateOpts) (User, error) {
-	if opts.Settings != nil {
-		opts.Settings = convertConfigValues(opts.Settings)
-	}
 	createUserOpts := struct {
 		User UserCreateOpts `json:"user"`
 	}{
 		User: opts,
 	}
+	createUserOpts.User.Settings = convertMapValues(opts.Settings)
 	requestBody, err := json.Marshal(createUserOpts)
 	if err != nil {
 		return User{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
@@ -194,9 +192,7 @@ func (api *API) UpdateUserRoles(ctx context.Context, userID string, opts UserRol
 // Only provided keys are changed; omitted keys are kept. Send nil as a value to unset a setting.
 func (api *API) UpdateUserSettings(ctx context.Context, userID string, opts UserSettingsUpdateOpts) (User, error) {
 	uri := fmt.Sprintf("%s/%s/%s", UsersURI, userID, UserSettingsURISuffix)
-	if opts.Settings != nil {
-		opts.Settings = convertConfigValues(opts.Settings)
-	}
+	opts.Settings = convertMapValues(opts.Settings)
 	requestBody, err := json.Marshal(opts)
 	if err != nil {
 		return User{}, fmt.Errorf("Error marshalling params to JSON, %w", err)
