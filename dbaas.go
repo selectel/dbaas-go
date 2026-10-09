@@ -290,7 +290,8 @@ func convertFieldFromStringToType(fieldValue string) any {
 // convertMapValues converts map values to the corresponding types.
 // String representations of integers, floats, and booleans are converted
 // to int, float64, and bool accordingly; nil values are passed through
-// unchanged (nil means "unset a parameter" in update requests).
+// unchanged (in update requests nil resets a parameter to its default
+// value from the parameter catalog).
 func convertMapValues(values map[string]any) map[string]any {
 	if values == nil {
 		return nil
