@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 // UserSettingParameter is the API response for the user setting parameters.
@@ -65,6 +67,10 @@ func (api *API) UserSettingParameter(
 	ctx context.Context,
 	userSettingParameterID string,
 ) (UserSettingParameter, error) {
+	if err := uuid.Validate(userSettingParameterID); err != nil {
+		return UserSettingParameter{}, fmt.Errorf("validate user setting parameter id: %w", err)
+	}
+
 	uri := fmt.Sprintf("%s/%s", UserSettingParametersURI, userSettingParameterID)
 
 	resp, err := api.makeRequest(ctx, http.MethodGet, uri, nil)

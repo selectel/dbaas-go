@@ -28,6 +28,7 @@ The v1 client provides access to the existing DBaaS API v1 resources, including:
 * user setting parameters
 * logical replication slots
 * prometheus metrics tokens
+* roles
 * topics
 * users
 

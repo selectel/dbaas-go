@@ -35,7 +35,7 @@ type UserSettingsUpdateOpts struct {
 
 // User is the API response for the users.
 type User struct {
-	Settings    map[string]any `json:"settings,omitempty"`
+	Settings    map[string]any `json:"settings"`
 	ID          string         `json:"id"`
 	CreatedAt   string         `json:"created_at"`
 	UpdatedAt   string         `json:"updated_at"`
@@ -194,6 +194,10 @@ func (api *API) UpdateUserRoles(ctx context.Context, userID string, opts UserRol
 // parameter catalog; the API returns an error if the parameter has no
 // default value.
 func (api *API) UpdateUserSettings(ctx context.Context, userID string, opts UserSettingsUpdateOpts) (User, error) {
+	if err := uuid.Validate(userID); err != nil {
+		return User{}, fmt.Errorf("validate user id: %w", err)
+	}
+
 	uri := fmt.Sprintf("%s/%s/%s", UsersURI, userID, UserSettingsURISuffix)
 	opts.Settings = convertSettingsValues(opts.Settings)
 	requestBody, err := json.Marshal(opts)
